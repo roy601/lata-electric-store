@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Featured & Top Sells – Lata Electric Admin</title>
+  <link rel="icon" href="../../assets/images/logo.jpg" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+</head>
+<body data-page="featured" data-title="Featured & Top Sells" data-subtitle="Control which products appear on the homepage">
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+    <div class="admin-content">
+      <div class="page-header">
+        <div>
+          <div class="breadcrumb"><a href="../index.html">Dashboard</a> / Featured & Top Sells</div>
+          <h1>Featured & Top Sells</h1>
+        </div>
+        <a href="../../index.html" target="_blank" class="btn btn-outline-secondary btn-sm"><i class="bi bi-eye me-1"></i>Preview Homepage</a>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title"><i class="bi bi-star-fill text-warning me-2"></i>Featured Products <span class="badge bg-danger ms-1" id="featCount">0</span></span>
+              <small class="text-muted">Shown in the homepage product grid</small>
+            </div>
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead><tr><th></th><th>Product</th><th>Price</th><th class="text-center">Featured</th></tr></thead>
+                <tbody id="featuredTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title"><i class="bi bi-trophy-fill text-warning me-2"></i>Top Sells <span class="badge bg-danger ms-1" id="topCount">0</span></span>
+              <small class="text-muted">Shown in dashboard & reports</small>
+            </div>
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead><tr><th></th><th>Product</th><th>Price</th><th class="text-center">Top Sell</th></tr></thead>
+                <tbody id="topSellTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">All Products — Toggle Visibility</span></div>
+        <div class="panel-body pb-0">
+          <input type="search" id="searchProd" class="form-control admin-input mb-3" placeholder="Search products…" style="max-width:280px" />
+        </div>
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead><tr><th></th><th>Product</th><th>Category</th><th>Price</th><th class="text-center">Featured</th><th class="text-center">Top Sell</th></tr></thead>
+            <tbody id="allProductsTable"></tbody>
+          </table>
+        </div>
+        <div class="d-flex justify-content-end p-3" id="prodPagination"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/js/store.js"></script>
+<script src="../assets/js/admin.js"></script>
+<script>
+let currentPage = 1;
+const PER_PAGE  = 15;
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderAll();
+  document.getElementById('searchProd').addEventListener('input', () => { currentPage=1; renderAllProducts(); });
+});
+
+function renderAll() {
+  renderFeatured();
+  renderTopSells();
+  renderAllProducts();
+}
+
+function renderFeatured() {
+  const prods = Store.products.featured();
+  document.getElementById('featCount').textContent = prods.length;
+  document.getElementById('featuredTable').innerHTML = prods.length
+    ? prods.map(p=>`<tr><td>${productImg(p.image,p.name)}</td><td class="fw-semibold">${p.name}</td><td>${taka(p.price)}</td>
+        <td class="text-center"><input type="checkbox" class="form-check-input" checked onchange="toggle(${p.id},'featured',this.checked,renderAll)"></td></tr>`).join('')
+    : '<tr><td colspan="4" class="text-muted text-center py-3 small">No featured products</td></tr>';
+}
+
+function renderTopSells() {
+  const prods = Store.products.topSells();
+  document.getElementById('topCount').textContent = prods.length;
+  document.getElementById('topSellTable').innerHTML = prods.length
+    ? prods.map(p=>`<tr><td>${productImg(p.image,p.name)}</td><td class="fw-semibold">${p.name}</td><td>${taka(p.price)}</td>
+        <td class="text-center"><input type="checkbox" class="form-check-input" checked onchange="toggle(${p.id},'topSell',this.checked,renderAll)"></td></tr>`).join('')
+    : '<tr><td colspan="4" class="text-muted text-center py-3 small">No top sell products</td></tr>';
+}
+
+function renderAllProducts() {
+  let list = Store.products.all();
+  const q  = document.getElementById('searchProd').value.toLowerCase();
+  if (q)   list = list.filter(p => p.name.toLowerCase().includes(q));
+  const { items, pages } = paginate(list, currentPage, PER_PAGE);
+  document.getElementById('allProductsTable').innerHTML = items.map(p=>`<tr>
+    <td>${productImg(p.image,p.name)}</td>
+    <td class="fw-semibold">${p.name}</td>
+    <td>${catName(p.categoryId)}</td>
+    <td>${taka(p.price)}</td>
+    <td class="text-center"><input type="checkbox" class="form-check-input" ${p.featured?'checked':''} onchange="toggle(${p.id},'featured',this.checked,renderAll)"></td>
+    <td class="text-center"><input type="checkbox" class="form-check-input" ${p.topSell?'checked':''} onchange="toggle(${p.id},'topSell',this.checked,renderAll)"></td>
+  </tr>`).join('') || '<tr><td colspan="6" class="text-center text-muted py-3">No products</td></tr>';
+  renderPagination('prodPagination', currentPage, pages, p=>{ currentPage=p; renderAllProducts(); });
+}
+
+function toggle(id, field, val, cb) {
+  Store.products.update(id, { [field]: val });
+  toast(`${val?'Added to':'Removed from'} ${field==='featured'?'Featured':'Top Sells'}`, val?'success':'warning');
+  cb();
+}
+</script>
+</body>
+</html>

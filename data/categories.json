@@ -1,0 +1,182 @@
+[
+  {
+    "id": 1,
+    "name": "Electrical Wire & Cable",
+    "icon": "bi-plug-fill",
+    "color": "#e74c3c",
+    "products": [
+      "House Wiring Cable","1 RM Cable","1.5 RM Cable","2 RM Cable","2.5 RM Cable",
+      "4 RM Cable","6 RM Cable","7/20 Cable","Flexible Wire","Twin Cable",
+      "Speaker Wire","CCTV Cable","LAN Cable","Telephone Cable","Solar Cable",
+      "Welding Cable","Extension Wire","Cable Roll"
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Switch, Socket & Plug",
+    "icon": "bi-toggle-on",
+    "color": "#e67e22",
+    "products": [
+      "Modular Switch","Normal Switch","1 Way Switch","2 Way Switch","Bell Switch",
+      "Fan Switch","Fan Regulator","Dimmer Switch","DP Switch","Main Switch",
+      "13A Socket","15A Socket","Universal Socket","2 Pin Socket","3 Pin Socket",
+      "Plug Top","2 Pin Plug","3 Pin Plug","Industrial Plug","Extension Socket",
+      "Multiplug","USB Socket","Switch Board"
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Circuit Protection & Safety",
+    "icon": "bi-shield-fill-exclamation",
+    "color": "#c0392b",
+    "products": [
+      "MCB Circuit Breaker","RCCB","ELCB","MCCB","DP Breaker","Fuse",
+      "Fuse Holder","Changeover Switch","Isolator Switch","Voltage Protector",
+      "Surge Protector","Distribution Box","DB Board"
+    ]
+  },
+  {
+    "id": 4,
+    "name": "LED Lighting",
+    "icon": "bi-lightbulb-fill",
+    "color": "#f39c12",
+    "products": [
+      "LED Bulb","LED Tube Light","T5 Tube","T4 Tube","Panel Light",
+      "Down Light","Ceiling Light","Street Light","Flood Light","Spot Light",
+      "Emergency Light","Rechargeable Light","Sensor Light","Decorative Light",
+      "Music Light","Christmas Light","Strip Light","Neon Light"
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Fan & Cooling Products",
+    "icon": "bi-wind",
+    "color": "#2980b9",
+    "products": [
+      "Ceiling Fan","Stand Fan","Table Fan","Wall Fan","Rechargeable Fan",
+      "Mini Hand Fan","Exhaust Fan","Charger Fan","Fan Motor","Fan Capacitor",
+      "AC Capacitor","Fan Blade","Fan Regulator","Fan Remote"
+    ]
+  },
+  {
+    "id": 6,
+    "name": "Electronics Accessories",
+    "icon": "bi-cpu-fill",
+    "color": "#8e44ad",
+    "products": [
+      "Mobile Charger","Fast Charger","Type-C Cable","Micro USB Cable","Lightning Cable",
+      "Adapter","AC Adapter","DC Adapter","Power Supply","Battery Charger",
+      "Power Bank","Remote Control","TV Remote","LED TV Remote","Router",
+      "WiFi Accessories","VGA Cable","HDMI Cable","AUX Cable",
+      "Bluetooth Speaker","Small Sound Box","Earphone","Microphone"
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Electronic Components",
+    "icon": "bi-diagram-3-fill",
+    "color": "#16a085",
+    "products": [
+      "Resistor","Capacitor","Ceramic Capacitor","Electrolytic Capacitor","Transistor",
+      "Diode","IC","Relay","Transformer","Voltage Regulator",
+      "LED Component","PCB Board","Breadboard","Jumper Wire","Sensor Module",
+      "Arduino Parts","Battery Holder","Connector"
+    ]
+  },
+  {
+    "id": 8,
+    "name": "Home Appliance",
+    "icon": "bi-house-fill",
+    "color": "#27ae60",
+    "products": [
+      "Blender Machine","Mixer Grinder","Electric Kettle","Rice Cooker","Induction Cooker",
+      "Gas Stove","Water Filter","Water Filter Kit","Weight Scale","Calculator",
+      "Table Lamp","Mosquito Killer Lamp","Electric Iron","Room Heater","Hair Dryer"
+    ]
+  },
+  {
+    "id": 9,
+    "name": "Hardware Tools",
+    "icon": "bi-tools",
+    "color": "#7f8c8d",
+    "products": [
+      "Screw Driver","Screw Driver Set","Tester","Hammer","Plier","Cutter",
+      "Knife","Measuring Tape","Wrench","Spanner Set","Allen Key Set",
+      "Drill Machine","Drill Bit","Cutting Disk","Grinding Disk",
+      "Glanding Machine","Glue Gun","Soldering Iron"
+    ]
+  },
+  {
+    "id": 10,
+    "name": "Plumbing & Plastic Items",
+    "icon": "bi-water",
+    "color": "#2471a3",
+    "products": [
+      "PVC Pipe","PVC Elbow","PVC Tee","PVC Socket","Pipe Clamp",
+      "Tap","Water Tap","Shower","Pipe Connector","Plastic Bucket",
+      "Mug","Plastic Box","Storage Box","Plastic Container","Dustbin",
+      "Plastic Hanger","Plastic Basket"
+    ]
+  },
+  {
+    "id": 11,
+    "name": "CCTV & Security",
+    "icon": "bi-camera-video-fill",
+    "color": "#1a1a2e",
+    "products": [
+      "CCTV Camera","IP Camera","DVR","NVR","CCTV Adapter","CCTV Cable",
+      "BNC Connector","CCTV Power Supply","Memory Card","Door Lock",
+      "Drawer Lock","Pad Lock","Digital Lock"
+    ]
+  },
+  {
+    "id": 12,
+    "name": "Solar Products",
+    "icon": "bi-sun-fill",
+    "color": "#d4ac0d",
+    "products": [
+      "Solar Panel","Solar Light","Solar Charge Controller","Solar Battery",
+      "Solar Inverter","Solar Cable","Solar Accessories"
+    ]
+  },
+  {
+    "id": 13,
+    "name": "Battery & Power Backup",
+    "icon": "bi-battery-full",
+    "color": "#117a65",
+    "products": [
+      "Battery","Dry Cell Battery","Rechargeable Battery","UPS Battery",
+      "IPS Battery","Inverter","IPS Accessories","Charger Circuit"
+    ]
+  },
+  {
+    "id": 14,
+    "name": "Automobile & Small Electrical",
+    "icon": "bi-car-front-fill",
+    "color": "#784212",
+    "products": [
+      "Car Charger","Bike LED Light","Horn","Cable","Fuse",
+      "Relay","Adapter","Small Motor"
+    ]
+  },
+  {
+    "id": 15,
+    "name": "Seasonal Products",
+    "icon": "bi-stars",
+    "color": "#922b21",
+    "products": [
+      "Christmas Tree","Christmas Decoration","Decorative Lighting",
+      "Fairy Light","Umbrella","Festival Items"
+    ]
+  },
+  {
+    "id": 16,
+    "name": "Door & Furniture Hardware",
+    "icon": "bi-door-open-fill",
+    "color": "#6e2f1a",
+    "products": [
+      "Door Lock","Drawer Lock","Handle","Hinge","Screw",
+      "Nut Bolt","Nail","Wall Plug","L Bracket","Cabinet Accessories"
+    ]
+  }
+]

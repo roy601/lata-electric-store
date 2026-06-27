@@ -1,0 +1,38 @@
+/* ── CSS Variables (brand colours) ── */
+:root {
+  --primary:        #c0392b;
+  --primary-dark:   #962d22;
+  --primary-light:  #e74c3c;
+  --accent:         #f39c12;
+  --navy:           #1a1a2e;
+  --navy-mid:       #16213e;
+  --text:           #212529;
+  --text-muted:     #6c757d;
+  --bg:             #f8f9fa;
+  --white:          #ffffff;
+  --border:         #dee2e6;
+  --shadow-sm:      0 1px 4px rgba(0,0,0,0.06);
+  --shadow-md:      0 4px 16px rgba(0,0,0,0.10);
+  --radius:         10px;
+  --radius-sm:      6px;
+  --transition:     0.18s ease;
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Hind Siliguri', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; display: block; }
+a   { color: inherit; text-decoration: none; }
+button { font-family: inherit; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }

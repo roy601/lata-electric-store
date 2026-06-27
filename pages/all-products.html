@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>All Products – Lata Electric</title>
+  <link rel="icon" href="../assets/images/logo.jpg" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+
+<div class="top-bar d-none d-md-block">
+  <div class="container d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-telephone-fill me-1"></i>01700-000000 &nbsp;|&nbsp; <i class="bi bi-geo-alt-fill me-1"></i>Ka/6 Nadda, Gulshan, Dhaka-1212</span>
+    <span><i class="bi bi-truck me-1"></i>Free Delivery on Orders Above ৳1000</span>
+  </div>
+</div>
+
+<nav class="navbar navbar-expand-lg navbar-dark main-nav sticky-top shadow-sm">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="../index.html">
+      <img src="../assets/images/logo.jpg" alt="Lata Electric" class="brand-logo" />
+      <div><div class="brand-name-bn">লতা ইলেকট্রিক</div><div class="brand-name-en">Lata Electric</div></div>
+    </a>
+    <form class="d-flex mx-auto search-form" role="search" onsubmit="return false;">
+      <div class="input-group">
+        <input id="searchInput" class="form-control search-input" type="search" placeholder="Search products…" autocomplete="off" />
+        <button class="btn btn-warning search-btn" type="submit"><i class="bi bi-search"></i></button>
+      </div>
+    </form>
+    <div class="d-flex align-items-center gap-3 ms-3">
+      <a href="wishlist.html" class="nav-icon text-white text-center d-none d-lg-block"><i class="bi bi-heart fs-5"></i><div class="nav-icon-label">Wishlist</div></a>
+      <a href="cart.html" class="nav-icon text-white text-center position-relative">
+        <i class="bi bi-cart3 fs-5"></i>
+        <span class="badge rounded-pill bg-warning text-dark cart-badge" id="cartCount">0</span>
+        <div class="nav-icon-label d-none d-lg-block">Cart</div>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<main class="container py-4">
+  <nav aria-label="breadcrumb" class="page-breadcrumb mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+      <li class="breadcrumb-item active">All Products</li>
+    </ol>
+  </nav>
+
+  <div class="row g-4">
+    <!-- Filter Sidebar -->
+    <aside class="col-lg-3">
+      <div class="filter-panel mb-3">
+        <div class="filter-title">Search</div>
+        <input type="search" id="filterSearch" class="form-control form-control-sm" placeholder="Search…" oninput="applyFilters()" />
+      </div>
+
+      <div class="filter-panel mb-3">
+        <div class="filter-title">Category</div>
+        <div id="catFilters" class="d-flex flex-column gap-1" style="max-height:260px;overflow-y:auto"></div>
+      </div>
+
+      <div class="filter-panel mb-3">
+        <div class="filter-title">Price Range (৳)</div>
+        <div class="d-flex gap-2 align-items-center">
+          <input type="number" id="minPrice" class="form-control form-control-sm" placeholder="Min" min="0" oninput="applyFilters()" />
+          <span class="text-muted small">–</span>
+          <input type="number" id="maxPrice" class="form-control form-control-sm" placeholder="Max" min="0" oninput="applyFilters()" />
+        </div>
+      </div>
+
+      <div class="filter-panel mb-3">
+        <div class="filter-title">Status</div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fFeatured" onchange="applyFilters()" />
+          <label class="form-check-label small" for="fFeatured">Featured</label>
+        </div>
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="fFlash" onchange="applyFilters()" />
+          <label class="form-check-label small" for="fFlash">Flash Sale</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="fInStock" onchange="applyFilters()" />
+          <label class="form-check-label small" for="fInStock">In Stock Only</label>
+        </div>
+      </div>
+
+      <button class="btn btn-outline-secondary btn-sm w-100" onclick="resetFilters()"><i class="bi bi-x-circle me-1"></i>Clear Filters</button>
+    </aside>
+
+    <!-- Products -->
+    <div class="col-lg-9">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h1 class="fs-5 fw-bold mb-0" id="pageTitle">All Products</h1>
+        <div class="d-flex align-items-center gap-2">
+          <span class="text-muted small" id="resultCount"></span>
+          <select id="sortSelect" class="form-select form-select-sm" style="width:160px" onchange="applyFilters()">
+            <option value="default">Default</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="name-asc">Name A–Z</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row g-3" id="productGrid">
+        <div class="col-12 text-center py-5 text-muted">Loading products…</div>
+      </div>
+
+      <div class="d-flex justify-content-center mt-4" id="pagination"></div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer mt-5 pt-4 pb-3">
+  <div class="container">
+    <p class="text-center text-white-50 small mb-0">&copy; 2025 Lata Electric. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/store.js"></script>
+<script src="../assets/js/cart.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+const PER_PAGE  = 12;
+let currentPage = 1;
+let allProducts = [];
+
+Store.init().then(() => {
+  allProducts = Store.products.all();
+
+  const cats = Store.categories.all();
+  document.getElementById('catFilters').innerHTML = cats.map(c=>`
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" value="${c.id}" id="cat-${c.id}" onchange="applyFilters()" />
+      <label class="form-check-label small" for="cat-${c.id}">${c.name}</label>
+    </div>`).join('');
+
+  const params = new URLSearchParams(location.search);
+  const qSearch = params.get('q');
+  const qCat    = params.get('cat');
+  if (qSearch) document.getElementById('filterSearch').value = qSearch;
+  if (qCat)    { const cb = document.getElementById('cat-'+qCat); if(cb) cb.checked=true; }
+  applyFilters();
+});
+
+function applyFilters() { currentPage=1; renderGrid(); }
+
+function getFiltered() {
+  let list    = [...allProducts];
+  const q     = document.getElementById('filterSearch').value.toLowerCase();
+  const min   = +document.getElementById('minPrice').value||0;
+  const max   = +document.getElementById('maxPrice').value||Infinity;
+  const feat  = document.getElementById('fFeatured').checked;
+  const flash = document.getElementById('fFlash').checked;
+  const stock = document.getElementById('fInStock').checked;
+  const sort  = document.getElementById('sortSelect').value;
+  const catIds= [...document.querySelectorAll('#catFilters input:checked')].map(cb=>+cb.value);
+
+  if (q)        list=list.filter(p=>p.name.toLowerCase().includes(q)||(p.brand||'').toLowerCase().includes(q));
+  if (catIds.length) list=list.filter(p=>catIds.includes(p.categoryId));
+  const getPrice = p => p.flashSale&&p.flashPrice?p.flashPrice:p.price;
+  if (min)      list=list.filter(p=>getPrice(p)>=min);
+  if (max<Infinity) list=list.filter(p=>getPrice(p)<=max);
+  if (feat)     list=list.filter(p=>p.featured);
+  if (flash)    list=list.filter(p=>p.flashSale);
+  if (stock)    list=list.filter(p=>p.stock>0);
+  if (sort==='price-asc')  list.sort((a,b)=>getPrice(a)-getPrice(b));
+  if (sort==='price-desc') list.sort((a,b)=>getPrice(b)-getPrice(a));
+  if (sort==='name-asc')   list.sort((a,b)=>a.name.localeCompare(b.name));
+  return list;
+}
+
+function renderGrid() {
+  const list  = getFiltered();
+  const start = (currentPage-1)*PER_PAGE;
+  const page  = list.slice(start,start+PER_PAGE);
+  const pages = Math.ceil(list.length/PER_PAGE);
+  document.getElementById('resultCount').textContent = `${list.length} product${list.length!==1?'s':''}`;
+
+  document.getElementById('productGrid').innerHTML = page.length
+    ? page.map(p=>{
+        const price=p.flashSale&&p.flashPrice?p.flashPrice:p.price;
+        const orig=p.flashSale&&p.flashPrice?p.price:(p.originalPrice&&p.originalPrice>p.price?p.originalPrice:null);
+        const disc=orig?Math.round((1-price/orig)*100):0;
+        return `<div class="col-6 col-md-4">
+          <div class="product-card">
+            <div class="product-img-wrap">
+              <a href="product.html?id=${p.id}">
+                ${p.image?`<img src="${p.image}" alt="${p.name}" loading="lazy">`:
+                  `<div class="product-img-placeholder"><i class="bi bi-image"></i></div>`}
+              </a>
+              <div class="product-badges">
+                ${p.flashSale?'<span class="badge-flash">SALE</span>':''}
+                ${p.stock===0?'<span class="badge-out">OUT</span>':''}
+              </div>
+              <div class="product-actions">
+                <button class="action-btn${Store.wishlist.has(p.id)?' wishlisted':''}" onclick="toggleWL(${p.id},this)">
+                  <i class="bi bi-heart${Store.wishlist.has(p.id)?'-fill':''}"></i>
+                </button>
+              </div>
+            </div>
+            <div class="product-info">
+              <div class="product-brand">${p.brand||''}</div>
+              <div class="product-name"><a href="product.html?id=${p.id}">${p.name}</a></div>
+              <div class="product-price">
+                <span class="price-current">৳${price.toLocaleString('en-BD')}</span>
+                ${orig?`<span class="price-original">৳${orig.toLocaleString('en-BD')}</span>`:''}
+                ${disc?`<span class="badge-sale">-${disc}%</span>`:''}
+              </div>
+              <button class="btn-add-cart" ${p.stock===0?'disabled':''} onclick="addCart(${p.id},this)">
+                ${p.stock===0?'Out of Stock':'<i class="bi bi-cart-plus me-1"></i>Add to Cart'}
+              </button>
+            </div>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div class="col-12 text-center py-5 text-muted"><i class="bi bi-search" style="font-size:2rem;opacity:.3"></i><p class="mt-2">No products found. Try adjusting your filters.</p></div>';
+
+  const pEl=document.getElementById('pagination');
+  if (pages<=1){pEl.innerHTML='';return;}
+  let html='<ul class="pagination pagination-sm">';
+  html+=`<li class="page-item${currentPage===1?' disabled':''}"><a class="page-link" href="#" onclick="goto(${currentPage-1});return false">‹</a></li>`;
+  for(let i=1;i<=pages;i++) html+=`<li class="page-item${i===currentPage?' active':''}"><a class="page-link" href="#" onclick="goto(${i});return false">${i}</a></li>`;
+  html+=`<li class="page-item${currentPage===pages?' disabled':''}"><a class="page-link" href="#" onclick="goto(${currentPage+1});return false">›</a></li>`;
+  pEl.innerHTML=html+'</ul>';
+}
+
+function goto(p){currentPage=p;renderGrid();window.scrollTo(0,0);}
+function addCart(id,btn){const p=Store.products.byId(id);if(!p)return;Cart.add(p);btn.innerHTML='<i class="bi bi-check-circle me-1"></i>Added!';btn.disabled=true;setTimeout(()=>{btn.innerHTML='<i class="bi bi-cart-plus me-1"></i>Add to Cart';btn.disabled=p.stock===0;},1200);}
+function toggleWL(id,btn){Store.wishlist.toggle(id);const has=Store.wishlist.has(id);btn.querySelector('i').className=has?'bi bi-heart-fill':'bi bi-heart';btn.classList.toggle('wishlisted',has);}
+function resetFilters(){document.getElementById('filterSearch').value='';document.getElementById('minPrice').value='';document.getElementById('maxPrice').value='';document.getElementById('fFeatured').checked=false;document.getElementById('fFlash').checked=false;document.getElementById('fInStock').checked=false;document.getElementById('sortSelect').value='default';document.querySelectorAll('#catFilters input').forEach(cb=>cb.checked=false);applyFilters();}
+</script>
+</body>
+</html>

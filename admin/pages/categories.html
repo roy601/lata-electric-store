@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Categories – Lata Electric Admin</title>
+  <link rel="icon" href="../../assets/images/logo.jpg" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+</head>
+<body data-page="categories" data-title="Categories" data-subtitle="Manage product categories">
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+    <div class="admin-content">
+      <div class="page-header">
+        <div>
+          <div class="breadcrumb"><a href="../index.html">Dashboard</a> / Categories</div>
+          <h1>Categories</h1>
+        </div>
+        <button class="btn btn-danger btn-primary-admin" onclick="openModal()"><i class="bi bi-plus-circle me-1"></i>Add Category</button>
+      </div>
+
+      <div class="panel">
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead><tr><th>Icon</th><th>Name</th><th>Color</th><th>Products</th><th style="width:100px">Actions</th></tr></thead>
+            <tbody id="catTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="catModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle">Add Category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editId" />
+        <div class="mb-3">
+          <label class="form-label-sm">Category Name *</label>
+          <input type="text" id="fName" class="form-control admin-input" required />
+        </div>
+        <div class="mb-3">
+          <label class="form-label-sm">Bootstrap Icon Class</label>
+          <input type="text" id="fIcon" class="form-control admin-input" placeholder="bi-lightbulb-fill" />
+          <div class="form-text">Find icons at <a href="https://icons.getbootstrap.com" target="_blank">icons.getbootstrap.com</a></div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label-sm">Color</label>
+          <div class="d-flex align-items-center gap-2">
+            <input type="color" id="fColor" class="form-control form-control-color" value="#c0392b" />
+            <input type="text" id="fColorText" class="form-control admin-input" placeholder="#c0392b" style="max-width:120px" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger btn-primary-admin" onclick="saveCategory()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../../assets/js/store.js"></script>
+<script src="../assets/js/admin.js"></script>
+<script>
+let modal;
+document.addEventListener('DOMContentLoaded', () => {
+  modal = new bootstrap.Modal(document.getElementById('catModal'));
+  document.getElementById('fColor').addEventListener('input', e => { document.getElementById('fColorText').value = e.target.value; });
+  document.getElementById('fColorText').addEventListener('input', e => { document.getElementById('fColor').value = e.target.value; });
+  renderTable();
+});
+
+function renderTable() {
+  const cats  = Store.categories.all();
+  const prods = Store.products.all();
+  const tbody = document.getElementById('catTable');
+  tbody.innerHTML = cats.map(c => {
+    const count = prods.filter(p => p.categoryId === c.id).length;
+    return `<tr>
+      <td><div style="width:36px;height:36px;background:${c.color||'#ccc'};border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem">
+        <i class="bi ${c.icon||'bi-grid'}"></i></div></td>
+      <td class="fw-semibold">${c.name}</td>
+      <td><div class="d-flex align-items-center gap-2"><div style="width:18px;height:18px;background:${c.color||'#ccc'};border-radius:4px"></div><span class="text-muted small">${c.color||''}</span></div></td>
+      <td>${count} product${count!==1?'s':''}</td>
+      <td>
+        <button class="btn-icon btn-edit me-1" onclick="openModal(${c.id})" title="Edit"><i class="bi bi-pencil"></i></button>
+        <button class="btn-icon btn-delete" onclick="deleteCategory(${c.id})" title="Delete"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="5"><div class="empty-state"><i class="bi bi-grid"></i><p>No categories</p></div></td></tr>';
+}
+
+function openModal(id) {
+  document.getElementById('fName').value = '';
+  document.getElementById('fIcon').value = '';
+  document.getElementById('fColor').value = '#c0392b';
+  document.getElementById('fColorText').value = '#c0392b';
+  document.getElementById('editId').value = '';
+  if (id) {
+    const c = Store.categories.byId(id);
+    if (!c) return;
+    document.getElementById('modalTitle').textContent = 'Edit Category';
+    document.getElementById('editId').value = id;
+    document.getElementById('fName').value  = c.name;
+    document.getElementById('fIcon').value  = c.icon || '';
+    document.getElementById('fColor').value = c.color || '#c0392b';
+    document.getElementById('fColorText').value = c.color || '#c0392b';
+  } else { document.getElementById('modalTitle').textContent = 'Add Category'; }
+  modal.show();
+}
+
+function saveCategory() {
+  const name = document.getElementById('fName').value.trim();
+  if (!name) { toast('Category name is required','error'); return; }
+  const data = { name, icon: document.getElementById('fIcon').value.trim() || 'bi-grid', color: document.getElementById('fColorText').value.trim() || document.getElementById('fColor').value };
+  const id = document.getElementById('editId').value;
+  if (id) { Store.categories.update(+id, data); toast('Category updated'); }
+  else    { Store.categories.add(data);          toast('Category added'); }
+  modal.hide();
+  renderTable();
+}
+
+function deleteCategory(id) {
+  const count = Store.products.all().filter(p=>p.categoryId===id).length;
+  if (count > 0) { toast(`Cannot delete — ${count} products use this category`,'error'); return; }
+  confirmDelete('Delete this category?', () => { Store.categories.delete(id); toast('Deleted','warning'); renderTable(); });
+}
+</script>
+</body>
+</html>

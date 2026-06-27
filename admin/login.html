@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login – Lata Electric</title>
+  <link rel="icon" href="../assets/images/logo.jpg" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <style>
+    body { background: #f0f2f5; font-family: 'Segoe UI', system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .login-card { background: #fff; border-radius: 16px; padding: 2.5rem 2rem; width: 100%; max-width: 380px; box-shadow: 0 8px 40px rgba(0,0,0,0.10); }
+    .login-logo { width: 72px; height: 72px; border-radius: 50%; object-fit: contain; background: #fff; border: 3px solid #c0392b; padding: 4px; }
+    .btn-login { background: #c0392b; border-color: #c0392b; font-weight: 600; }
+    .btn-login:hover { background: #922b21; border-color: #922b21; }
+    .form-control:focus { border-color: #c0392b; box-shadow: 0 0 0 3px rgba(192,57,43,0.12); }
+    .brand-bn { font-size: 1rem; font-weight: 700; color: #1a1a2e; }
+    .brand-en { font-size: 0.8rem; color: #c0392b; font-weight: 600; }
+    .err-msg   { display:none; }
+  </style>
+</head>
+<body>
+<div class="login-card text-center">
+  <img src="../assets/images/logo.jpg" class="login-logo mb-3" alt="Lata Electric" onerror="this.style.display='none'">
+  <div class="brand-bn mb-1">লতা ইলেকট্রিক</div>
+  <div class="brand-en mb-4">Admin Panel</div>
+
+  <form id="loginForm" novalidate>
+    <div class="mb-3 text-start">
+      <label class="form-label fw-semibold small">Admin Password</label>
+      <div class="input-group">
+        <input type="password" id="pwInput" class="form-control" placeholder="Enter password" autocomplete="current-password" required />
+        <button type="button" class="btn btn-outline-secondary" id="togglePw"><i class="bi bi-eye"></i></button>
+      </div>
+      <div class="text-danger small mt-2 err-msg" id="errMsg"><i class="bi bi-x-circle me-1"></i>Incorrect password. Try again.</div>
+    </div>
+    <button type="submit" class="btn btn-login btn-danger w-100">Login to Admin Panel</button>
+  </form>
+
+  <div class="mt-4 pt-3 border-top">
+    <a href="../index.html" class="text-muted small"><i class="bi bi-arrow-left me-1"></i>Back to Website</a>
+  </div>
+</div>
+
+<script src="../../../assets/js/store.js" onerror=""></script>
+<script src="../../assets/js/store.js" onerror=""></script>
+<script src="../assets/js/store.js"></script>
+<script>
+/* Load correct store.js — try parent paths until one works */
+(function loadStore() {
+  const paths = ['../assets/js/store.js'];
+  /* store.js loaded inline above with fallbacks */
+})();
+
+document.getElementById('togglePw').addEventListener('click', function() {
+  const inp = document.getElementById('pwInput');
+  const isPass = inp.type === 'password';
+  inp.type = isPass ? 'text' : 'password';
+  this.innerHTML = isPass ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+});
+
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  await Store.init();
+  const pw  = document.getElementById('pwInput').value;
+  const err = document.getElementById('errMsg');
+  if (Store.auth.login(pw)) {
+    location.href = 'index.html';
+  } else {
+    err.style.display = 'block';
+    document.getElementById('pwInput').classList.add('is-invalid');
+    setTimeout(() => { err.style.display='none'; document.getElementById('pwInput').classList.remove('is-invalid'); }, 3000);
+  }
+});
+
+/* Auto-redirect if already logged in */
+document.addEventListener('DOMContentLoaded', async () => {
+  await Store.init();
+  if (Store.auth.isLoggedIn()) location.href = 'index.html';
+});
+</script>
+</body>
+</html>

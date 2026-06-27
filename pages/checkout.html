@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Checkout – Lata Electric</title>
+  <link rel="icon" href="../assets/images/logo.jpg" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+
+<div class="top-bar d-none d-md-block">
+  <div class="container d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-telephone-fill me-1"></i>01700-000000 &nbsp;|&nbsp; <i class="bi bi-geo-alt-fill me-1"></i>Ka/6 Nadda, Gulshan, Dhaka-1212</span>
+    <span><i class="bi bi-shield-check me-1"></i>Secure Checkout</span>
+  </div>
+</div>
+
+<nav class="navbar navbar-expand-lg navbar-dark main-nav sticky-top shadow-sm">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="../index.html">
+      <img src="../assets/images/logo.jpg" alt="Lata Electric" class="brand-logo" />
+      <div><div class="brand-name-bn">লতা ইলেকট্রিক</div><div class="brand-name-en">Lata Electric</div></div>
+    </a>
+    <div class="d-flex align-items-center gap-3 ms-auto">
+      <a href="cart.html" class="nav-icon text-white text-center position-relative">
+        <i class="bi bi-cart3 fs-5"></i>
+        <span class="badge rounded-pill bg-warning text-dark cart-badge" id="cartCount">0</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<main class="container py-4">
+  <nav aria-label="breadcrumb" class="page-breadcrumb mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+      <li class="breadcrumb-item"><a href="cart.html">Cart</a></li>
+      <li class="breadcrumb-item active">Checkout</li>
+    </ol>
+  </nav>
+
+  <div id="checkoutEmpty" class="d-none text-center py-5 text-muted">
+    <i class="bi bi-cart-x" style="font-size:3rem;opacity:.3"></i>
+    <p class="mt-2">Your cart is empty.</p>
+    <a href="../index.html" class="btn btn-danger">Go Shopping</a>
+  </div>
+
+  <div id="checkoutForm" class="row g-4">
+    <div class="col-lg-7">
+      <div class="panel" style="background:#fff;border-radius:12px;padding:1.5rem;box-shadow:0 1px 5px rgba(0,0,0,0.06)">
+        <h5 class="fw-bold mb-4"><i class="bi bi-person me-2 text-danger"></i>Delivery Information</h5>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">Full Name *</label>
+            <input type="text" id="cName" class="form-control" placeholder="Your full name" required />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">Phone Number *</label>
+            <input type="tel" id="cPhone" class="form-control" placeholder="01XXXXXXXXX" required />
+          </div>
+          <div class="col-12">
+            <label class="form-label small fw-semibold">Delivery Address *</label>
+            <textarea id="cAddress" class="form-control" rows="2" placeholder="House, road, area…" required></textarea>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">City *</label>
+            <select id="cCity" class="form-select" onchange="updateShipping()">
+              <option value="dhaka">Dhaka (Inside)</option>
+              <option value="outside">Outside Dhaka</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-semibold">District</label>
+            <input type="text" id="cDistrict" class="form-control" placeholder="e.g. Dhaka" />
+          </div>
+          <div class="col-12">
+            <label class="form-label small fw-semibold">Order Notes (optional)</label>
+            <textarea id="cNotes" class="form-control" rows="2" placeholder="Any special instructions…"></textarea>
+          </div>
+        </div>
+
+        <h5 class="fw-bold mt-4 mb-3"><i class="bi bi-credit-card me-2 text-danger"></i>Payment Method</h5>
+        <div id="paymentMethods" class="d-flex flex-wrap gap-3 mb-3"></div>
+        <div id="paymentInstructions" class="d-none alert alert-info small"></div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="cart-summary">
+        <h5 class="fw-bold mb-3">Order Summary</h5>
+        <div id="checkoutItems"></div>
+        <hr/>
+        <div class="d-flex justify-content-between mb-1 small"><span>Subtotal</span><span id="coSubtotal">৳0</span></div>
+        <div class="d-flex justify-content-between mb-2 small"><span>Delivery</span><span id="coDelivery">৳60</span></div>
+        <hr/>
+        <div class="d-flex justify-content-between fw-bold mb-4"><span>Total</span><span class="text-danger fs-5" id="coTotal">৳0</span></div>
+        <button class="btn btn-danger w-100 fw-bold py-2" onclick="placeOrder()">
+          <i class="bi bi-bag-check me-1"></i>Place Order
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success -->
+  <div id="orderSuccess" class="d-none text-center py-5">
+    <div style="font-size:4rem;color:var(--primary)"><i class="bi bi-bag-check-fill"></i></div>
+    <h3 class="fw-bold mt-3">Order Placed!</h3>
+    <p class="text-muted">Thank you for your order. Your order ID is <strong id="successOrderId"></strong>.</p>
+    <p class="small text-muted">We will contact you at your phone number to confirm delivery.</p>
+    <a href="../index.html" class="btn btn-danger me-2">Continue Shopping</a>
+    <a href="order-tracking.html" class="btn btn-outline-secondary">Track Order</a>
+  </div>
+</main>
+
+<footer class="site-footer mt-5 pt-4 pb-3">
+  <div class="container">
+    <p class="text-center text-white-50 small mb-0">&copy; 2025 Lata Electric. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/store.js"></script>
+<script src="../assets/js/cart.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+let selectedPayment = null;
+
+Store.init().then(() => {
+  const items = Cart.getAll();
+  if (!items.length) {
+    document.getElementById('checkoutEmpty').classList.remove('d-none');
+    document.getElementById('checkoutForm').classList.add('d-none');
+    return;
+  }
+
+  // Payment methods
+  const s       = Store.settings.get();
+  const methods = s.paymentMethods?.length ? s.paymentMethods : ['Cash on Delivery'];
+  const pmEl    = document.getElementById('paymentMethods');
+  methods.forEach((m,i) => {
+    const id  = `pm-${i}`;
+    const icon = m==='bKash'?'bi-phone':m==='Nagad'?'bi-phone':m==='Cash on Delivery'?'bi-cash-coin':'bi-credit-card';
+    const div = document.createElement('div');
+    div.className = 'form-check border rounded p-3 pe-4';
+    div.style.cssText = 'cursor:pointer;min-width:140px';
+    div.innerHTML = `<input class="form-check-input" type="radio" name="payment" id="${id}" value="${m}" onchange="selectPayment('${m}')" ${i===0?'checked':''}>
+      <label class="form-check-label fw-semibold small" for="${id}"><i class="bi ${icon} me-1 text-danger"></i>${m}</label>`;
+    pmEl.appendChild(div);
+  });
+  if (methods[0]) selectPayment(methods[0]);
+
+  updateSummary();
+});
+
+function selectPayment(m) {
+  selectedPayment = m;
+  const s   = Store.settings.get();
+  const instEl = document.getElementById('paymentInstructions');
+  const instructions = m==='bKash'?s.bkashInstructions:m==='Nagad'?s.nagadInstructions:null;
+  if (instructions) {
+    instEl.textContent = instructions;
+    instEl.classList.remove('d-none');
+  } else { instEl.classList.add('d-none'); }
+}
+
+function updateShipping() { updateSummary(); }
+
+function updateSummary() {
+  const items = Cart.getAll();
+  const s     = Store.settings.get();
+  const city  = document.getElementById('cCity')?.value || 'dhaka';
+  const sub   = items.reduce((a,i)=>a+(i.price*i.qty),0);
+  const free  = s.freeDeliveryThreshold || 1000;
+  const rate  = city==='dhaka' ? (s.shipping?.inside||60) : (s.shipping?.outside||120);
+  const del   = sub>=free ? 0 : rate;
+  const total = sub + del;
+
+  document.getElementById('coSubtotal').textContent = '৳'+sub.toLocaleString('en-BD');
+  document.getElementById('coDelivery').innerHTML   = del===0?'<span class="text-success">FREE</span>':'৳'+del.toLocaleString('en-BD');
+  document.getElementById('coTotal').textContent    = '৳'+total.toLocaleString('en-BD');
+  document.getElementById('checkoutItems').innerHTML = items.map(i=>`
+    <div class="d-flex justify-content-between mb-2 small">
+      <span class="text-truncate" style="max-width:200px">${i.name} × ${i.qty}</span>
+      <span class="fw-semibold text-nowrap">৳${(i.price*i.qty).toLocaleString('en-BD')}</span>
+    </div>`).join('');
+}
+
+function placeOrder() {
+  const name    = document.getElementById('cName').value.trim();
+  const phone   = document.getElementById('cPhone').value.trim();
+  const address = document.getElementById('cAddress').value.trim();
+  if (!name)    { alert('Enter your name'); return; }
+  if (!phone)   { alert('Enter your phone number'); return; }
+  if (!address) { alert('Enter delivery address'); return; }
+  if (!selectedPayment) { alert('Select payment method'); return; }
+
+  const items = Cart.getAll();
+  const s     = Store.settings.get();
+  const city  = document.getElementById('cCity').value;
+  const sub   = items.reduce((a,i)=>a+(i.price*i.qty),0);
+  const free  = s.freeDeliveryThreshold || 1000;
+  const rate  = city==='dhaka'?(s.shipping?.inside||60):(s.shipping?.outside||120);
+  const del   = sub>=free?0:rate;
+
+  const orderId = Store.orders.place({
+    customer: { name, phone, address: address + (document.getElementById('cDistrict').value?' - '+document.getElementById('cDistrict').value:''), city },
+    items:    items.map(i=>({ id:i.id, name:i.name, price:i.price, qty:i.qty })),
+    subtotal: sub,
+    delivery: del,
+    total:    sub+del,
+    paymentMethod: selectedPayment,
+    notes:    document.getElementById('cNotes').value.trim(),
+  });
+
+  Cart.clear();
+  document.getElementById('checkoutForm').classList.add('d-none');
+  document.getElementById('orderSuccess').classList.remove('d-none');
+  document.getElementById('successOrderId').textContent = '#' + orderId;
+  localStorage.setItem('lata_last_order', orderId);
+}
+</script>
+</body>
+</html>

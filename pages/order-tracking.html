@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Order Tracking – Lata Electric</title>
+  <link rel="icon" href="../assets/images/logo.jpg" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+
+<div class="top-bar d-none d-md-block">
+  <div class="container d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-telephone-fill me-1"></i>01700-000000 &nbsp;|&nbsp; <i class="bi bi-geo-alt-fill me-1"></i>Ka/6 Nadda, Gulshan, Dhaka-1212</span>
+    <span><i class="bi bi-truck me-1"></i>Free Delivery on Orders Above ৳1000</span>
+  </div>
+</div>
+
+<nav class="navbar navbar-expand-lg navbar-dark main-nav sticky-top shadow-sm">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="../index.html">
+      <img src="../assets/images/logo.jpg" alt="Lata Electric" class="brand-logo" />
+      <div><div class="brand-name-bn">লতা ইলেকট্রিক</div><div class="brand-name-en">Lata Electric</div></div>
+    </a>
+    <div class="d-flex align-items-center gap-3 ms-auto">
+      <a href="cart.html" class="nav-icon text-white text-center position-relative">
+        <i class="bi bi-cart3 fs-5"></i>
+        <span class="badge rounded-pill bg-warning text-dark cart-badge" id="cartCount">0</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<main class="container py-4" style="max-width:700px">
+  <nav aria-label="breadcrumb" class="page-breadcrumb mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+      <li class="breadcrumb-item"><a href="account.html">My Account</a></li>
+      <li class="breadcrumb-item active">Order Tracking</li>
+    </ol>
+  </nav>
+
+  <h1 class="fs-4 fw-bold mb-4"><i class="bi bi-truck me-2 text-danger"></i>Track Your Order</h1>
+
+  <div class="filter-panel mb-4">
+    <div class="row g-2 align-items-end">
+      <div class="col">
+        <label class="form-label small fw-semibold">Order ID</label>
+        <input type="text" id="trackId" class="form-control" placeholder="Enter your order ID" />
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-danger px-4" onclick="trackOrder()"><i class="bi bi-search me-1"></i>Track</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="trackResult"></div>
+</main>
+
+<footer class="site-footer mt-5 pt-4 pb-3">
+  <div class="container">
+    <p class="text-center text-white-50 small mb-0">&copy; 2025 Lata Electric. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/store.js"></script>
+<script src="../assets/js/cart.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+const STEPS = [
+  { key:'pending',   label:'Order Placed',   icon:'bi-bag-check',       desc:'We received your order and are reviewing it.' },
+  { key:'confirmed', label:'Order Confirmed', icon:'bi-check-circle',    desc:'Your order has been confirmed and is being prepared.' },
+  { key:'shipped',   label:'Shipped',         icon:'bi-truck',           desc:'Your order is on its way to you.' },
+  { key:'delivered', label:'Delivered',       icon:'bi-house-check',     desc:'Your order has been delivered successfully.' },
+];
+
+Store.init().then(() => {
+  const params = new URLSearchParams(location.search);
+  const id     = params.get('id') || localStorage.getItem('lata_track_id') || '';
+  if (id) {
+    document.getElementById('trackId').value = id;
+    trackOrder();
+  }
+});
+
+function trackOrder() {
+  const id = document.getElementById('trackId').value.trim();
+  if (!id) { alert('Enter an order ID'); return; }
+  localStorage.setItem('lata_track_id', id);
+  const order = Store.orders.all().find(o => String(o.id) === id);
+  const el    = document.getElementById('trackResult');
+
+  if (!order) {
+    el.innerHTML = `<div class="alert alert-danger"><i class="bi bi-exclamation-circle me-2"></i>Order #${id} not found. Please check the ID and try again.</div>`;
+    return;
+  }
+
+  const cancelled = order.status === 'cancelled';
+  const stepIndex = cancelled ? -1 : STEPS.findIndex(s => s.key === order.status);
+  const statusColors = { pending:'warning', confirmed:'info', shipped:'primary', delivered:'success', cancelled:'danger' };
+
+  el.innerHTML = `
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+          <div>
+            <h5 class="fw-bold mb-1">Order #${order.id}</h5>
+            <div class="text-muted small">Placed on ${new Date(order.createdAt).toLocaleDateString('en-BD',{day:'numeric',month:'long',year:'numeric'})}</div>
+          </div>
+          <span class="badge bg-${statusColors[order.status]||'secondary'} text-capitalize px-3 py-2">${order.status}</span>
+        </div>
+
+        ${cancelled
+          ? `<div class="alert alert-danger mb-4"><i class="bi bi-x-circle me-2"></i>This order was cancelled.</div>`
+          : `<div class="mb-4">
+              ${STEPS.map((step, i) => {
+                const done   = i <= stepIndex;
+                const active = i === stepIndex;
+                const state  = active?'active':done?'done':'pending';
+                return `<div class="tracking-step ${state}">
+                  <div class="tracking-dot"><i class="bi ${step.icon}"></i></div>
+                  <div>
+                    <div class="fw-semibold small">${step.label}</div>
+                    <div class="text-muted" style="font-size:0.78rem">${done?step.desc:'Waiting…'}</div>
+                  </div>
+                </div>`;
+              }).join('')}
+            </div>`
+        }
+
+        <hr/>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="small fw-semibold mb-1 text-muted">Delivery To</div>
+            <div class="small">${order.customer?.name||'—'}</div>
+            <div class="small">${order.customer?.phone||''}</div>
+            <div class="small text-muted">${order.customer?.address||''}</div>
+          </div>
+          <div class="col-md-6">
+            <div class="small fw-semibold mb-1 text-muted">Order Items</div>
+            ${(order.items||[]).map(i=>`<div class="small">${i.name} × ${i.qty}</div>`).join('')}
+            <div class="mt-2 fw-bold text-danger small">Total: ৳${(order.total||0).toLocaleString('en-BD')}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="text-muted small text-center">
+      <i class="bi bi-telephone me-1"></i>Need help? Call us at <strong>01700-000000</strong>
+    </div>`;
+}
+</script>
+</body>
+</html>
