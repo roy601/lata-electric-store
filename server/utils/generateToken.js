@@ -34,11 +34,11 @@ const hashToken = (token) =>
 
 /** Cookie config for the refresh token */
 const refreshCookieOptions = () => ({
-  httpOnly:  true,
-  secure:    process.env.NODE_ENV === 'production',
-  sameSite:  'Strict',
-  maxAge:    7 * 24 * 60 * 60 * 1000, // 7 days in ms
-  path:      '/api/auth',              // only sent to auth routes
+  httpOnly: true,
+  secure:   true,
+  sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+  maxAge:   7 * 24 * 60 * 60 * 1000,
+  path:     '/api/auth',
 });
 
 module.exports = {
