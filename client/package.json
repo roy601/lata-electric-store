@@ -13,7 +13,6 @@
     "@supabase/supabase-js": "^2.44.2",
     "@tanstack/react-query": "^5.45.0",
     "axios": "^1.7.2",
-    "lata-electric": "file:..",
     "lucide-react": "^1.21.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
