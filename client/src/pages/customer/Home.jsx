@@ -150,15 +150,15 @@ function BannerCarousel({ banners }) {
 
   const b = banners[cur];
   return (
-    <div style={{ flex: 1, position: 'relative', overflow: 'hidden', borderRadius: 10, cursor: b.product_id ? 'pointer' : 'default', userSelect: 'none', minHeight: 260 }}
+    <div style={{ flex: 1, position: 'relative', overflow: 'hidden', borderRadius: 10, cursor: b.product_id ? 'pointer' : 'default', userSelect: 'none' }}
       onClick={() => { if (!dragging && b.product_id) navigate(`/products/${b.product_id}`); }}
       onMouseDown={onMouseDown} onMouseMove={onMouseMove}
       onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
 
-      <div style={{ display: 'flex', height: '100%', transition: 'transform .5s ease', transform: `translateX(-${cur * 100}%)` }}>
+      <div style={{ display: 'flex', transition: 'transform .5s ease', transform: `translateX(-${cur * 100}%)` }}>
         {banners.map(bn => (
-          <div key={bn.id} style={{ minWidth: '100%', height: 280, background: '#212529', flexShrink: 0, position: 'relative' }}>
-            <img src={bn.image} alt={bn.title || ''} draggable={false} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <div key={bn.id} style={{ minWidth: '100%', aspectRatio: '16/7', background: '#212529', flexShrink: 0, position: 'relative' }}>
+            <img src={bn.image} alt={bn.title || ''} draggable={false} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />
             {(bn.title || bn.subtitle) && (
               <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent,rgba(0,0,0,.65))', padding: '40px 24px 18px' }}>
                 {bn.title && <div style={{ color: '#fff', fontWeight: 800, fontSize: 'clamp(14px,1.8vw,22px)', textShadow: '0 2px 4px rgba(0,0,0,.5)' }}>{bn.title}</div>}
@@ -392,7 +392,7 @@ export default function Home() {
         {(() => {
           const sideBanners  = banners.length >= 3 ? banners.slice(-2) : [];
           const mainBanners  = banners.length >= 3 ? banners.slice(0, -2) : banners;
-          const cols = sideBanners.length ? '1fr 200px' : '1fr';
+          const cols = (!isMobile && sideBanners.length) ? '1fr 200px' : '1fr';
 
           return (
             <div style={{ ...W, paddingTop: isMobile ? 8 : 14, paddingBottom: 0 }}>
@@ -401,8 +401,8 @@ export default function Home() {
                 {/* Main carousel */}
                 <BannerCarousel banners={mainBanners} />
 
-                {/* Right side banners — only when 3+ banners uploaded */}
-                {sideBanners.length > 0 && (
+                {/* Right side banners — desktop only, when 3+ banners uploaded */}
+                {!isMobile && sideBanners.length > 0 && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignSelf: 'stretch' }}>
                     {sideBanners.map(b => (
                       <div key={b.id}
