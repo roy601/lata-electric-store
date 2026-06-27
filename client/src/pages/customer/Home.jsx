@@ -392,40 +392,11 @@ export default function Home() {
         {(() => {
           const sideBanners  = banners.length >= 3 ? banners.slice(-2) : [];
           const mainBanners  = banners.length >= 3 ? banners.slice(0, -2) : banners;
-          const cols = isCompact
-            ? (sideBanners.length ? '1fr 200px' : '1fr')
-            : (sideBanners.length ? '210px 1fr 200px' : '210px 1fr');
+          const cols = sideBanners.length ? '1fr 200px' : '1fr';
 
           return (
             <div style={{ ...W, paddingTop: isMobile ? 8 : 14, paddingBottom: 0 }}>
               <div style={{ display: 'grid', gridTemplateColumns: cols, gap: 12, alignItems: 'start' }}>
-
-                {/* Category sidebar — desktop/tablet only */}
-                {!isMobile && (
-                  <Block style={{ position: 'sticky', top: 74, zIndex: 10 }}>
-                    <div style={{ padding: '10px 14px 6px', borderBottom: '1px solid #F8F9FA' }}>
-                      <span style={{ fontWeight: 800, fontSize: 13, color: '#212529', textTransform: 'uppercase', letterSpacing: .5 }}>All Categories</span>
-                    </div>
-                    <div style={{ maxHeight: 340, overflowY: 'auto', scrollbarWidth: 'thin' }}>
-                      {[{ id: 'all', name: 'All Products', isAll: true }, ...categories].map(c => {
-                        const isActive = catFilter === String(c.id);
-                        return (
-                          <div key={c.id}
-                            onClick={() => { setCatFilter(String(c.id)); setPage(1); document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
-                            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', cursor: 'pointer', fontSize: 13, color: isActive ? '#1E88E5' : '#333', fontWeight: isActive ? 700 : 400, background: isActive ? '#E3F2FD' : 'transparent', borderLeft: isActive ? '3px solid #1E88E5' : '3px solid transparent', transition: 'all .15s' }}
-                            onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background='#f8f9fa'; e.currentTarget.style.color='#212529'; } }}
-                            onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background='transparent'; e.currentTarget.style.color='#333'; } }}>
-                            <span style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
-                              {c.isAll ? <Package size={15} color={isActive ? '#1E88E5' : '#666'} /> : <CatIcon name={c.name} size={15} color={isActive ? '#1E88E5' : '#666'} />}
-                            </span>
-                            <span style={{ lineHeight: 1.3, flex: 1 }}>{c.name}</span>
-                            <span style={{ fontSize: 10, color: '#bbb' }}>›</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </Block>
-                )}
 
                 {/* Main carousel */}
                 <BannerCarousel banners={mainBanners} />
