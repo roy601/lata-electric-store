@@ -3,7 +3,7 @@ import AdminLayout from '../../components/layout/AdminLayout';
 import { useAuth } from '../../context/AuthContext';
 import { Tag, Plus, Pencil, Trash2, ToggleLeft, ToggleRight, X, Check, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
-import axios from 'axios';
+import api from '../../api/axiosConfig';
 
 const API = '/api/coupons';
 
@@ -51,7 +51,7 @@ export default function AdminCoupons() {
   const load = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get(API, { headers });
+      const { data } = await api.get(API, { headers });
       setCoupons(data.coupons || []);
     } catch { toast.error('Failed to load coupons'); }
     finally { setLoading(false); }
@@ -92,10 +92,10 @@ export default function AdminCoupons() {
         is_active:      form.is_active,
       };
       if (editing) {
-        await axios.put(`${API}/${editing}`, payload, { headers });
+        await api.put(`${API}/${editing}`, payload, { headers });
         toast.success('Coupon updated');
       } else {
-        await axios.post(API, payload, { headers });
+        await api.post(API, payload, { headers });
         toast.success('Coupon created');
       }
       setModal(false);
@@ -107,7 +107,7 @@ export default function AdminCoupons() {
 
   const toggleActive = async (c) => {
     try {
-      await axios.put(`${API}/${c.id}`, { is_active: !c.is_active }, { headers });
+      await api.put(`${API}/${c.id}`, { is_active: !c.is_active }, { headers });
       setCoupons(prev => prev.map(x => x.id === c.id ? { ...x, is_active: !x.is_active } : x));
       toast.success(`Coupon ${!c.is_active ? 'activated' : 'deactivated'}`);
     } catch { toast.error('Failed to update coupon'); }
@@ -115,7 +115,7 @@ export default function AdminCoupons() {
 
   const deleteCoupon = async (id) => {
     try {
-      await axios.delete(`${API}/${id}`, { headers });
+      await api.delete(`${API}/${id}`, { headers });
       setCoupons(prev => prev.filter(c => c.id !== id));
       toast.success('Coupon deleted');
     } catch { toast.error('Failed to delete coupon'); }

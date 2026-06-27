@@ -9,7 +9,7 @@ import { useCartStore } from '../../store/cartStore';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { supabase } from '../../lib/supabase';
-import axios from 'axios';
+import api from '../../api/axiosConfig';
 import toast from 'react-hot-toast';
 
 /* ── design tokens ── */
@@ -182,7 +182,7 @@ export default function Checkout() {
     if (!couponCode.trim()) return;
     setCouponLoading(true);
     try {
-      const { data } = await axios.post('/api/coupons/validate', {
+      const { data } = await api.post('/api/coupons/validate', {
         code: couponCode.trim(),
         subtotal,
       });
@@ -213,7 +213,7 @@ export default function Checkout() {
   const place = async () => {
     setPlacing(true);
     try {
-      const { data } = await axios.post('/api/orders', {
+      const { data } = await api.post('/api/orders', {
         customer_name:     form.name,
         customer_phone:    form.phone,
         customer_address:  [form.address, form.area, form.district].filter(Boolean).join(', '),
