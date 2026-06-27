@@ -1,29 +1,29 @@
 import api from './axiosConfig';
 
 // ── Dashboard ──────────────────────────────────────────────
-export const getDashboardStats = () => api.get('/admin/dashboard');
+export const getDashboardStats = () => api.get('/dashboard');
 
 // ── Products ───────────────────────────────────────────────
-export const getProducts    = (params) => api.get('/admin/products', { params });
-export const getProduct     = (id)     => api.get(`/admin/products/${id}`);
-export const createProduct  = (data)   => api.post('/admin/products', data);
-export const updateProduct  = (id, d)  => api.put(`/admin/products/${id}`, d);
-export const deleteProduct  = (id)     => api.delete(`/admin/products/${id}`);
+export const getProducts    = (params) => api.get('/products', { params });
+export const getProduct     = (id)     => api.get(`/products/${id}`);
+export const createProduct  = (data)   => api.post('/products', data);
+export const updateProduct  = (id, d)  => api.put(`/products/${id}`, d);
+export const deleteProduct  = (id)     => api.delete(`/products/${id}`);
 
 // ── Categories ─────────────────────────────────────────────
-export const getCategories   = ()      => api.get('/admin/categories');
-export const createCategory  = (data)  => api.post('/admin/categories', data);
-export const updateCategory  = (id, d) => api.put(`/admin/categories/${id}`, d);
-export const deleteCategory  = (id)    => api.delete(`/admin/categories/${id}`);
+export const getCategories   = ()      => api.get('/categories');
+export const createCategory  = (data)  => api.post('/categories', data);
+export const updateCategory  = (id, d) => api.put(`/categories/${id}`, d);
+export const deleteCategory  = (id)    => api.delete(`/categories/${id}`);
 
 // ── Orders ─────────────────────────────────────────────────
-export const getOrders   = (params)  => api.get('/admin/orders', { params });
-export const getOrder    = (id)      => api.get(`/admin/orders/${id}`);
-export const updateOrder = (id, d)   => api.put(`/admin/orders/${id}`, d);
+export const getOrders   = (params)  => api.get('/orders', { params });
+export const getOrder    = (id)      => api.get(`/orders/${id}`);
+export const updateOrder = (id, d)   => api.put(`/orders/${id}`, d);
 
 // ── Settings ───────────────────────────────────────────────
-export const getSettings    = ()     => api.get('/admin/settings');
-export const updateSettings = (data) => api.put('/admin/settings', data);
+export const getSettings    = ()     => api.get('/settings');
+export const updateSettings = (data) => api.put('/settings', data);
 
 // ── Image upload ───────────────────────────────────────────
 export const uploadImage = (file) => {

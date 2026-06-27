@@ -5,7 +5,7 @@ import { Tag, Plus, Pencil, Trash2, ToggleLeft, ToggleRight, X, Check, AlertTria
 import toast from 'react-hot-toast';
 import api from '../../api/axiosConfig';
 
-const API = '/api/coupons';
+const API = '/coupons';
 
 const EMPTY = {
   code: '', discount_type: 'percent', discount_value: '',
