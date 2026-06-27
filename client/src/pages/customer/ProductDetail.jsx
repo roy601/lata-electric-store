@@ -247,6 +247,7 @@ export default function ProductDetail() {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
+      setProduct(null);
       const { data: p } = await supabase.from('products').select('*, categories(id, name)').eq('id', id).single();
       setProduct(p);
       setTab(p?.specifications?.length ? 'specs' : 'description');
