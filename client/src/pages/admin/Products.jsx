@@ -26,7 +26,7 @@ const migrateVariants = (variants) => {
   }));
 };
 
-const EMPTY = { name: '', brand: '', sku: '', price: '', original_price: '', stock: '', description: '', image: '', category_id: '', subcategory_id: '', is_active: true, specifications: [], variants: DEFAULT_VARIANTS.map(v => ({ ...v })) };
+const EMPTY = { name: '', brand: '', sku: '', price: '', original_price: '', stock: '', description: '', image: '', extra_images: [], category_id: '', subcategory_id: '', is_active: true, specifications: [], variants: DEFAULT_VARIANTS.map(v => ({ ...v })) };
 
 export default function AdminProducts() {
   const [products, setProducts]     = useState([]);
@@ -61,6 +61,8 @@ export default function AdminProducts() {
       .then(({ data }) => setSubcatOptions(data || []));
   }, [form?.category_id]);
 
+  const [extraImgLoading, setExtraImgLoading] = useState(false);
+
   const handleImageFile = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -72,6 +74,22 @@ export default function AdminProducts() {
       toast.success('Image uploaded');
     } catch { toast.error('Upload failed'); }
     finally { setImgLoading(false); }
+  };
+
+  const handleExtraImageFiles = async (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    setExtraImgLoading(true);
+    try {
+      const urls = await Promise.all(files.map(async file => {
+        const compressed = await compressImage(file, { maxWidth: 800, maxHeight: 800, quality: 0.85 });
+        const { data } = await uploadImage(compressed);
+        return data.url;
+      }));
+      setForm(f => ({ ...f, extra_images: [...(f.extra_images || []), ...urls] }));
+      toast.success(`${urls.length} image(s) uploaded`);
+    } catch { toast.error('Upload failed'); }
+    finally { setExtraImgLoading(false); }
   };
 
   const save = async () => {
@@ -86,6 +104,7 @@ export default function AdminProducts() {
       stock:          +form.stock || 0,
       description:    form.description || null,
       image:          form.image || null,
+      extra_images:   form.extra_images || [],
       category_id:    form.category_id    ? +form.category_id    : null,
       subcategory_id: form.subcategory_id || null,
       is_active:      form.is_active,
@@ -185,7 +204,7 @@ export default function AdminProducts() {
                     </span>
                   </td>
                   <td style={{ padding: '10px 14px' }}>
-                    <button onClick={() => setForm({ ...p, category_id: p.category_id || '', subcategory_id: p.subcategory_id || '', specifications: Array.isArray(p.specifications) ? p.specifications : [], variants: migrateVariants(p.variants) })} style={{ marginRight: 6, padding: '5px 12px', background: '#212529', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>Edit</button>
+                    <button onClick={() => setForm({ ...p, category_id: p.category_id || '', subcategory_id: p.subcategory_id || '', specifications: Array.isArray(p.specifications) ? p.specifications : [], extra_images: Array.isArray(p.extra_images) ? p.extra_images : [], variants: migrateVariants(p.variants) })} style={{ marginRight: 6, padding: '5px 12px', background: '#212529', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>Edit</button>
                     <button onClick={() => remove(p.id, p.name)} style={{ padding: '5px 12px', background: '#f8d7da', color: '#842029', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>Delete</button>
                   </td>
                 </tr>
@@ -385,10 +404,11 @@ export default function AdminProducts() {
                 })}
               </div>
 
-              {/* Image */}
+              {/* Images */}
               <div style={{ gridColumn: '1 / -1' }}>
-                <label style={{ display: 'block', fontSize: 12, color: '#7f8c9a', marginBottom: 4 }}>Image URL (or upload)</label>
-                <div style={{ display: 'flex', gap: 8 }}>
+                {/* Main image */}
+                <label style={{ display: 'block', fontSize: 12, color: '#7f8c9a', fontWeight: 600, marginBottom: 6 }}>MAIN IMAGE</label>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                   <input value={form.image ?? ''} onChange={e => setForm(f => ({ ...f, image: e.target.value }))} placeholder="https://…"
                     style={{ flex: 1, padding: '9px 12px', border: '1px solid #e0e0e0', borderRadius: 8, fontSize: 14 }} />
                   <label style={{ padding: '9px 14px', background: '#f0f0f0', borderRadius: 8, cursor: 'pointer', fontSize: 13, whiteSpace: 'nowrap' }}>
@@ -396,7 +416,31 @@ export default function AdminProducts() {
                     <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageFile} disabled={imgLoading} />
                   </label>
                 </div>
-                {form.image && <img src={form.image} alt="" style={{ marginTop: 8, height: 80, borderRadius: 8, objectFit: 'cover' }} />}
+                {form.image && (
+                  <div style={{ position: 'relative', display: 'inline-block', marginBottom: 12 }}>
+                    <img src={form.image} alt="" style={{ height: 80, borderRadius: 8, objectFit: 'cover', border: '2px solid #1E88E5' }} />
+                    <button type="button" onClick={() => setForm(f => ({ ...f, image: '' }))}
+                      style={{ position: 'absolute', top: -6, right: -6, background: '#DC3545', color: '#fff', border: 'none', borderRadius: '50%', width: 20, height: 20, cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                  </div>
+                )}
+
+                {/* Extra images */}
+                <label style={{ display: 'block', fontSize: 12, color: '#7f8c9a', fontWeight: 600, marginBottom: 6 }}>ADDITIONAL IMAGES</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+                  {(form.extra_images || []).map((url, i) => (
+                    <div key={i} style={{ position: 'relative' }}>
+                      <img src={url} alt="" style={{ width: 80, height: 80, borderRadius: 8, objectFit: 'cover', border: '1px solid #e0e0e0' }} />
+                      <button type="button"
+                        onClick={() => setForm(f => ({ ...f, extra_images: f.extra_images.filter((_, j) => j !== i) }))}
+                        style={{ position: 'absolute', top: -6, right: -6, background: '#DC3545', color: '#fff', border: 'none', borderRadius: '50%', width: 20, height: 20, cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                    </div>
+                  ))}
+                  <label style={{ width: 80, height: 80, border: '2px dashed #e0e0e0', borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: extraImgLoading ? 'wait' : 'pointer', color: '#9aa5b1', fontSize: 11, gap: 4 }}>
+                    {extraImgLoading ? 'Uploading…' : <><span style={{ fontSize: 22 }}>+</span><span>Add</span></>}
+                    <input type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={handleExtraImageFiles} disabled={extraImgLoading} />
+                  </label>
+                </div>
+                <div style={{ fontSize: 11, color: '#9aa5b1' }}>You can select multiple files at once for additional images.</div>
               </div>
             </div>
 
