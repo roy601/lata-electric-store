@@ -239,8 +239,9 @@ export default function ProductDetail() {
   const [related, setRelated] = useState([]);
   const [qty,     setQty]     = useState(1);
   const [loading, setLoading] = useState(true);
-  const [tab,     setTab]     = useState('specs');
-  const [imgIdx,  setImgIdx]  = useState(0);
+  const [tab,              setTab]             = useState('specs');
+  const [imgIdx,           setImgIdx]          = useState(0);
+  const [selectedVariants, setSelectedVariants] = useState({});
   const addToCart = useCartStore(s => s.add);
   const { toggle, has } = useWishlistStore();
 
@@ -260,6 +261,7 @@ export default function ProductDetail() {
     load();
     setQty(1);
     setImgIdx(0);
+    setSelectedVariants({});
   }, [id]);
 
   if (loading) return <CustomerLayout><div style={{ padding: 80, textAlign: 'center', color: '#9aa5b1' }}>Loading…</div></CustomerLayout>;
@@ -365,6 +367,29 @@ export default function ProductDetail() {
                   ? <span style={{ background: '#d1e7dd', color: '#0f5132', padding: '5px 14px', borderRadius: 20, fontSize: 13, fontWeight: 600 }}>In Stock ({product.stock} available)</span>
                   : <span style={{ background: '#f8d7da', color: '#842029', padding: '5px 14px', borderRadius: 20, fontSize: 13, fontWeight: 600 }}>Out of Stock</span>}
               </div>
+
+              {/* Variants */}
+              {product.variants && Object.entries(product.variants).map(([key, v]) => {
+                if (!v?.enabled || !v.options?.length) return null;
+                return (
+                  <div key={key} style={{ marginBottom: 16 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#555', marginBottom: 8, textTransform: 'uppercase', letterSpacing: .5 }}>
+                      {key} : <span style={{ color: '#212529' }}>{selectedVariants[key] || ''}</span>
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      {v.options.map(opt => {
+                        const selected = selectedVariants[key] === opt;
+                        return (
+                          <button key={opt} onClick={() => setSelectedVariants(s => ({ ...s, [key]: selected ? '' : opt }))}
+                            style={{ padding: '7px 16px', borderRadius: 8, border: `2px solid ${selected ? '#1E88E5' : '#e0e0e0'}`, background: selected ? '#1E88E5' : '#fff', color: selected ? '#fff' : '#212529', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all .15s' }}>
+                            {opt}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
 
               {/* Qty + Actions */}
               {product.stock > 0 && (

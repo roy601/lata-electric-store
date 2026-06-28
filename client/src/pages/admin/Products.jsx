@@ -6,7 +6,8 @@ import { uploadImage } from '../../api/adminApi';
 import { compressImage } from '../../lib/compressImage';
 import toast from 'react-hot-toast';
 
-const EMPTY = { name: '', brand: '', sku: '', price: '', original_price: '', stock: '', description: '', image: '', category_id: '', subcategory_id: '', is_active: true, specifications: [] };
+const EMPTY_VARIANTS = { size: { enabled: false, options: [] }, color: { enabled: false, options: [] }, warranty: { enabled: false, options: [] } };
+const EMPTY = { name: '', brand: '', sku: '', price: '', original_price: '', stock: '', description: '', image: '', category_id: '', subcategory_id: '', is_active: true, specifications: [], variants: EMPTY_VARIANTS };
 
 export default function AdminProducts() {
   const [products, setProducts]     = useState([]);
@@ -15,8 +16,9 @@ export default function AdminProducts() {
   const [search, setSearch]         = useState('');
   const [form, setForm]             = useState(null); // null = closed, {} = new, {...} = edit
   const [saving, setSaving]         = useState(false);
-  const [imgLoading, setImgLoading]     = useState(false);
+  const [imgLoading, setImgLoading]       = useState(false);
   const [subcatOptions, setSubcatOptions] = useState([]);
+  const [variantInput, setVariantInput]   = useState({ size: '', color: '', warranty: '' });
 
   const load = async () => {
     setLoading(true);
@@ -68,6 +70,7 @@ export default function AdminProducts() {
       subcategory_id: form.subcategory_id || null,
       is_active:      form.is_active,
       specifications: (form.specifications || []).filter(s => s.key.trim() && s.value.trim()),
+      variants: form.variants || EMPTY_VARIANTS,
     };
 
     let error;
@@ -162,7 +165,7 @@ export default function AdminProducts() {
                     </span>
                   </td>
                   <td style={{ padding: '10px 14px' }}>
-                    <button onClick={() => setForm({ ...p, category_id: p.category_id || '', subcategory_id: p.subcategory_id || '', specifications: Array.isArray(p.specifications) ? p.specifications : [] })} style={{ marginRight: 6, padding: '5px 12px', background: '#212529', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>Edit</button>
+                    <button onClick={() => setForm({ ...p, category_id: p.category_id || '', subcategory_id: p.subcategory_id || '', specifications: Array.isArray(p.specifications) ? p.specifications : [], variants: p.variants || EMPTY_VARIANTS })} style={{ marginRight: 6, padding: '5px 12px', background: '#212529', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>Edit</button>
                     <button onClick={() => remove(p.id, p.name)} style={{ padding: '5px 12px', background: '#f8d7da', color: '#842029', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>Delete</button>
                   </td>
                 </tr>
@@ -281,6 +284,59 @@ export default function AdminProducts() {
                     ))}
                   </div>
                 )}
+              </div>
+
+              {/* Variants */}
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ display: 'block', fontSize: 12, color: '#7f8c9a', fontWeight: 600, marginBottom: 8 }}>VARIANTS (Size / Color / Warranty)</label>
+                {[
+                  { key: 'size',     label: 'SIZE' },
+                  { key: 'color',    label: 'COLOR' },
+                  { key: 'warranty', label: 'WARRANTY' },
+                ].map(({ key, label }) => {
+                  const v = form.variants?.[key] || { enabled: false, options: [] };
+                  return (
+                    <div key={key} style={{ border: '1px solid #e0e0e0', borderRadius: 8, padding: '10px 12px', marginBottom: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: v.enabled ? 10 : 0 }}>
+                        <input type="checkbox" id={`v-${key}`} checked={v.enabled}
+                          onChange={e => setForm(f => ({ ...f, variants: { ...f.variants, [key]: { ...v, enabled: e.target.checked } } }))} />
+                        <label htmlFor={`v-${key}`} style={{ fontSize: 13, fontWeight: 700, color: '#212529', cursor: 'pointer' }}>{label}</label>
+                      </div>
+                      {v.enabled && (
+                        <>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+                            {v.options.map((opt, i) => (
+                              <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#E3F2FD', color: '#1565C0', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
+                                {opt}
+                                <button type="button" onClick={() => setForm(f => ({ ...f, variants: { ...f.variants, [key]: { ...v, options: v.options.filter((_, j) => j !== i) } } }))}
+                                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1565C0', padding: 0, display: 'flex', lineHeight: 1 }}>×</button>
+                              </span>
+                            ))}
+                          </div>
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            <input value={variantInput[key]} onChange={e => setVariantInput(p => ({ ...p, [key]: e.target.value }))}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter' && variantInput[key].trim()) {
+                                  e.preventDefault();
+                                  setForm(f => ({ ...f, variants: { ...f.variants, [key]: { ...v, options: [...v.options, variantInput[key].trim()] } } }));
+                                  setVariantInput(p => ({ ...p, [key]: '' }));
+                                }
+                              }}
+                              placeholder={`e.g. ${key === 'size' ? '36 Inch' : key === 'color' ? 'White and Golden' : '2 Years'}`}
+                              style={{ flex: 1, padding: '7px 10px', border: '1px solid #e0e0e0', borderRadius: 6, fontSize: 13 }} />
+                            <button type="button"
+                              onClick={() => {
+                                if (!variantInput[key].trim()) return;
+                                setForm(f => ({ ...f, variants: { ...f.variants, [key]: { ...v, options: [...v.options, variantInput[key].trim()] } } }));
+                                setVariantInput(p => ({ ...p, [key]: '' }));
+                              }}
+                              style={{ padding: '7px 14px', background: '#1E88E5', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>+ Add</button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
               {/* Image */}
