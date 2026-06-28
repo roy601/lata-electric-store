@@ -267,8 +267,23 @@ export default function ProductDetail() {
   if (loading) return <CustomerLayout><div style={{ padding: 80, textAlign: 'center', color: '#9aa5b1' }}>Loading…</div></CustomerLayout>;
   if (!product) return <CustomerLayout><div style={{ padding: 80, textAlign: 'center', color: '#9aa5b1' }}>Product not found.</div></CustomerLayout>;
 
-  const price    = product.flash_sale && product.flash_price ? product.flash_price : product.price;
-  const original = product.flash_sale && product.flash_price ? product.price : product.original_price;
+  const basePrice = product.flash_sale && product.flash_price ? product.flash_price : product.price;
+  const original  = product.flash_sale && product.flash_price ? product.price : product.original_price;
+
+  // If a selected variant option has its own price, use it
+  const variantPrice = (() => {
+    const vs = Array.isArray(product.variants) ? product.variants : [];
+    for (const v of vs) {
+      if (!v.enabled) continue;
+      const sel = selectedVariants[v.key];
+      if (!sel) continue;
+      const opt = (v.options || []).find(o => o.value === sel);
+      if (opt?.price != null) return opt.price;
+    }
+    return null;
+  })();
+
+  const price    = variantPrice ?? basePrice;
   const discount = original ? Math.round((1 - price / original) * 100) : null;
   const wished   = has(product.id);
 
@@ -369,20 +384,21 @@ export default function ProductDetail() {
               </div>
 
               {/* Variants */}
-              {product.variants && Object.entries(product.variants).map(([key, v]) => {
+              {(Array.isArray(product.variants) ? product.variants : []).map(v => {
                 if (!v?.enabled || !v.options?.length) return null;
                 return (
-                  <div key={key} style={{ marginBottom: 16 }}>
+                  <div key={v.key} style={{ marginBottom: 16 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: '#555', marginBottom: 8, textTransform: 'uppercase', letterSpacing: .5 }}>
-                      {key} : <span style={{ color: '#212529' }}>{selectedVariants[key] || ''}</span>
+                      {v.label}{selectedVariants[v.key] ? ` : ${selectedVariants[v.key]}` : ''}
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                       {v.options.map(opt => {
-                        const selected = selectedVariants[key] === opt;
+                        const selected = selectedVariants[v.key] === opt.value;
                         return (
-                          <button key={opt} onClick={() => setSelectedVariants(s => ({ ...s, [key]: selected ? '' : opt }))}
+                          <button key={opt.value}
+                            onClick={() => setSelectedVariants(s => ({ ...s, [v.key]: selected ? '' : opt.value }))}
                             style={{ padding: '7px 16px', borderRadius: 8, border: `2px solid ${selected ? '#1E88E5' : '#e0e0e0'}`, background: selected ? '#1E88E5' : '#fff', color: selected ? '#fff' : '#212529', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all .15s' }}>
-                            {opt}
+                            {opt.value}{opt.price != null ? ` · ৳${opt.price.toLocaleString('en-BD')}` : ''}
                           </button>
                         );
                       })}

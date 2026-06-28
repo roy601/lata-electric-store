@@ -6,8 +6,27 @@ import { uploadImage } from '../../api/adminApi';
 import { compressImage } from '../../lib/compressImage';
 import toast from 'react-hot-toast';
 
-const EMPTY_VARIANTS = { size: { enabled: false, options: [] }, color: { enabled: false, options: [] }, warranty: { enabled: false, options: [] } };
-const EMPTY = { name: '', brand: '', sku: '', price: '', original_price: '', stock: '', description: '', image: '', category_id: '', subcategory_id: '', is_active: true, specifications: [], variants: EMPTY_VARIANTS };
+const DEFAULT_VARIANTS = [
+  { key: 'size',     label: 'SIZE',     enabled: false, options: [] },
+  { key: 'color',    label: 'COLOR',    enabled: false, options: [] },
+  { key: 'warranty', label: 'WARRANTY', enabled: false, options: [] },
+];
+const BUILT_IN_KEYS = ['size', 'color', 'warranty'];
+
+const migrateVariants = (variants) => {
+  if (!variants) return DEFAULT_VARIANTS.map(v => ({ ...v }));
+  if (Array.isArray(variants)) return variants.map(v => ({
+    ...v,
+    options: (v.options || []).map(o => typeof o === 'string' ? { value: o, price: null } : o),
+  }));
+  // old object format → convert
+  return Object.entries(variants).map(([key, v]) => ({
+    key, label: key.toUpperCase(), enabled: v.enabled || false,
+    options: (v.options || []).map(o => typeof o === 'string' ? { value: o, price: null } : o),
+  }));
+};
+
+const EMPTY = { name: '', brand: '', sku: '', price: '', original_price: '', stock: '', description: '', image: '', category_id: '', subcategory_id: '', is_active: true, specifications: [], variants: DEFAULT_VARIANTS.map(v => ({ ...v })) };
 
 export default function AdminProducts() {
   const [products, setProducts]     = useState([]);
@@ -18,7 +37,8 @@ export default function AdminProducts() {
   const [saving, setSaving]         = useState(false);
   const [imgLoading, setImgLoading]       = useState(false);
   const [subcatOptions, setSubcatOptions] = useState([]);
-  const [variantInput, setVariantInput]   = useState({ size: '', color: '', warranty: '' });
+  const [variantInput,  setVariantInput]  = useState({});
+  const [editingLabel,  setEditingLabel]  = useState(null);
 
   const load = async () => {
     setLoading(true);
@@ -165,7 +185,7 @@ export default function AdminProducts() {
                     </span>
                   </td>
                   <td style={{ padding: '10px 14px' }}>
-                    <button onClick={() => setForm({ ...p, category_id: p.category_id || '', subcategory_id: p.subcategory_id || '', specifications: Array.isArray(p.specifications) ? p.specifications : [], variants: p.variants || EMPTY_VARIANTS })} style={{ marginRight: 6, padding: '5px 12px', background: '#212529', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>Edit</button>
+                    <button onClick={() => setForm({ ...p, category_id: p.category_id || '', subcategory_id: p.subcategory_id || '', specifications: Array.isArray(p.specifications) ? p.specifications : [], variants: migrateVariants(p.variants) })} style={{ marginRight: 6, padding: '5px 12px', background: '#212529', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>Edit</button>
                     <button onClick={() => remove(p.id, p.name)} style={{ padding: '5px 12px', background: '#f8d7da', color: '#842029', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>Delete</button>
                   </td>
                 </tr>
@@ -288,50 +308,76 @@ export default function AdminProducts() {
 
               {/* Variants */}
               <div style={{ gridColumn: '1 / -1' }}>
-                <label style={{ display: 'block', fontSize: 12, color: '#7f8c9a', fontWeight: 600, marginBottom: 8 }}>VARIANTS (Size / Color / Warranty)</label>
-                {[
-                  { key: 'size',     label: 'SIZE' },
-                  { key: 'color',    label: 'COLOR' },
-                  { key: 'warranty', label: 'WARRANTY' },
-                ].map(({ key, label }) => {
-                  const v = form.variants?.[key] || { enabled: false, options: [] };
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <label style={{ fontSize: 12, color: '#7f8c9a', fontWeight: 600 }}>VARIANTS</label>
+                  <button type="button"
+                    onClick={() => {
+                      const key = `custom_${Date.now()}`;
+                      setForm(f => ({ ...f, variants: [...(f.variants || []), { key, label: 'NEW VARIANT', enabled: true, options: [] }] }));
+                      setEditingLabel(key);
+                    }}
+                    style={{ fontSize: 12, padding: '4px 12px', background: '#E8F5E9', color: '#2E7D32', border: '1px solid #2E7D32', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}>
+                    + Add Custom Variant
+                  </button>
+                </div>
+                {(form.variants || []).map((v, vi) => {
+                  const inp = variantInput[v.key] || { value: '', price: '' };
+                  const addOpt = () => {
+                    if (!inp.value.trim()) return;
+                    const opt = { value: inp.value.trim(), price: inp.price ? +inp.price : null };
+                    setForm(f => { const vs = [...f.variants]; vs[vi] = { ...vs[vi], options: [...vs[vi].options, opt] }; return { ...f, variants: vs }; });
+                    setVariantInput(p => ({ ...p, [v.key]: { value: '', price: '' } }));
+                  };
                   return (
-                    <div key={key} style={{ border: '1px solid #e0e0e0', borderRadius: 8, padding: '10px 12px', marginBottom: 8 }}>
+                    <div key={v.key} style={{ border: '1px solid #e0e0e0', borderRadius: 8, padding: '10px 12px', marginBottom: 8 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: v.enabled ? 10 : 0 }}>
-                        <input type="checkbox" id={`v-${key}`} checked={v.enabled}
-                          onChange={e => setForm(f => ({ ...f, variants: { ...f.variants, [key]: { ...v, enabled: e.target.checked } } }))} />
-                        <label htmlFor={`v-${key}`} style={{ fontSize: 13, fontWeight: 700, color: '#212529', cursor: 'pointer' }}>{label}</label>
+                        <input type="checkbox" checked={v.enabled}
+                          onChange={e => setForm(f => { const vs = [...f.variants]; vs[vi] = { ...vs[vi], enabled: e.target.checked }; return { ...f, variants: vs }; })} />
+                        {editingLabel === v.key ? (
+                          <input autoFocus value={v.label}
+                            onChange={e => setForm(f => { const vs = [...f.variants]; vs[vi] = { ...vs[vi], label: e.target.value.toUpperCase() }; return { ...f, variants: vs }; })}
+                            onBlur={() => setEditingLabel(null)}
+                            onKeyDown={e => e.key === 'Enter' && setEditingLabel(null)}
+                            style={{ fontSize: 13, fontWeight: 700, border: '1px solid #1E88E5', borderRadius: 4, padding: '2px 8px', width: 140 }} />
+                        ) : (
+                          <span style={{ fontSize: 13, fontWeight: 700, color: '#212529' }}>{v.label}</span>
+                        )}
+                        <button type="button" onClick={() => setEditingLabel(v.key)}
+                          style={{ background: 'none', border: '1px solid #e0e0e0', borderRadius: 4, cursor: 'pointer', color: '#7f8c9a', fontSize: 11, padding: '2px 6px' }}>✎ Rename</button>
+                        {!BUILT_IN_KEYS.includes(v.key) && (
+                          <button type="button"
+                            onClick={() => setForm(f => ({ ...f, variants: f.variants.filter((_, i) => i !== vi) }))}
+                            style={{ marginLeft: 'auto', background: '#fce4e4', color: '#DC3545', border: 'none', borderRadius: 6, padding: '3px 10px', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>Delete</button>
+                        )}
                       </div>
                       {v.enabled && (
                         <>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
-                            {v.options.map((opt, i) => (
-                              <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#E3F2FD', color: '#1565C0', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
-                                {opt}
-                                <button type="button" onClick={() => setForm(f => ({ ...f, variants: { ...f.variants, [key]: { ...v, options: v.options.filter((_, j) => j !== i) } } }))}
-                                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1565C0', padding: 0, display: 'flex', lineHeight: 1 }}>×</button>
+                            {(v.options || []).map((opt, oi) => (
+                              <span key={oi} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#E3F2FD', color: '#1565C0', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
+                                {opt.value}{opt.price != null ? ` · ৳${opt.price}` : ''}
+                                <button type="button"
+                                  onClick={() => setForm(f => { const vs = [...f.variants]; vs[vi] = { ...vs[vi], options: vs[vi].options.filter((_, j) => j !== oi) }; return { ...f, variants: vs }; })}
+                                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1565C0', padding: 0, lineHeight: 1, fontSize: 14 }}>×</button>
                               </span>
                             ))}
                           </div>
                           <div style={{ display: 'flex', gap: 6 }}>
-                            <input value={variantInput[key]} onChange={e => setVariantInput(p => ({ ...p, [key]: e.target.value }))}
-                              onKeyDown={e => {
-                                if (e.key === 'Enter' && variantInput[key].trim()) {
-                                  e.preventDefault();
-                                  setForm(f => ({ ...f, variants: { ...f.variants, [key]: { ...v, options: [...v.options, variantInput[key].trim()] } } }));
-                                  setVariantInput(p => ({ ...p, [key]: '' }));
-                                }
-                              }}
-                              placeholder={`e.g. ${key === 'size' ? '36 Inch' : key === 'color' ? 'White and Golden' : '2 Years'}`}
+                            <input value={inp.value}
+                              onChange={e => setVariantInput(p => ({ ...p, [v.key]: { ...p[v.key], value: e.target.value } }))}
+                              onKeyDown={e => e.key === 'Enter' && addOpt()}
+                              placeholder="Option (e.g. 36 Inch)"
+                              style={{ flex: 2, padding: '7px 10px', border: '1px solid #e0e0e0', borderRadius: 6, fontSize: 13 }} />
+                            <input value={inp.price}
+                              onChange={e => setVariantInput(p => ({ ...p, [v.key]: { ...p[v.key], price: e.target.value } }))}
+                              onKeyDown={e => e.key === 'Enter' && addOpt()}
+                              placeholder="Price ৳ (optional)"
+                              type="number"
                               style={{ flex: 1, padding: '7px 10px', border: '1px solid #e0e0e0', borderRadius: 6, fontSize: 13 }} />
-                            <button type="button"
-                              onClick={() => {
-                                if (!variantInput[key].trim()) return;
-                                setForm(f => ({ ...f, variants: { ...f.variants, [key]: { ...v, options: [...v.options, variantInput[key].trim()] } } }));
-                                setVariantInput(p => ({ ...p, [key]: '' }));
-                              }}
+                            <button type="button" onClick={addOpt}
                               style={{ padding: '7px 14px', background: '#1E88E5', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>+ Add</button>
                           </div>
+                          <div style={{ fontSize: 11, color: '#9aa5b1', marginTop: 4 }}>Leave price empty if this option uses the base product price.</div>
                         </>
                       )}
                     </div>
