@@ -221,7 +221,7 @@ function MegaMenu({ categories, products, subcategories, onClose, navigate }) {
                     <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                       {(group.items || []).map(item => (
                         <li key={item}>
-                          <span onClick={() => goToCat(activeCat.id, item)}
+                          <span onClick={() => goToCat(activeCat.id)}
                             style={{ display: 'block', fontSize: 12.5, color: '#555', padding: '3px 0', cursor: 'pointer', lineHeight: 1.5, transition: 'color .12s' }}
                             onMouseEnter={e => e.currentTarget.style.color='#1E88E5'}
                             onMouseLeave={e => e.currentTarget.style.color='#555'}>
