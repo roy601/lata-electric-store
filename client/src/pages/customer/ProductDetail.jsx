@@ -241,6 +241,7 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [tab,              setTab]             = useState('specs');
   const [imgIdx,           setImgIdx]          = useState(0);
+  const [imgHovered,       setImgHovered]      = useState(false);
   const [selectedVariants, setSelectedVariants] = useState({});
   const addToCart = useCartStore(s => s.add);
   const { toggle, has } = useWishlistStore();
@@ -323,9 +324,12 @@ export default function ProductDetail() {
             {/* ── Image column ── */}
             <div>
               {/* Main image */}
-              <div style={{ background: '#F8F9FA', borderRadius: 12, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', aspectRatio: '1/1', marginBottom: 10, border: '1px solid #ebebeb' }}>
+              <div
+                onMouseEnter={() => setImgHovered(true)}
+                onMouseLeave={() => setImgHovered(false)}
+                style={{ background: '#F8F9FA', borderRadius: 12, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', aspectRatio: '1/1', marginBottom: 10, border: '1px solid #ebebeb', cursor: currentImg ? 'zoom-in' : 'default' }}>
                 {currentImg
-                  ? <img src={currentImg} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 12 }} />
+                  ? <img src={currentImg} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 12, transform: imgHovered ? 'scale(1.12)' : 'scale(1)', transition: 'transform 0.35s ease' }} />
                   : <Package size={80} color="#ccc" />}
               </div>
               {/* Thumbnail strip */}

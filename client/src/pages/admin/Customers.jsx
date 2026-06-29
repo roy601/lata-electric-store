@@ -34,6 +34,12 @@ export default function AdminCustomers() {
 
   const fmt = (n) => '৳' + Number(n).toLocaleString('en-BD');
 
+  const deleteCustomer = async (phone, name) => {
+    if (!window.confirm(`Delete all data for "${name}" (${phone})? This will delete their orders too.`)) return;
+    await supabase.from('orders').delete().eq('customer_phone', phone);
+    setCustomers(prev => prev.filter(c => c.phone !== phone));
+  };
+
   const visible = customers.filter(c =>
     !search || c.name.toLowerCase().includes(search.toLowerCase()) || c.phone.includes(search)
   );
@@ -55,7 +61,7 @@ export default function AdminCustomers() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ background: '#f8f9fa' }}>
-                {['Name', 'Phone', 'City', 'Orders', 'Total Spent', 'Last Order'].map(h => (
+                {['Name', 'Phone', 'City', 'Orders', 'Total Spent', 'Last Order', ''].map(h => (
                   <th key={h} style={{ padding: '11px 14px', textAlign: 'left', color: '#7f8c9a', fontWeight: 600, borderBottom: '1px solid #eee' }}>{h}</th>
                 ))}
               </tr>
@@ -71,10 +77,16 @@ export default function AdminCustomers() {
                   <td style={{ padding: '11px 14px', color: '#9aa5b1', whiteSpace: 'nowrap' }}>
                     {new Date(c.lastOrder).toLocaleDateString('en-BD', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </td>
+                  <td style={{ padding: '11px 14px' }}>
+                    <button onClick={() => deleteCustomer(c.phone, c.name)}
+                      style={{ padding: '4px 12px', background: '#fce4e4', color: '#DC3545', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
               {visible.length === 0 && (
-                <tr><td colSpan={6} style={{ padding: 60, textAlign: 'center', color: '#9aa5b1' }}>No customers yet</td></tr>
+                <tr><td colSpan={7} style={{ padding: 60, textAlign: 'center', color: '#9aa5b1' }}>No customers yet</td></tr>
               )}
             </tbody>
           </table>
