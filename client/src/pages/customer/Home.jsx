@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Cable, Power, ShieldCheck, Lightbulb, Wind, Smartphone, Cpu,
   Home as HomeIcon, Wrench, Droplets, Camera, Sun, Battery, Car,
-  Sparkles, DoorOpen, Package, Zap, ShoppingCart, Search, TrendingUp,
+  Sparkles, DoorOpen, Package, Zap, ShoppingCart, Search, TrendingUp, Star, Flame,
   MapPin, Phone, Clock, User, HardHat, Map,
 } from 'lucide-react';
 import CustomerLayout from '../../components/layout/CustomerLayout';
@@ -326,13 +326,10 @@ export default function Home() {
     load();
   }, []);
 
-  const flashProducts = useMemo(() => allProducts.filter(p => p.flash_sale && p.flash_price && p.is_active), [allProducts]);
-  const trending      = useMemo(() => {
-    const topSell  = allProducts.filter(p => p.top_sell);
-    const featured = allProducts.filter(p => p.featured && !p.top_sell);
-    const rest     = allProducts.filter(p => !p.top_sell && !p.featured).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-    return [...topSell, ...featured, ...rest].slice(0, 20);
-  }, [allProducts]);
+  const flashProducts    = useMemo(() => allProducts.filter(p => p.flash_sale && p.flash_price && p.is_active), [allProducts]);
+  const featuredProducts = useMemo(() => allProducts.filter(p => p.featured), [allProducts]);
+  const topSellProducts  = useMemo(() => allProducts.filter(p => p.top_sell), [allProducts]);
+  const trending         = useMemo(() => allProducts.filter(p => p.trending), [allProducts]);
 
   // Category sections: only categories with at least 1 product
   const catSections = useMemo(() =>
@@ -452,11 +449,31 @@ export default function Home() {
           </div>
         )}
 
+        {/* ══════════════ FEATURED PRODUCTS ══════════════ */}
+        {featuredProducts.length > 0 && (
+          <div style={{ ...W, marginTop: 14 }}>
+            <Block>
+              <SectionHeader title="Featured Products" Icon={Star} onViewAll={() => { setCatFilter('all'); document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth' }); }} />
+              <ProductStrip products={featuredProducts} cardWidth={175} cardHeight={155} />
+            </Block>
+          </div>
+        )}
+
+        {/* ══════════════ TOP SELL PRODUCTS ══════════════ */}
+        {topSellProducts.length > 0 && (
+          <div style={{ ...W, marginTop: 14 }}>
+            <Block>
+              <SectionHeader title="Top Selling Products" Icon={TrendingUp} onViewAll={() => { setCatFilter('all'); document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth' }); }} />
+              <ProductStrip products={topSellProducts} cardWidth={175} cardHeight={155} />
+            </Block>
+          </div>
+        )}
+
         {/* ══════════════ TRENDING PRODUCTS ══════════════ */}
         {trending.length > 0 && (
           <div style={{ ...W, marginTop: 14 }}>
             <Block>
-              <SectionHeader title="Trending Products" Icon={TrendingUp} onViewAll={() => { setCatFilter('all'); document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth' }); }} />
+              <SectionHeader title="Trending Products" Icon={Flame} onViewAll={() => { setCatFilter('all'); document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth' }); }} />
               <ProductStrip products={trending} cardWidth={175} cardHeight={155} />
             </Block>
           </div>

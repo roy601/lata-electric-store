@@ -15,6 +15,7 @@ const productSchema = new mongoose.Schema(
     images:        [{ type: String }],
     featured:      { type: Boolean, default: false },
     topSell:       { type: Boolean, default: false },
+    trending:      { type: Boolean, default: false },
     flashSale:     { type: Boolean, default: false },
     flashPrice:    { type: Number },
     isActive:      { type: Boolean, default: true },

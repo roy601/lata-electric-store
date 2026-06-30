@@ -1,5 +1,5 @@
 ﻿import { useEffect, useState } from 'react';
-import { TrendingUp, Package, Star } from 'lucide-react';
+import { TrendingUp, Package, Star, Flame } from 'lucide-react';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
@@ -12,7 +12,7 @@ export default function AdminFeatured() {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const { data } = await supabase.from('products').select('id, name, price, image, featured, top_sell, stock').order('name');
+      const { data } = await supabase.from('products').select('id, name, price, image, featured, top_sell, trending, stock').order('name');
       setProducts(data || []);
       setLoading(false);
     };
@@ -32,9 +32,9 @@ export default function AdminFeatured() {
   const topSell  = visible.filter(p => p.top_sell);
 
   return (
-    <AdminLayout title="Featured & Top Sells">
+    <AdminLayout title="Featured, Top Sells & Trending">
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 24 }}>
         <div style={{ background: '#fff3cd', borderRadius: 10, padding: '14px 18px' }}>
           <div style={{ fontWeight: 700, color: '#856404', display: 'flex', alignItems: 'center', gap: 5 }}><Star size={14} /> Featured Products</div>
           <div style={{ fontSize: 24, fontWeight: 700, color: '#212529', marginTop: 4 }}>{products.filter(p => p.featured).length}</div>
@@ -42,6 +42,10 @@ export default function AdminFeatured() {
         <div style={{ background: '#d1ecf1', borderRadius: 10, padding: '14px 18px' }}>
           <div style={{ fontWeight: 700, color: '#0c5460', display: 'flex', alignItems: 'center', gap: 5 }}><TrendingUp size={14} /> Top Sells</div>
           <div style={{ fontSize: 24, fontWeight: 700, color: '#212529', marginTop: 4 }}>{products.filter(p => p.top_sell).length}</div>
+        </div>
+        <div style={{ background: '#fde8d8', borderRadius: 10, padding: '14px 18px' }}>
+          <div style={{ fontWeight: 700, color: '#923b00', display: 'flex', alignItems: 'center', gap: 5 }}><Flame size={14} /> Trending</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: '#212529', marginTop: 4 }}>{products.filter(p => p.trending).length}</div>
         </div>
       </div>
 
@@ -57,7 +61,7 @@ export default function AdminFeatured() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ background: '#f8f9fa' }}>
-                {['Product', 'Price', 'Stock', 'Featured', 'Top Sell'].map(h => (
+                {['Product', 'Price', 'Stock', 'Featured', 'Top Sell', 'Trending'].map(h => (
                   <th key={h} style={{ padding: '11px 14px', textAlign: 'left', color: '#7f8c9a', fontWeight: 600, borderBottom: '1px solid #eee' }}>{h}</th>
                 ))}
               </tr>
@@ -87,10 +91,18 @@ export default function AdminFeatured() {
                       {p.top_sell ? <><TrendingUp size={12} /> On</> : 'Off'}
                     </button>
                   </td>
+                  <td style={{ padding: '10px 14px' }}>
+                    <button onClick={() => toggle(p.id, 'trending', p.trending)} style={{
+                      padding: '5px 16px', border: 'none', borderRadius: 20, cursor: 'pointer', fontWeight: 600, fontSize: 12,
+                      background: p.trending ? '#fde8d8' : '#f0f0f0', color: p.trending ? '#923b00' : '#555',
+                    }}>
+                      {p.trending ? <><Flame size={12} /> On</> : 'Off'}
+                    </button>
+                  </td>
                 </tr>
               ))}
               {visible.length === 0 && (
-                <tr><td colSpan={5} style={{ padding: 60, textAlign: 'center', color: '#9aa5b1' }}>No products</td></tr>
+                <tr><td colSpan={6} style={{ padding: 60, textAlign: 'center', color: '#9aa5b1' }}>No products</td></tr>
               )}
             </tbody>
           </table>
