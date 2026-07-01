@@ -1,4 +1,4 @@
-# লতা ইলেকট্রিক — Lata Electric
+Lata Electric
 
 A full-stack e-commerce platform for an electrical hardware shop in Dhaka, Bangladesh. Built with React, Express.js, and Supabase.
 
