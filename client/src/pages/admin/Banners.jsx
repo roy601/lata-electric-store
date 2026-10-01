@@ -1,9 +1,8 @@
-﻿import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Image, Pencil, Eye, EyeOff, Trash2, FolderOpen, Clock } from 'lucide-react';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
-import api from '../../api/axiosConfig';
+import { getBanners, createBanner, updateBanner, deleteBanner, getProducts, uploadImage, errMsg } from '../../api/adminApi';
 import { compressImage } from '../../lib/compressImage';
 
 const EMPTY = { image: '', title: '', subtitle: '', product_id: '', sort_order: 0, is_active: true };
@@ -21,12 +20,11 @@ export default function AdminBanners() {
 
   const load = async () => {
     setLoading(true);
-    const [bRes, pRes] = await Promise.all([
-      supabase.from('banners').select('*').order('sort_order'),
-      supabase.from('products').select('id, name').eq('is_active', true).order('name'),
-    ]);
-    setBanners(bRes.data || []);
-    setProducts(pRes.data || []);
+    try {
+      const [bRes, pRes] = await Promise.all([getBanners(), getProducts()]);
+      setBanners(bRes.data.banners || []);
+      setProducts((pRes.data.products || []).filter(p => p.is_active).sort((a, b) => a.name.localeCompare(b.name)));
+    } catch (err) { toast.error(errMsg(err, 'Failed to load banners')); }
     setLoading(false);
   };
 
@@ -39,9 +37,8 @@ export default function AdminBanners() {
   const uploadFile = async (file) => {
     setUploading(true);
     const compressed = await compressImage(file, { maxWidth: 1200, maxHeight: 500, quality: 0.85 });
-    const fd = new FormData(); fd.append('image', compressed);
     try {
-      const { data } = await api.post('/uploads/image', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const { data } = await uploadImage(compressed);
       setForm(f => ({ ...f, image: data.url }));
     } catch { toast.error('Upload failed'); }
     setUploading(false);
@@ -51,25 +48,23 @@ export default function AdminBanners() {
     if (!form.image) { toast.error('Banner image is required'); return; }
     setSaving(true);
     const payload = { image: form.image, title: form.title||null, subtitle: form.subtitle||null, product_id: form.product_id ? +form.product_id : null, sort_order: +form.sort_order||0, is_active: form.is_active };
-    const { error } = editId
-      ? await supabase.from('banners').update(payload).eq('id', editId)
-      : await supabase.from('banners').insert(payload);
+    try { editId ? await updateBanner(editId, payload) : await createBanner(payload); }
+    catch (err) { setSaving(false); toast.error(errMsg(err)); return; }
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
     toast.success(editId ? 'Banner updated' : 'Banner added');
     close(); load();
   };
 
   const del = async (id) => {
     if (!confirm('Delete this banner?')) return;
-    const { error } = await supabase.from('banners').delete().eq('id', id);
-    if (error) { toast.error(error.message); return; }
+    try { await deleteBanner(id); }
+    catch (err) { toast.error(errMsg(err)); return; }
     toast.success('Deleted'); load();
   };
 
   const toggleActive = async (id, current) => {
-    const { error } = await supabase.from('banners').update({ is_active: !current }).eq('id', id);
-    if (error) { toast.error(error.message); return; }
+    try { await updateBanner(id, { is_active: !current }); }
+    catch (err) { toast.error(errMsg(err)); return; }
     setBanners(bs => bs.map(b => b.id === id ? { ...b, is_active: !current } : b));
   };
 

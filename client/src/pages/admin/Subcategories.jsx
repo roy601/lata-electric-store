@@ -1,7 +1,7 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Lightbulb, FolderOpen } from 'lucide-react';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { supabase } from '../../lib/supabase';
+import { getCategories, getSubcategories, createSubcategory, updateSubcategory, deleteSubcategory, errMsg } from '../../api/adminApi';
 import toast from 'react-hot-toast';
 
 const EMPTY_GROUP = { header: '', items: [] };
@@ -99,13 +99,13 @@ export default function AdminSubcategories() {
 
   useEffect(() => {
     const load = async () => {
-      const [cRes, sRes] = await Promise.all([
-        supabase.from('categories').select('id, name').eq('is_active', true).order('sort_order'),
-        supabase.from('subcategories').select('*').order('sort_order'),
-      ]);
-      const cats = cRes.data || [];
-      setCategories(cats);
-      setSubcats(sRes.data || []);
+      let cats = [];
+      try {
+        const [cRes, sRes] = await Promise.all([getCategories(), getSubcategories()]);
+        cats = (cRes.data.categories || []).filter(c => c.is_active);   // already sorted by sort_order
+        setCategories(cats);
+        setSubcats(sRes.data.subcategories || []);
+      } catch (err) { toast.error(errMsg(err, 'Failed to load')); }
       if (cats.length > 0) setSelCatId(cats[0].id);
       setLoading(false);
     };
@@ -119,14 +119,15 @@ export default function AdminSubcategories() {
     setSaving(true);
     if (modal?.id) {
       // Update
-      const { error } = await supabase.from('subcategories').update({ header: form.header, items: form.items, sort_order: form.sort_order }).eq('id', modal.id);
-      if (error) { toast.error('Save failed: ' + error.message); setSaving(false); return; }
+      try { await updateSubcategory(modal.id, { header: form.header, items: form.items, sort_order: form.sort_order }); }
+      catch (err) { toast.error('Save failed: ' + errMsg(err)); setSaving(false); return; }
       setSubcats(s => s.map(g => g.id === modal.id ? { ...g, ...form } : g));
       toast.success('Group updated');
     } else {
       // Insert
-      const { data, error } = await supabase.from('subcategories').insert({ category_id: selCatId, header: form.header, items: form.items, sort_order: form.sort_order }).select().single();
-      if (error) { toast.error('Save failed: ' + error.message); setSaving(false); return; }
+      let data;
+      try { data = (await createSubcategory({ category_id: selCatId, header: form.header, items: form.items, sort_order: form.sort_order })).data.item; }
+      catch (err) { toast.error('Save failed: ' + errMsg(err)); setSaving(false); return; }
       setSubcats(s => [...s, data]);
       toast.success('Group added');
     }
@@ -136,16 +137,16 @@ export default function AdminSubcategories() {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this subcategory group?')) return;
-    const { error } = await supabase.from('subcategories').delete().eq('id', id);
-    if (error) { toast.error('Delete failed'); return; }
+    try { await deleteSubcategory(id); }
+    catch { toast.error('Delete failed'); return; }
     setSubcats(s => s.filter(g => g.id !== id));
     toast.success('Group deleted');
   };
 
   const moveOrder = async (group, dir) => {
     const newOrder = group.sort_order + dir;
-    const { error } = await supabase.from('subcategories').update({ sort_order: newOrder }).eq('id', group.id);
-    if (!error) setSubcats(s => s.map(g => g.id === group.id ? { ...g, sort_order: newOrder } : g).sort((a, b) => a.sort_order - b.sort_order));
+    try { await updateSubcategory(group.id, { sort_order: newOrder }); } catch { return; }
+    setSubcats(s => s.map(g => g.id === group.id ? { ...g, sort_order: newOrder } : g).sort((a, b) => a.sort_order - b.sort_order));
   };
 
   return (

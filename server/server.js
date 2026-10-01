@@ -23,9 +23,16 @@ const customerRoutes  = require('./routes/customers');
 const settingsRoutes  = require('./routes/settings');
 const uploadRoutes    = require('./routes/uploads');
 const couponRoutes    = require('./routes/coupons');
+const subcategoryRoutes = require('./routes/subcategories');
+const bannerRoutes      = require('./routes/banners');
+const electricianRoutes = require('./routes/electricians');
+const dashboardRoutes   = require('./routes/dashboard');
 
 const app  = express();
 const PORT = process.env.PORT || 5000;
+
+/* ─── Behind Render's proxy: use the real client IP for rate limiting ── */
+app.set('trust proxy', 1);
 
 /* ─── Security headers ── */
 app.use(helmet({
@@ -41,7 +48,7 @@ app.use(cors({
 }));
 
 /* ─── Body & cookie parsing ── */
-app.use(express.json({ limit: '10kb' }));
+app.use(express.json({ limit: '200kb' }));   // product payloads (description, specs, variants) exceed 10kb
 app.use(express.urlencoded({ extended: false, limit: '10kb' }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
@@ -65,6 +72,10 @@ app.use('/api/customers',  customerRoutes);
 app.use('/api/settings',   settingsRoutes);
 app.use('/api/uploads',    uploadRoutes);
 app.use('/api/coupons',    couponRoutes);
+app.use('/api/subcategories', subcategoryRoutes);
+app.use('/api/banners',       bannerRoutes);
+app.use('/api/electricians',  electricianRoutes);
+app.use('/api/dashboard',     dashboardRoutes);
 
 /* ─── Static uploads ── */
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

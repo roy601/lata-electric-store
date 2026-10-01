@@ -1,7 +1,7 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Zap, Package } from 'lucide-react';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { supabase } from '../../lib/supabase';
+import { getProducts, updateProduct, getSettings, updateSettings, errMsg } from '../../api/adminApi';
 import toast from 'react-hot-toast';
 
 export default function AdminFlashSale() {
@@ -14,12 +14,15 @@ export default function AdminFlashSale() {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const [pRes, sRes] = await Promise.all([
-        supabase.from('products').select('id, name, price, image, flash_sale, flash_price').order('name'),
-        supabase.from('settings').select('flash_sale_active, flash_sale_ends').eq('id', 1).maybeSingle(),
-      ]);
-      setProducts(pRes.data || []);
-      setSettings(sRes.data || { flash_sale_active: false, flash_sale_ends: '' });
+      try {
+        const [pRes, sRes] = await Promise.all([getProducts(), getSettings()]);
+        setProducts((pRes.data.products || []).sort((a, b) => a.name.localeCompare(b.name)));
+        const st = sRes.data.settings || {};
+        setSettings({ flash_sale_active: st.flash_sale_active ?? false, flash_sale_ends: st.flash_sale_ends ?? '' });
+      } catch (err) {
+        toast.error(errMsg(err, 'Failed to load'));
+        setSettings({ flash_sale_active: false, flash_sale_ends: '' });
+      }
       setLoading(false);
     };
     load();
@@ -27,29 +30,25 @@ export default function AdminFlashSale() {
 
   const saveSettings = async () => {
     setSaving(true);
-    // Use upsert so it works whether or not a settings row exists
-    const { error } = await supabase.from('settings').upsert({
-      id:                1,
-      flash_sale_active: settings.flash_sale_active,
-      flash_sale_ends:   settings.flash_sale_ends || null,
-    }, { onConflict: 'id' });
+    try {
+      await updateSettings({ flash_sale_active: settings.flash_sale_active, flash_sale_ends: settings.flash_sale_ends || null });
+    } catch (err) { setSaving(false); toast.error(errMsg(err)); return; }
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
     toast.success(settings.flash_sale_active ? 'Flash sale is now ACTIVE' : 'Flash sale turned off');
   };
 
   const toggleFlash = async (id, current) => {
     const newVal = !current;
-    const { error } = await supabase.from('products').update({ flash_sale: newVal }).eq('id', id);
-    if (error) { toast.error('Update failed: ' + error.message); return; }
+    try { await updateProduct(id, { flash_sale: newVal }); }
+    catch (err) { toast.error('Update failed: ' + errMsg(err)); return; }
     setProducts(prev => prev.map(p => p.id === id ? { ...p, flash_sale: newVal } : p));
     toast.success(newVal ? 'Added to flash sale' : 'Removed from flash sale');
   };
 
   const updateFlashPrice = async (id, price) => {
     if (!price || isNaN(+price) || +price <= 0) { toast.error('Enter a valid price'); return; }
-    const { error } = await supabase.from('products').update({ flash_price: +price }).eq('id', id);
-    if (error) { toast.error('Update failed: ' + error.message); return; }
+    try { await updateProduct(id, { flash_price: +price }); }
+    catch (err) { toast.error('Update failed: ' + errMsg(err)); return; }
     setProducts(prev => prev.map(p => p.id === id ? { ...p, flash_price: +price } : p));
     toast.success('Flash price saved');
   };

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { X, User, FolderOpen, Save, Plus, HardHat, Phone, Pencil, Trash2 } from 'lucide-react';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { supabase } from '../../lib/supabase';
+import { getElectricians, createElectrician, updateElectrician, deleteElectrician, uploadImage as apiUpload, errMsg } from '../../api/adminApi';
 import toast from 'react-hot-toast';
 import { compressImage } from '../../lib/compressImage';
 
@@ -18,12 +18,10 @@ function Modal({ data, onClose, onSave }) {
     if (!file) return;
     setUploading(true);
     const compressed = await compressImage(file, { maxWidth: 600, maxHeight: 600, quality: 0.85 });
-    const ext  = compressed.name.split('.').pop();
-    const path = `staff_${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from('electricians').upload(path, compressed, { upsert: true });
-    if (error) { toast.error('Upload failed: ' + error.message); setUploading(false); return; }
-    const { data: pub } = supabase.storage.from('electricians').getPublicUrl(path);
-    set('image', pub.publicUrl);
+    let url;
+    try { url = (await apiUpload(compressed, 'electricians')).data.url; }
+    catch (err) { toast.error('Upload failed: ' + errMsg(err)); setUploading(false); return; }
+    set('image', url);
     toast.success('Photo uploaded');
     setUploading(false);
   };
@@ -139,21 +137,16 @@ export default function Electricians() {
   const [modal,   setModal]   = useState(null);
 
   const load = async () => {
-    const { data } = await supabase.from('electricians').select('*').order('sort_order').order('id');
-    setList(data || []);
+    try { const { data } = await getElectricians(); setList(data.electricians || []); }
+    catch (err) { toast.error(errMsg(err, 'Failed to load')); }
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
 
   const save = async (form) => {
     const payload = { name: form.name, role: form.role, phone: form.phone, image: form.image, bio: form.bio, sort_order: form.sort_order, is_active: form.is_active };
-    let err;
-    if (form.id) {
-      ({ error: err } = await supabase.from('electricians').update(payload).eq('id', form.id));
-    } else {
-      ({ error: err } = await supabase.from('electricians').insert(payload));
-    }
-    if (err) { toast.error('Save failed: ' + err.message); return; }
+    try { form.id ? await updateElectrician(form.id, payload) : await createElectrician(payload); }
+    catch (err) { toast.error('Save failed: ' + errMsg(err)); return; }
     toast.success(form.id ? 'Electrician updated' : 'Electrician added');
     setModal(null);
     load();
@@ -161,14 +154,15 @@ export default function Electricians() {
 
   const remove = async (id) => {
     if (!window.confirm('Delete this electrician?')) return;
-    const { error } = await supabase.from('electricians').delete().eq('id', id);
-    if (error) { toast.error(error.message); return; }
+    try { await deleteElectrician(id); }
+    catch (err) { toast.error(errMsg(err)); return; }
     toast.success('Deleted');
     load();
   };
 
   const toggle = async (item) => {
-    await supabase.from('electricians').update({ is_active: !item.is_active }).eq('id', item.id);
+    try { await updateElectrician(item.id, { is_active: !item.is_active }); }
+    catch (err) { toast.error(errMsg(err)); }
     load();
   };
 

@@ -1,7 +1,7 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TrendingUp, Package, Star, Flame } from 'lucide-react';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { supabase } from '../../lib/supabase';
+import { getProducts, updateProduct } from '../../api/adminApi';
 import toast from 'react-hot-toast';
 
 export default function AdminFeatured() {
@@ -12,16 +12,18 @@ export default function AdminFeatured() {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const { data } = await supabase.from('products').select('id, name, price, image, featured, top_sell, trending, stock').order('name');
-      setProducts(data || []);
+      try {
+        const { data } = await getProducts();
+        setProducts((data.products || []).sort((a, b) => a.name.localeCompare(b.name)));
+      } catch { toast.error('Failed to load products'); }
       setLoading(false);
     };
     load();
   }, []);
 
   const toggle = async (id, field, current) => {
-    const { error } = await supabase.from('products').update({ [field]: !current }).eq('id', id);
-    if (error) { toast.error('Update failed'); return; }
+    try { await updateProduct(id, { [field]: !current }); }
+    catch { toast.error('Update failed'); return; }
     setProducts(prev => prev.map(p => p.id === id ? { ...p, [field]: !current } : p));
     toast.success('Updated');
   };

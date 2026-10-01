@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Clock, DollarSign, Package, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { supabase } from '../../lib/supabase';
+import { getDashboardStats } from '../../api/adminApi';
 
 const STATUS_COLOR = {
   pending:   { bg: '#fff3cd', color: '#856404' },
@@ -47,39 +47,13 @@ export default function Dashboard() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [ordersRes, productsRes] = await Promise.all([
-          supabase.from('orders').select('total, status, created_at, order_id, customer_name'),
-          supabase.from('products').select('id, name, stock, price, image'),
-        ]);
-
-        const orders   = ordersRes.data  || [];
-        const products = productsRes.data || [];
-
-        const today = new Date(); today.setHours(0, 0, 0, 0);
-        const todayOrders = orders.filter(o => new Date(o.created_at) >= today);
-        const revenue     = orders.filter(o => o.status === 'delivered').reduce((s, o) => s + (+o.total || 0), 0);
-        const pending     = orders.filter(o => o.status === 'pending').length;
-
-        setStats({
-          totalOrders:   orders.length,
-          todayOrders:   todayOrders.length,
-          revenue,
-          totalProducts: products.length,
-          pendingOrders: pending,
-        });
-
-        setRecent(
-          [...orders]
-            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-            .slice(0, 8)
-        );
-
-        setLowStock(
-          products
-            .filter(p => p.stock <= 5)
-            .sort((a, b) => a.stock - b.stock)
-            .slice(0, 6)
-        );
+        // Figures are computed on the server
+        const { data } = await getDashboardStats();
+        setStats(data.stats);
+        setRecent(data.recentOrders || []);
+        setLowStock(data.lowStock || []);
+      } catch {
+        setStats({ totalOrders: 0, todayOrders: 0, revenue: 0, totalProducts: 0, pendingOrders: 0 });
       } finally {
         setLoading(false);
       }

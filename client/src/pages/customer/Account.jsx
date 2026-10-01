@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Package, Inbox, Clock, CheckCircle2, Truck, XCircle, RotateCcw, Search, LogIn, LogOut, User } from 'lucide-react';
 import CustomerLayout from '../../components/layout/CustomerLayout';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
-import { supabase } from '../../lib/supabase';
+import { getMyOrders } from '../../api/customerApi';
 
 const STATUS_META = {
   pending:          { bg: '#fff3cd', color: '#856404',  Icon: Clock,         label: 'Pending' },
@@ -24,15 +24,10 @@ export default function Account() {
   useEffect(() => {
     if (!user) return;
     setFetching(true);
-    supabase
-      .from('orders')
-      .select('*')
-      .eq('customer_email', user.email)
-      .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        setOrders(data || []);
-        setFetching(false);
-      });
+    getMyOrders()
+      .then(({ data }) => setOrders(data.orders || []))
+      .catch(() => setOrders([]))
+      .finally(() => setFetching(false));
   }, [user]);
 
   const toggleExpand = (id) => setExpanded(prev => ({ ...prev, [id]: !prev[id] }));

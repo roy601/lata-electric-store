@@ -1,6 +1,6 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { supabase } from '../../lib/supabase';
+import { getSettings, updateSettings, errMsg } from '../../api/adminApi';
 import toast from 'react-hot-toast';
 
 export default function AdminPayments() {
@@ -9,24 +9,24 @@ export default function AdminPayments() {
   const [saving, setSaving]     = useState(false);
 
   useEffect(() => {
-    supabase.from('settings').select('*').eq('id', 1).maybeSingle().then(({ data }) => {
-      setSettings(data || {});
-      setLoading(false);
-    });
+    getSettings()
+      .then(({ data }) => setSettings(data.settings || {}))
+      .catch(err => { toast.error(errMsg(err, 'Failed to load settings')); setSettings({}); })
+      .finally(() => setLoading(false));
   }, []);
 
   const save = async () => {
     setSaving(true);
-    const { error } = await supabase.from('settings').upsert({
-      id:                 1,
+    let error;
+    try { await updateSettings({
       payment_methods:    settings.payment_methods,
       bkash_number:       settings.bkash_number    || null,
       nagad_number:       settings.nagad_number    || null,
       bkash_instructions: settings.bkash_instructions || null,
       nagad_instructions: settings.nagad_instructions || null,
-    }, { onConflict: 'id' });
+    }); } catch (err) { error = errMsg(err); }
     setSaving(false);
-    if (error) toast.error(error.message);
+    if (error) toast.error(error);
     else toast.success('Payment settings saved');
   };
 
