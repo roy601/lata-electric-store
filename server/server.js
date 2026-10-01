@@ -27,6 +27,7 @@ const subcategoryRoutes = require('./routes/subcategories');
 const bannerRoutes      = require('./routes/banners');
 const electricianRoutes = require('./routes/electricians');
 const dashboardRoutes   = require('./routes/dashboard');
+const aiRoutes          = require('./routes/ai');
 
 const app  = express();
 const PORT = process.env.PORT || 5000;
@@ -76,6 +77,7 @@ app.use('/api/subcategories', subcategoryRoutes);
 app.use('/api/banners',       bannerRoutes);
 app.use('/api/electricians',  electricianRoutes);
 app.use('/api/dashboard',     dashboardRoutes);
+app.use('/api/ai',            aiRoutes);
 
 /* ─── Static uploads ── */
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

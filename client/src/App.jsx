@@ -1,4 +1,4 @@
-﻿import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import { CustomerAuthProvider } from './context/CustomerAuthContext';
@@ -22,6 +22,7 @@ const AdminBanners        = lazy(() => import('./pages/admin/Banners'));
 const AdminSubcategories  = lazy(() => import('./pages/admin/Subcategories'));
 const AdminElectricians   = lazy(() => import('./pages/admin/Electricians'));
 const AdminCoupons        = lazy(() => import('./pages/admin/Coupons'));
+const AdminAssistant      = lazy(() => import('./pages/admin/Assistant'));
 
 // Customer pages
 const Home           = lazy(() => import('./pages/customer/Home'));
@@ -90,6 +91,7 @@ export default function App() {
               <Route path="/admin/settings"       element={<AdminSettings />} />
               <Route path="/admin/electricians"   element={<AdminElectricians />} />
               <Route path="/admin/coupons"        element={<AdminCoupons />} />
+              <Route path="/admin/assistant"      element={<AdminAssistant />} />
             </Route>
 
             {/* ── 404 ── */}

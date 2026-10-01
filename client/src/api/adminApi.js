@@ -53,6 +53,15 @@ export const uploadImage = (file, bucket) => {
   });
 };
 
+// ── AI assistant ───────────────────────────────────────────
+export const aiStatus             = ()       => api.get('/ai/status');
+export const aiConversations      = ()       => api.get('/ai/conversations');
+export const aiConversation       = (id)     => api.get(`/ai/conversations/${id}`);
+export const aiDeleteConversation = (id)     => api.delete(`/ai/conversations/${id}`);
+// Answers can take a while (several tool calls), so allow up to 2 minutes
+export const aiChat = (conversationId, message) =>
+  api.post('/ai/chat', { conversation_id: conversationId, message }, { timeout: 120_000 });
+
 /** Pull a readable message out of an axios error. */
 export const errMsg = (err, fallback = 'Something went wrong') =>
   err?.response?.data?.message || err?.message || fallback;

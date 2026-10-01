@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, ShoppingCart, Package, LayoutGrid, List,
-  Users, Image, Star, Zap, CreditCard, Truck, HardHat, Settings, LogOut, Tag,
+  Users, Image, Star, Zap, CreditCard, Truck, HardHat, Settings, LogOut, Tag, Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 
 const NAV = [
   { to: '/admin/dashboard',    Icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/admin/assistant',    Icon: Sparkles,        label: 'AI Assistant' },
   { to: '/admin/orders',       Icon: ShoppingCart,    label: 'Orders' },
   { to: '/admin/products',     Icon: Package,         label: 'Products' },
   { to: '/admin/categories',   Icon: LayoutGrid,      label: 'Categories' },

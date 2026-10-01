@@ -15,6 +15,22 @@ The order matters. Locking the database before the new code is live would break 
    After this, the public anon key can only read catalogue data. Orders, coupons and admins become reachable only through the API.
 6. **Re-check.** The storefront, checkout, order tracking, the Account page and every admin page should still work.
 
+## Migration 03: history and AI assistant
+
+Run `migrations/20261001_03_history_and_ai.sql` at any time. It only adds things:
+
+- **`order_status_history` and `inventory_movements`.** Database triggers fill these automatically from now on.
+- **The AI assistant's tables:** conversations, messages, tool-call audit and usage.
+
+To switch the assistant on, add these to the server's environment on Render, then redeploy:
+
+```
+ANTHROPIC_API_KEY=sk-ant-...      # from console.anthropic.com
+AI_MONTHLY_BUDGET_USD=5           # optional; hard monthly stop (default 5)
+```
+
+Also set a monthly spend limit in the Anthropic Console as a second safeguard.
+
 ### Rolling back step 5
 
 In the SQL Editor, run `alter table public.<table> disable row level security;` for the affected table. This restores open access, so treat it as temporary.
