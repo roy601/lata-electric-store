@@ -164,8 +164,11 @@ export default function AdminAssistant() {
           </div>
           {status?.configured && (
             <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 8, marginTop: 8, fontSize: 11, color: '#64748b', lineHeight: 1.6 }}>
-              <div>This month: ${status.month_cost_usd?.toFixed(2)} of ${status.monthly_budget_usd} budget</div>
               <div>Today: {status.messages_today} of {status.daily_message_limit} questions</div>
+              {status.paid
+                ? <div>This month: ${status.month_cost_usd?.toFixed(2)} of ${status.monthly_budget_usd} budget</div>
+                : <div>Free AI · {(status.month_tokens || 0).toLocaleString()} tokens this month</div>}
+              <div style={{ color: '#94a3b8' }}>Using: {(status.providers || []).join(' → ')}</div>
             </div>
           )}
         </div>
@@ -177,7 +180,7 @@ export default function AdminAssistant() {
               <div style={{ display: 'flex', gap: 10, background: '#FFF8E1', border: '1px solid #FFE082', borderRadius: 10, padding: 14, fontSize: 13, color: '#6d4c00', marginBottom: 16 }}>
                 <AlertTriangle size={18} style={{ flexShrink: 0 }} />
                 <div>
-                  {loadError || <>The assistant is switched off. To turn it on, add <code>ANTHROPIC_API_KEY</code> to the server's environment on Render (and optionally <code>AI_MONTHLY_BUDGET_USD</code>), then redeploy.</>}
+                  {loadError || <>The assistant is switched off. To turn it on, add a free <code>CEREBRAS_API_KEY</code> and/or <code>GROQ_API_KEY</code> to the server's environment on Render, then redeploy. See supabase/README.md for the steps.</>}
                 </div>
               </div>
             )}

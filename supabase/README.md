@@ -22,14 +22,21 @@ Run `migrations/20261001_03_history_and_ai.sql` at any time. It only adds things
 - **`order_status_history` and `inventory_movements`.** Database triggers fill these automatically from now on.
 - **The AI assistant's tables:** conversations, messages, tool-call audit and usage.
 
-To switch the assistant on, add these to the server's environment on Render, then redeploy:
+To switch the assistant on, use free AI providers. No credit card is needed.
 
-```
-ANTHROPIC_API_KEY=sk-ant-...      # from console.anthropic.com
-AI_MONTHLY_BUDGET_USD=5           # optional; hard monthly stop (default 5)
-```
+1. Create free API keys:
+   - **Cerebras:** https://cloud.cerebras.ai → API Keys. The free tier allows about 1M tokens/day.
+   - **Groq:** https://console.groq.com → API Keys. The free tier allows about 200k tokens/day. It's used automatically when Cerebras is busy.
+2. In Render → your service → Environment, add:
+   ```
+   CEREBRAS_API_KEY=csk-...
+   GROQ_API_KEY=gsk_...
+   ```
+3. Save. Render redeploys automatically. Then open **Admin → AI Assistant**.
 
-Also set a monthly spend limit in the Anthropic Console as a second safeguard.
+Optional: in the Groq Console → Data Controls, turn on **Zero Data Retention**.
+
+Claude (paid) is still supported. Set `ANTHROPIC_API_KEY` only if you decide to use it.
 
 ### Rolling back step 5
 

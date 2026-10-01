@@ -8,27 +8,57 @@
 const { supabase }          = require('../config/db');
 const logger                = require('../utils/logger');
 const { AnthropicProvider } = require('./provider');
+const { OpenAICompatibleProvider, FallbackProvider } = require('./openaiProvider');
 const { toolDefinitions, runTool } = require('./tools');
 const { todayDhaka }        = require('./analytics');
 
-/* ── Configuration (server/.env) ─────────────────────────────────── */
+/* ── Providers (server/.env) ─────────────────────────────────────────
+ * AI_PROVIDERS = comma-separated order to try, e.g. "cerebras,groq,ollama".
+ * Unset → every provider that has its key/URL set, in the order below.
+ * The free ones need only a free API key; "claude" is paid.
+ */
+const env = process.env;
+const gptOss = (model) => (/gpt-oss/.test(model) ? { reasoning_effort: 'low' } : {});
+const PROVIDERS = {
+  cerebras: () => env.CEREBRAS_API_KEY && new OpenAICompatibleProvider({
+    name: 'cerebras', baseURL: 'https://api.cerebras.ai/v1', apiKey: env.CEREBRAS_API_KEY,
+    model: env.CEREBRAS_MODEL || 'gpt-oss-120b', extraBody: gptOss(env.CEREBRAS_MODEL || 'gpt-oss-120b'),
+  }),
+  groq: () => env.GROQ_API_KEY && new OpenAICompatibleProvider({
+    name: 'groq', baseURL: 'https://api.groq.com/openai/v1', apiKey: env.GROQ_API_KEY,
+    model: env.GROQ_MODEL || 'openai/gpt-oss-120b', extraBody: gptOss(env.GROQ_MODEL || 'openai/gpt-oss-120b'),
+  }),
+  ollama: () => env.OLLAMA_URL && new OpenAICompatibleProvider({
+    name: 'ollama', baseURL: env.OLLAMA_URL.replace(/\/+$/, '') + '/v1', apiKey: env.OLLAMA_API_KEY || '',
+    model: env.OLLAMA_MODEL || 'qwen3:8b',
+  }),
+  claude: () => env.ANTHROPIC_API_KEY && Object.assign(
+    new AnthropicProvider({ apiKey: env.ANTHROPIC_API_KEY, model: env.AI_MODEL || 'claude-haiku-4-5' }),
+    { name: 'claude' }),
+};
+
+const buildProvider = () => {
+  const order = (env.AI_PROVIDERS || 'cerebras,groq,ollama,claude').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  const list = order.map(n => PROVIDERS[n]?.()).filter(Boolean);
+  return list.length ? new FallbackProvider(list, { logger }) : null;
+};
+
 const CONFIG = {
-  apiKey:          process.env.ANTHROPIC_API_KEY || '',
-  model:           process.env.AI_MODEL || 'claude-haiku-4-5',
-  // USD per million tokens — defaults are Claude Haiku 4.5 list prices
-  priceIn:         +process.env.AI_PRICE_INPUT_PER_MTOK  || 1,
-  priceOut:        +process.env.AI_PRICE_OUTPUT_PER_MTOK || 5,
-  monthlyBudget:   +process.env.AI_MONTHLY_BUDGET_USD    || 5,
-  dailyPerAdmin:   +process.env.AI_DAILY_MESSAGES_PER_ADMIN || 60,
+  // USD per million tokens — only charged when Claude is in use (Haiku 4.5 list prices)
+  priceIn:         +env.AI_PRICE_INPUT_PER_MTOK  || 1,
+  priceOut:        +env.AI_PRICE_OUTPUT_PER_MTOK || 5,
+  monthlyBudget:   +env.AI_MONTHLY_BUDGET_USD    || 5,
+  dailyPerAdmin:   +env.AI_DAILY_MESSAGES_PER_ADMIN || 60,
   maxSteps:        8,          // model calls per question
-  maxTokens:       2048,       // per model call
+  maxTokens:       4096,       // per model call (reasoning models count thinking here too)
   historyMessages: 20,         // earlier chat messages sent as context
   toolResultChars: 12_000,     // cap on one tool result sent to the model
 };
 
-const isConfigured = () => !!CONFIG.apiKey;
-let provider = null;
-const getProvider = () => (provider ||= new AnthropicProvider({ apiKey: CONFIG.apiKey, model: CONFIG.model }));
+let provider = buildProvider();
+const isConfigured = () => !!provider;
+const getProvider = () => provider;
+const usesPaidProvider = () => !!provider?.names?.includes('claude');
 
 class AssistantError extends Error {
   constructor(message, status = 400) { super(message); this.status = status; }
@@ -76,8 +106,11 @@ const getUsage = async (adminId) => {
   const inTok  = month.data.reduce((s, r) => s + +r.input_tokens, 0);
   const outTok = month.data.reduce((s, r) => s + +r.output_tokens, 0);
   return {
-    month_cost_usd:      Math.round(costUsd(inTok, outTok) * 1000) / 1000,
-    monthly_budget_usd:  CONFIG.monthlyBudget,
+    // Free providers cost nothing; the $ budget only applies when Claude is configured
+    paid:                usesPaidProvider(),
+    month_cost_usd:      usesPaidProvider() ? Math.round(costUsd(inTok, outTok) * 1000) / 1000 : 0,
+    monthly_budget_usd:  usesPaidProvider() ? CONFIG.monthlyBudget : null,
+    month_tokens:        inTok + outTok,
     messages_today:      today.count || 0,
     daily_message_limit: CONFIG.dailyPerAdmin,
   };
@@ -126,13 +159,13 @@ const historyFor = async (conversationId) => {
 
 /* ── The tool-calling loop ───────────────────────────────────────── */
 const chat = async (admin, { conversationId, text }) => {
-  if (!isConfigured()) throw new AssistantError('The AI assistant is not set up. Add ANTHROPIC_API_KEY to the server environment.', 503);
+  if (!isConfigured()) throw new AssistantError('The AI assistant is not set up. Add a free CEREBRAS_API_KEY or GROQ_API_KEY to the server environment.', 503);
   const question = String(text || '').trim();
   if (!question)              throw new AssistantError('Please type a question.');
   if (question.length > 4000) throw new AssistantError('Message too long (max 4000 characters).');
 
   const usage = await getUsage(admin.id);
-  if (usage.month_cost_usd >= CONFIG.monthlyBudget) {
+  if (usage.paid && usage.month_cost_usd >= CONFIG.monthlyBudget) {
     throw new AssistantError(`This month's AI budget ($${CONFIG.monthlyBudget}) has been used. It resets on the 1st, or raise AI_MONTHLY_BUDGET_USD.`, 429);
   }
   if (usage.messages_today >= CONFIG.dailyPerAdmin) {
@@ -147,17 +180,19 @@ const chat = async (admin, { conversationId, text }) => {
   const displays = [];
   const toolLog = [];
   let answer = '';
+  let answeredBy = null;
 
   try {
     for (let step = 0; step < CONFIG.maxSteps; step++) {
       const res = await llm.chat({ system: systemBlocks(), messages, tools, maxTokens: CONFIG.maxTokens });
+      answeredBy = res.provider || answeredBy;
       await recordUsage(admin.id, res.usage);
 
       if (res.stopReason === 'tool_use' && res.toolCalls.length) {
         messages.push({ role: 'assistant', content: res.assistantContent });
         const results = await Promise.all(res.toolCalls.map(async (call) => {
           const started = Date.now();
-          const out = await runTool(call.name, call.input);
+          const out = call.inputError ? { ok: false, error: call.inputError } : await runTool(call.name, call.input);
           toolLog.push({ tool: call.name, input: call.input, ok: out.ok, error: out.ok ? null : out.error, duration_ms: Date.now() - started });
           if (out.ok && out.display && out.display.rows.length && displays.length < 6) displays.push(out.display);
           let content = JSON.stringify(out.ok ? out.result : { error: out.error });
@@ -202,12 +237,13 @@ const chat = async (admin, { conversationId, text }) => {
       .then(({ error }) => error && logger.error(`ai_tool_calls insert failed: ${error.message}`));
   }
 
-  return { conversation_id: convo.id, title: convo.title, message: saved };
+  logger.info(`AI answer for admin ${admin.id} via ${answeredBy}`);
+  return { conversation_id: convo.id, title: convo.title, message: saved, answered_by: answeredBy };
 };
 
 const getStatus = async (adminId) => ({
   configured: isConfigured(),
-  model: CONFIG.model,
+  providers: provider?.names || [],
   ...(isConfigured() ? await getUsage(adminId) : {}),
 });
 
