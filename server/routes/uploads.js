@@ -1,6 +1,5 @@
 const express  = require('express');
 const multer   = require('multer');
-const path     = require('path');
 const { v4: uuidv4 } = require('uuid');
 const router   = express.Router();
 const { supabase } = require('../config/db');
@@ -16,6 +15,13 @@ const upload = multer({
   limits: { fileSize: 3 * 1024 * 1024 }, // 3 MB
 });
 
+const BUCKETS = {
+  'product-images': { name: 'product-images', prefix: 'products/' },
+  logos:            { name: 'logos',          prefix: 'logo_' },
+  electricians:     { name: 'electricians',   prefix: 'staff_' },
+};
+const EXT = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp' };
+
 router.post(
   '/image',
   protect,
@@ -26,11 +32,16 @@ router.post(
       return res.status(400).json({ success: false, message: 'No file or invalid type (jpeg/png/webp only).' });
     }
 
-    const ext      = path.extname(req.file.originalname).toLowerCase();
-    const filename = `products/${uuidv4()}${ext}`;
+    // ?bucket=logos|electricians — defaults to product images
+    const key    = String(req.query.bucket || 'product-images');
+    const bucket = Object.hasOwn(BUCKETS, key) ? BUCKETS[key] : null;
+    if (!bucket) return res.status(400).json({ success: false, message: 'Unknown upload destination.' });
+
+    const ext      = EXT[req.file.mimetype];
+    const filename = `${bucket.prefix}${uuidv4()}${ext}`;
 
     const { error } = await supabase.storage
-      .from('product-images')
+      .from(bucket.name)
       .upload(filename, req.file.buffer, {
         contentType: req.file.mimetype,
         upsert:      false,
@@ -41,7 +52,7 @@ router.post(
     }
 
     const { data } = supabase.storage
-      .from('product-images')
+      .from(bucket.name)
       .getPublicUrl(filename);
 
     res.status(201).json({ success: true, url: data.publicUrl });

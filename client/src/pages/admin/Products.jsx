@@ -1,8 +1,7 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Package, X } from 'lucide-react';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { supabase } from '../../lib/supabase';
-import { uploadImage } from '../../api/adminApi';
+import { uploadImage, getProducts, getCategories, getSubcategories, createProduct, updateProduct, deleteProduct, errMsg } from '../../api/adminApi';
 import { compressImage } from '../../lib/compressImage';
 import toast from 'react-hot-toast';
 
@@ -42,12 +41,11 @@ export default function AdminProducts() {
 
   const load = async () => {
     setLoading(true);
-    const [pRes, cRes] = await Promise.all([
-      supabase.from('products').select('*, categories(name)').order('id', { ascending: false }),
-      supabase.from('categories').select('id, name').eq('is_active', true).order('name'),
-    ]);
-    setProducts(pRes.data || []);
-    setCategories(cRes.data || []);
+    try {
+      const [pRes, cRes] = await Promise.all([getProducts(), getCategories()]);
+      setProducts(pRes.data.products || []);
+      setCategories((cRes.data.categories || []).filter(c => c.is_active).sort((a, b) => a.name.localeCompare(b.name)));
+    } catch (err) { toast.error(errMsg(err, 'Failed to load products')); }
     setLoading(false);
   };
 
@@ -57,8 +55,9 @@ export default function AdminProducts() {
   useEffect(() => {
     const catId = form?.category_id;
     if (!catId) { setSubcatOptions([]); return; }
-    supabase.from('subcategories').select('id, header').eq('category_id', catId).order('sort_order')
-      .then(({ data }) => setSubcatOptions(data || []));
+    getSubcategories({ category_id: catId })
+      .then(({ data }) => setSubcatOptions(data.subcategories || []))
+      .catch(() => setSubcatOptions([]));
   }, [form?.category_id]);
 
   const [extraImgLoading, setExtraImgLoading] = useState(false);
@@ -109,17 +108,18 @@ export default function AdminProducts() {
       subcategory_id: form.subcategory_id || null,
       is_active:      form.is_active,
       specifications: (form.specifications || []).filter(s => s.key.trim() && s.value.trim()),
-      variants: form.variants || EMPTY_VARIANTS,
+      variants: form.variants || DEFAULT_VARIANTS,
     };
 
-    let error;
-    if (form.id) {
-      ({ error } = await supabase.from('products').update(payload).eq('id', form.id));
-    } else {
-      ({ error } = await supabase.from('products').insert(payload));
+    try {
+      if (form.id) await updateProduct(form.id, payload);
+      else         await createProduct(payload);
+    } catch (err) {
+      setSaving(false);
+      toast.error('Save failed: ' + errMsg(err));
+      return;
     }
     setSaving(false);
-    if (error) { console.error('Save error:', error); toast.error('Save failed: ' + error.message); return; }
     toast.success(form.id ? 'Product updated' : 'Product added');
     setForm(null);
     load();
@@ -127,7 +127,8 @@ export default function AdminProducts() {
 
   const remove = async (id, name) => {
     if (!window.confirm(`Delete "${name}"?`)) return;
-    await supabase.from('products').delete().eq('id', id);
+    try { await deleteProduct(id); }
+    catch (err) { toast.error('Delete failed: ' + errMsg(err)); return; }
     toast.success('Deleted');
     setProducts(prev => prev.filter(p => p.id !== id));
   };

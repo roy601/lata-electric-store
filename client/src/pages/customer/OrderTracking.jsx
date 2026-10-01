@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ClipboardList, CheckCircle2, Truck, Star, X, LogIn } from 'lucide-react';
 import CustomerLayout from '../../components/layout/CustomerLayout';
-import { supabase } from '../../lib/supabase';
+import { trackOrder } from '../../api/customerApi';
 
 const STEPS = [
   { key: 'pending',   label: 'Order Placed',  Icon: ClipboardList,  desc: 'Your order has been received.' },
@@ -28,12 +28,9 @@ export default function OrderTracking() {
   const lookup = async (id, ph) => {
     if (!id || !ph) return;
     setLoading(true); setError(''); setOrder(null);
-    const { data } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('order_id', id.trim().toUpperCase())
-      .eq('customer_phone', ph.trim())
-      .single();
+    let data = null;
+    try { data = (await trackOrder(id.trim().toUpperCase(), ph.trim())).data.order; }
+    catch { /* 404 → not found */ }
     if (!data) setError('Order not found. Please check your Order ID and phone number.');
     else setOrder(data);
     setLoading(false);

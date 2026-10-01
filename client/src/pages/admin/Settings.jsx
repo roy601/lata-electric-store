@@ -1,7 +1,7 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Palette, Store, Home as HomeIcon, MapPin, Smartphone, Lock, Zap, FolderOpen, CheckCircle2 } from 'lucide-react';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { supabase } from '../../lib/supabase';
+import { getSettings, updateSettings, uploadImage, errMsg } from '../../api/adminApi';
 import { useAuth } from '../../context/AuthContext';
 import { changePassword as apiChangePassword } from '../../api/authApi';
 import toast from 'react-hot-toast';
@@ -17,14 +17,16 @@ export default function AdminSettings() {
   const [pwSaving, setPwSaving] = useState(false);
 
   useEffect(() => {
-    supabase.from('settings').select('*').eq('id', 1).maybeSingle()
-      .then(({ data }) => { setS(data || {}); setLoading(false); });
+    getSettings()
+      .then(({ data }) => setS(data.settings || {}))
+      .catch(err => { toast.error(errMsg(err, 'Failed to load settings')); setS({}); })
+      .finally(() => setLoading(false));
   }, []);
 
   const save = async () => {
     setSaving(true);
-    const { error } = await supabase.from('settings').upsert({
-      id:               1,
+    let error;
+    try { await updateSettings({
       logo_url:         s.logo_url,
       logo_bg_color:    s.logo_bg_color || '#1E88E5',
       store_name_bn:    s.store_name_bn,
@@ -42,9 +44,9 @@ export default function AdminSettings() {
       youtube:          s.youtube,
       map_url:          s.map_url,
       map_embed_src:    s.map_embed_src,
-    }, { onConflict: 'id' });
+    }); } catch (err) { error = errMsg(err); }
     setSaving(false);
-    if (error) toast.error(error.message);
+    if (error) toast.error(error);
     else toast.success('Settings saved');
   };
 
@@ -76,12 +78,10 @@ export default function AdminSettings() {
     if (!file) return;
     setLogoUploading(true);
     const compressed = await compressImage(file, { maxWidth: 400, maxHeight: 400, quality: 0.9 });
-    const ext  = compressed.name.split('.').pop();
-    const path = `logo_${Date.now()}.${ext}`;
-    const { error: upErr } = await supabase.storage.from('logos').upload(path, compressed, { upsert: true });
-    if (upErr) { toast.error('Upload failed: ' + upErr.message); setLogoUploading(false); return; }
-    const { data } = supabase.storage.from('logos').getPublicUrl(path);
-    setS(p => ({ ...p, logo_url: data.publicUrl }));
+    let url;
+    try { url = (await uploadImage(compressed, 'logos')).data.url; }
+    catch (err) { toast.error('Upload failed: ' + errMsg(err)); setLogoUploading(false); return; }
+    setS(p => ({ ...p, logo_url: url }));
     toast.success('Logo uploaded');
     setLogoUploading(false);
   };

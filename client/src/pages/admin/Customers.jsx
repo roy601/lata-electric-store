@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { supabase } from '../../lib/supabase';
+import { getCustomers, deleteCustomer as apiDeleteCustomer } from '../../api/adminApi';
 
 export default function AdminCustomers() {
   const [customers, setCustomers] = useState([]);
@@ -10,23 +10,9 @@ export default function AdminCustomers() {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const { data } = await supabase
-        .from('orders')
-        .select('customer_name, customer_phone, customer_address, customer_city, customer_district, total, created_at')
-        .order('created_at', { ascending: false });
-
-      // Group by phone to deduplicate
-      const map = new Map();
-      (data || []).forEach(o => {
-        const key = o.customer_phone;
-        if (!map.has(key)) {
-          map.set(key, { name: o.customer_name, phone: o.customer_phone, city: o.customer_city, orderCount: 0, totalSpent: 0, lastOrder: o.created_at });
-        }
-        const c = map.get(key);
-        c.orderCount++;
-        c.totalSpent += +o.total || 0;
-      });
-      setCustomers([...map.values()]);
+      // Grouped by phone on the server
+      try { const { data } = await getCustomers(); setCustomers(data.customers || []); }
+      catch { setCustomers([]); }
       setLoading(false);
     };
     load();
@@ -36,7 +22,8 @@ export default function AdminCustomers() {
 
   const deleteCustomer = async (phone, name) => {
     if (!window.confirm(`Delete all data for "${name}" (${phone})? This will delete their orders too.`)) return;
-    await supabase.from('orders').delete().eq('customer_phone', phone);
+    try { await apiDeleteCustomer(phone); }
+    catch { window.alert('Delete failed. Please try again.'); return; }
     setCustomers(prev => prev.filter(c => c.phone !== phone));
   };
 

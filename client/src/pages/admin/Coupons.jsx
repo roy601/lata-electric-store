@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { useAuth } from '../../context/AuthContext';
 import { Tag, Plus, Pencil, Trash2, ToggleLeft, ToggleRight, X, Check, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../api/axiosConfig';
@@ -35,8 +34,8 @@ function Badge({ active }) {
 }
 
 export default function AdminCoupons() {
-  const { token } = useAuth();
-  const headers = { Authorization: `Bearer ${token}` };
+  // Auth header is added by the axios interceptor
+  const headers = undefined;
 
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);

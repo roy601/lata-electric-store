@@ -1,7 +1,7 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Phone, MapPin, AlertTriangle, X, CheckCircle2, Package, RotateCcw } from 'lucide-react';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { supabase } from '../../lib/supabase';
+import { getOrders, updateOrderStatus, markOrderPaid, returnOrder, errMsg } from '../../api/adminApi';
 import toast from 'react-hot-toast';
 
 const STATUSES = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returned'];
@@ -30,26 +30,26 @@ export default function AdminOrders() {
 
   const load = async () => {
     setLoading(true);
-    let q = supabase.from('orders').select('*').order('created_at', { ascending: false });
-    if (filter !== 'all') q = q.eq('status', filter);
-    const { data } = await q;
-    setOrders(data || []);
+    try {
+      const { data } = await getOrders(filter !== 'all' ? { status: filter } : undefined);
+      setOrders(data.orders || []);
+    } catch (err) { toast.error(errMsg(err, 'Failed to load orders')); }
     setLoading(false);
   };
 
   useEffect(() => { load(); }, [filter]);
 
   const updateStatus = async (id, status) => {
-    const { error } = await supabase.from('orders').update({ status }).eq('id', id);
-    if (error) { toast.error('Update failed'); return; }
+    try { await updateOrderStatus(id, status); }
+    catch { toast.error('Update failed'); return; }
     toast.success('Status updated to ' + STATUS_META[status]?.label);
     setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
     if (selected?.id === id) setSelected(prev => ({ ...prev, status }));
   };
 
   const markPaid = async (id) => {
-    const { error } = await supabase.from('orders').update({ payment_paid: true }).eq('id', id);
-    if (error) { toast.error('Failed'); return; }
+    try { await markOrderPaid(id); }
+    catch { toast.error('Failed'); return; }
     toast.success('Payment marked as received');
     setOrders(prev => prev.map(o => o.id === id ? { ...o, payment_paid: true } : o));
     if (selected?.id === id) setSelected(prev => ({ ...prev, payment_paid: true }));
@@ -59,35 +59,15 @@ export default function AdminOrders() {
     if (!selected) return;
     setReturning(true);
 
-    // 1. Mark order as returned with reason
-    const { error: orderErr } = await supabase.from('orders')
-      .update({ status: 'returned', return_reason: returnReason || null })
-      .eq('id', selected.id);
+    // Marks the order returned and restocks its items in one transaction on the server
+    try { await returnOrder(selected.id, returnReason); }
+    catch (err) { toast.error('Failed: ' + errMsg(err)); setReturning(false); return; }
 
-    if (orderErr) { toast.error('Failed: ' + orderErr.message); setReturning(false); return; }
-
-    // 2. Add items back to inventory
     const items = selected.items || [];
-    const stockErrors = [];
-    for (const item of items) {
-      // Get current stock
-      const { data: prod } = await supabase.from('products').select('stock').eq('id', item.id).single();
-      if (prod) {
-        const newStock = (prod.stock || 0) + item.qty;
-        const { error: stockErr } = await supabase.from('products').update({ stock: newStock }).eq('id', item.id);
-        if (stockErr) stockErrors.push(item.name);
-      }
-    }
-
     setReturning(false);
     setShowReturnModal(false);
     setReturnReason('');
-
-    if (stockErrors.length > 0) {
-      toast.error(`Return saved but stock update failed for: ${stockErrors.join(', ')}`);
-    } else {
-      toast.success(`Return processed — ${items.length} item(s) restocked`);
-    }
+    toast.success(`Return processed — ${items.length} item(s) restocked`);
 
     setOrders(prev => prev.map(o => o.id === selected.id ? { ...o, status: 'returned', return_reason: returnReason || null } : o));
     setSelected(prev => ({ ...prev, status: 'returned', return_reason: returnReason || null }));

@@ -1,17 +1,14 @@
-const express  = require('express');
-const router   = express.Router();
-const { protect, authorize } = require('../middleware/authMiddleware');
+const { crudRouter } = require('../utils/crudRouter');
 
-// TODO: import productController
-
-// Public routes
-router.get('/',     (req, res) => res.json({ success: true, products: [] }));
-router.get('/:id',  (req, res) => res.json({ success: true, product: null }));
-
-// Admin-only routes
-router.use(protect, authorize('admin', 'super_admin'));
-router.post('/',        (req, res) => res.status(201).json({ success: true, message: 'TODO' }));
-router.put('/:id',      (req, res) => res.json({ success: true, message: 'TODO' }));
-router.delete('/:id',   (req, res) => res.json({ success: true, message: 'TODO' }));
-
-module.exports = router;
+// Admin-only. The storefront reads products directly (public read via RLS).
+module.exports = crudRouter({
+  table:  'products',
+  select: '*, categories(name)',
+  order:  [['id', false]],
+  fields: [
+    'name', 'slug', 'brand', 'sku', 'price', 'original_price', 'stock', 'description',
+    'image', 'extra_images', 'category_id', 'subcategory_id', 'is_active',
+    'specifications', 'variants',
+    'featured', 'top_sell', 'trending', 'flash_sale', 'flash_price',
+  ],
+});

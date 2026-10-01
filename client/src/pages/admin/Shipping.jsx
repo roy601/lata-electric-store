@@ -1,6 +1,6 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { supabase } from '../../lib/supabase';
+import { getSettings, updateSettings, errMsg } from '../../api/adminApi';
 import toast from 'react-hot-toast';
 
 export default function AdminShipping() {
@@ -9,22 +9,32 @@ export default function AdminShipping() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    supabase.from('settings').select('shipping_inside, shipping_outside, free_delivery_threshold, delivery_time_inside, delivery_time_outside').eq('id', 1).maybeSingle()
-      .then(({ data }) => { setS(data || { shipping_inside: 60, shipping_outside: 120, free_delivery_threshold: 1000, delivery_time_inside: 'Same Day / Next Day', delivery_time_outside: '2–4 Business Days' }); setLoading(false); });
+    const DEFAULTS = { shipping_inside: 60, shipping_outside: 120, free_delivery_threshold: 1000, delivery_time_inside: 'Same Day / Next Day', delivery_time_outside: '2–4 Business Days' };
+    getSettings()
+      .then(({ data }) => {
+        const st = data.settings;
+        setS(st && st.id ? {
+          shipping_inside: st.shipping_inside, shipping_outside: st.shipping_outside,
+          free_delivery_threshold: st.free_delivery_threshold,
+          delivery_time_inside: st.delivery_time_inside, delivery_time_outside: st.delivery_time_outside,
+        } : DEFAULTS);
+      })
+      .catch(err => { toast.error(errMsg(err, 'Failed to load settings')); setS(DEFAULTS); })
+      .finally(() => setLoading(false));
   }, []);
 
   const save = async () => {
     setSaving(true);
-    const { error } = await supabase.from('settings').upsert({
-      id:                        1,
+    let error;
+    try { await updateSettings({
       shipping_inside:           +s.shipping_inside,
       shipping_outside:          +s.shipping_outside,
       free_delivery_threshold:   +s.free_delivery_threshold,
       delivery_time_inside:      s.delivery_time_inside,
       delivery_time_outside:     s.delivery_time_outside,
-    }, { onConflict: 'id' });
+    }); } catch (err) { error = errMsg(err); }
     setSaving(false);
-    if (error) toast.error(error.message);
+    if (error) toast.error(error);
     else toast.success('Shipping settings saved');
   };
 

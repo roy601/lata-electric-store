@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { supabase } from '../../lib/supabase';
+import { getCategories, createCategory, updateCategory, deleteCategory, getSubcategories, createSubcategory, deleteSubcategory, errMsg } from '../../api/adminApi';
 import toast from 'react-hot-toast';
 
 const EMPTY = { name: '', slug: '', icon: 'bi-grid', color: '#1E88E5', is_active: true, sort_order: 0 };
@@ -49,8 +49,8 @@ export default function AdminCategories() {
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase.from('categories').select('*, products(count)').order('sort_order');
-    setCats(data || []);
+    try { const { data } = await getCategories(); setCats(data.categories || []); }
+    catch (err) { toast.error(errMsg(err, 'Failed to load categories')); }
     setLoading(false);
   };
 
@@ -60,8 +60,10 @@ export default function AdminCategories() {
   useEffect(() => {
     if (!form?.id) { setSubcats([]); return; }
     setSubLoading(true);
-    supabase.from('subcategories').select('*').eq('category_id', form.id).order('sort_order')
-      .then(({ data }) => { setSubcats(data || []); setSubLoading(false); });
+    getSubcategories({ category_id: form.id })
+      .then(({ data }) => setSubcats(data.subcategories || []))
+      .catch(() => setSubcats([]))
+      .finally(() => setSubLoading(false));
   }, [form?.id]);
 
   const openForm = (cat) => { setForm(cat ? { ...cat } : { ...EMPTY }); setGroupDraft(null); };
@@ -74,15 +76,16 @@ export default function AdminCategories() {
     const payload = { ...rest, slug: form.slug || toSlug(form.name) };
 
     if (form.id) {
-      const { error } = await supabase.from('categories').update(payload).eq('id', form.id);
+      try { await updateCategory(form.id, payload); }
+      catch (err) { setSaving(false); toast.error(errMsg(err)); return; }
       setSaving(false);
-      if (error) { toast.error(error.message); return; }
       toast.success('Updated');
       load();
     } else {
-      const { data, error } = await supabase.from('categories').insert(payload).select('*, products(count)').single();
+      let data;
+      try { data = (await createCategory(payload)).data.item; }
+      catch (err) { setSaving(false); toast.error(errMsg(err)); return; }
       setSaving(false);
-      if (error) { toast.error(error.message); return; }
       toast.success('Category saved — you can now add subcategories below (optional)');
       setCats(prev => [data, ...prev]);
       setForm({ ...data }); // switch to edit mode to show subcategory section
@@ -91,7 +94,8 @@ export default function AdminCategories() {
 
   const remove = async (id, name) => {
     if (!window.confirm(`Delete "${name}"? Products in this category will be uncategorised.`)) return;
-    await supabase.from('categories').delete().eq('id', id);
+    try { await deleteCategory(id); }
+    catch (err) { toast.error(errMsg(err, 'Delete failed')); return; }
     toast.success('Deleted');
     setCats(prev => prev.filter(c => c.id !== id));
   };
@@ -99,11 +103,11 @@ export default function AdminCategories() {
   const saveGroup = async () => {
     if (!groupDraft.header.trim()) { toast.error('Group header is required'); return; }
     setGroupSaving(true);
-    const { data, error } = await supabase.from('subcategories')
-      .insert({ category_id: form.id, header: groupDraft.header.trim(), items: groupDraft.items, sort_order: subcats.length })
-      .select().single();
+    let data;
+    try {
+      data = (await createSubcategory({ category_id: form.id, header: groupDraft.header.trim(), items: groupDraft.items, sort_order: subcats.length })).data.item;
+    } catch (err) { setGroupSaving(false); toast.error('Failed: ' + errMsg(err)); return; }
     setGroupSaving(false);
-    if (error) { toast.error('Failed: ' + error.message); return; }
     setSubcats(s => [...s, data]);
     setGroupDraft(null);
     toast.success('Subcategory group added');
@@ -111,8 +115,8 @@ export default function AdminCategories() {
 
   const deleteGroup = async (id) => {
     if (!window.confirm('Delete this subcategory group?')) return;
-    const { error } = await supabase.from('subcategories').delete().eq('id', id);
-    if (error) { toast.error('Delete failed'); return; }
+    try { await deleteSubcategory(id); }
+    catch { toast.error('Delete failed'); return; }
     setSubcats(s => s.filter(g => g.id !== id));
     toast.success('Deleted');
   };
