@@ -254,7 +254,9 @@ function OrdersTab() {
 /* ═════════ Profile ═════════ */
 function ProfileTab({ user, updateProfile, isMobile }) {
   const m = user.user_metadata || {};
-  const initial = { first_name: m.first_name || '', last_name: m.last_name || '', phone: m.phone || '', address: m.address || '', district: m.district || '', area: m.area || '' };
+  // Google/Facebook give one full name — split it when first/last aren't saved yet
+  const [gFirst = '', ...gRest] = String(m.full_name || m.name || '').trim().split(/\s+/);
+  const initial = { first_name: m.first_name || gFirst, last_name: m.last_name || (m.first_name ? '' : gRest.join(' ')), phone: m.phone || '', address: m.address || '', district: m.district || '', area: m.area || '' };
   const [f, setF] = useState(initial);
   const [busy, setBusy] = useState(false);
   const upd = (k, v) => setF(x => ({ ...x, [k]: v }));
@@ -441,10 +443,10 @@ export default function Account() {
         </div>
 
         {/* Tabs */}
-        <div role="tablist" style={{ display: 'flex', gap: 4, borderBottom: '1px solid #E5E7EB', marginBottom: 20, overflowX: 'auto' }}>
+        <div role="tablist" style={{ display: 'flex', gap: 4, boxShadow: 'inset 0 -1px 0 #E5E7EB', marginBottom: 20, overflowX: 'auto', overflowY: 'hidden', scrollbarWidth: 'none' }}>
           {TABS.map(({ key, label, Icon }) => (
             <button key={key} role="tab" aria-selected={tab === key} onClick={() => setTab(key)}
-              style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: `2.5px solid ${tab === key ? BLUE : 'transparent'}`, marginBottom: -1, color: tab === key ? BLUE : '#6B7280', fontWeight: 700, fontSize: 14, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', fontFamily: 'inherit' }}>
+              style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: `2.5px solid ${tab === key ? BLUE : 'transparent'}`, color: tab === key ? BLUE : '#6B7280', fontWeight: 700, fontSize: 14, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', fontFamily: 'inherit' }}>
               <Icon size={15} /> {label}
             </button>
           ))}

@@ -332,6 +332,11 @@ export default function CustomerLayout({ children }) {
     || user?.email?.split('@')[0]
     || 'Account';
   const initial = (displayName[0] || 'A').toUpperCase();
+  // Google/Facebook profile photo when there is one, otherwise the first letter
+  const photo  = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
+  const avatar = photo
+    ? <img src={photo} alt="" referrerPolicy="no-referrer" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+    : initial;
 
   useEffect(() => {
     // Menu data is small; keep it for a few minutes so page changes don't re-download it
@@ -562,7 +567,7 @@ export default function CustomerLayout({ children }) {
                     onMouseLeave={e => e.currentTarget.style.color=userMenuOpen?'#1E88E5':'#666'}>
                     <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 3 }}>
                       {user ? (
-                        <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#1E88E5', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800 }}>{initial}</div>
+                        <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#1E88E5', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, overflow: 'hidden' }}>{avatar}</div>
                       ) : (
                         <User size={20} />
                       )}
@@ -597,7 +602,7 @@ export default function CustomerLayout({ children }) {
                       ) : (
                         <>
                           <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10, borderBottom: '1px solid #F3F4F6' }}>
-                            <div style={{ width: 38, height: 38, borderRadius: '50%', background: '#1E88E5', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, flexShrink: 0 }}>{initial}</div>
+                            <div style={{ width: 38, height: 38, borderRadius: '50%', background: '#1E88E5', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, flexShrink: 0, overflow: 'hidden' }}>{avatar}</div>
                             <div style={{ minWidth: 0 }}>
                               <div style={{ fontWeight: 700, fontSize: 14, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayName}</div>
                               <div style={{ fontSize: 11, color: '#6B7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
@@ -636,7 +641,7 @@ export default function CustomerLayout({ children }) {
               <button onClick={() => user ? navigate('/account') : navigate('/login')}
                 style={{ padding: '4px 6px', background: 'none', border: 'none', cursor: 'pointer', color: '#444', display: 'flex', alignItems: 'center' }}>
                 {user ? (
-                  <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#1E88E5', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>{initial}</div>
+                  <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#1E88E5', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, overflow: 'hidden' }}>{avatar}</div>
                 ) : (
                   <User size={22} />
                 )}
