@@ -122,6 +122,10 @@ export default function AdminBanners() {
             {/* Image upload */}
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>Banner Image *</label>
+              <div style={{ fontSize: 12, color: '#7f8c9a', marginBottom: 8, lineHeight: 1.5 }}>
+                <strong>Wide image</strong> (16:7, e.g. 1600×700) → main slider. <strong>Square image</strong> (e.g. 600×660) → the two small boxes beside the slider (computer only).
+                If the picture already has text on it, leave Title and Subtitle empty.
+              </div>
               {form.image && (
                 <div style={{ marginBottom: 10, borderRadius: 8, overflow: 'hidden', aspectRatio: '16/5', background: '#f0f0f0' }}>
                   <img src={form.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />

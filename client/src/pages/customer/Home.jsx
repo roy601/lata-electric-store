@@ -310,6 +310,18 @@ export default function Home() {
 
   useSeo({ path: '/', jsonLd: storeJsonLd(shopSettings || {}) });
 
+  // Width ÷ height of each banner image (decides slider vs side box)
+  const [bannerRatio, setBannerRatio] = useState({});
+  useEffect(() => {
+    let cancelled = false;
+    banners.forEach(b => {
+      const im = new Image();
+      im.onload = () => { if (!cancelled && im.naturalHeight) setBannerRatio(r => ({ ...r, [b.id]: im.naturalWidth / im.naturalHeight })); };
+      im.src = b.image;
+    });
+    return () => { cancelled = true; };
+  }, [banners]);
+
   const W = { maxWidth: 1260, margin: '0 auto', padding: isMobile ? '0 8px' : '0 14px' };
 
   return (
@@ -340,8 +352,11 @@ export default function Home() {
 
         {/* ══════════════ HERO: Sidebar + Banner + Side Banners ══════════════ */}
         {(() => {
-          const sideBanners  = banners.length >= 3 ? banners.slice(-2) : [];
-          const mainBanners  = banners.length >= 3 ? banners.slice(0, -2) : banners;
+          // Side boxes only take square/tall images; wide banners always stay in the slider
+          // (a wide banner squeezed into a side box gets its middle cut out).
+          const isSide       = (b) => (bannerRatio[b.id] || 99) < 1.3;
+          const sideBanners  = banners.filter(isSide).slice(0, 2);
+          const mainBanners  = banners.filter(b => !sideBanners.includes(b));
           const cols = (!isMobile && sideBanners.length) ? '1fr 200px' : '1fr';
 
           return (
