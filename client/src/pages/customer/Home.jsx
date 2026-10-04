@@ -11,6 +11,7 @@ import ProductCard from '../../components/ProductCard';
 import { supabase } from '../../lib/supabase';
 import { addToCart } from '../../store/cartStore';
 import { fetchProductPage } from '../../lib/catalog';
+import ShopLocation from '../../components/ShopLocation';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 
 const CAT_ICONS = {
@@ -682,81 +683,13 @@ export default function Home() {
           </div>
         )}
 
-        {/* ══════════════ FIND OUR SHOP (MAP) ══════════════ */}
-        {(shopSettings?.map_url || shopSettings?.map_embed_src) && (
+        {/* ══════════════ FIND OUR SHOP ══════════════ */}
+        {(shopSettings?.map_url || shopSettings?.map_embed_src || shopSettings?.address) && (
           <div style={{ ...W, marginTop: isMobile ? 10 : 14 }}>
             <Block>
-              <SectionHeader title="আমাদের শপ খুঁজুন" Icon={MapPin} extra={<span style={{ marginLeft: 8, fontSize: 12, color: '#9aa5b1', fontWeight: 400 }}>Find Our Shop</span>} />
-              <div style={{ padding: isMobile ? '14px 12px' : '16px 18px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '280px 1fr', gap: isMobile ? 14 : 20, alignItems: 'start' }}>
-                  {/* Shop info card */}
-                  <div style={{ background: '#F8F9FA', borderRadius: 12, padding: '20px 18px', border: '1px solid #ebebeb' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                      <div style={{ width: 44, height: 44, background: '#1E88E5', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><Zap size={22} color="#fff" fill="#fff" /></div>
-                      <div>
-                        <div style={{ fontWeight: 800, fontSize: 15, color: '#212529' }}>{shopSettings?.store_name_bn || 'লতা ইলেকট্রিক'}</div>
-                        <div style={{ fontSize: 11, color: '#9aa5b1' }}>{shopSettings?.store_tagline || 'Lata Electric'}</div>
-                      </div>
-                    </div>
-                    {shopSettings?.address && (
-                      <div style={{ display: 'flex', gap: 10, marginBottom: 10, alignItems: 'flex-start' }}>
-                        <MapPin size={16} color="#1E88E5" style={{ flexShrink: 0, marginTop: 2 }} />
-                        <span style={{ fontSize: 13, color: '#555', lineHeight: 1.5 }}>{shopSettings.address}</span>
-                      </div>
-                    )}
-                    {shopSettings?.phone && (
-                      <div style={{ display: 'flex', gap: 10, marginBottom: 10, alignItems: 'center' }}>
-                        <Phone size={16} color="#1E88E5" />
-                        <a href={`tel:${shopSettings.phone.replace(/[^+\d]/g,'')}`} style={{ fontSize: 13, color: '#1E88E5', fontWeight: 600, textDecoration: 'none' }}>{shopSettings.phone}</a>
-                      </div>
-                    )}
-                    {shopSettings?.hours && (
-                      <div style={{ display: 'flex', gap: 10, marginBottom: 16, alignItems: 'center' }}>
-                        <Clock size={16} color="#1E88E5" />
-                        <span style={{ fontSize: 13, color: '#555' }}>{shopSettings.hours}</span>
-                      </div>
-                    )}
-                    {shopSettings?.map_url && (
-                      <a href={shopSettings.map_url} target="_blank" rel="noopener noreferrer"
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', padding: '11px 16px', background: '#1E88E5', color: '#fff', borderRadius: 10, fontWeight: 700, fontSize: 13, textDecoration: 'none', boxSizing: 'border-box', transition: 'background .15s' }}
-                        onMouseEnter={e => e.currentTarget.style.background='#1565C0'}
-                        onMouseLeave={e => e.currentTarget.style.background='#1E88E5'}>
-                        <Map size={15} /> Get Directions on Google Maps
-                      </a>
-                    )}
-                  </div>
-
-                  {/* Map embed or click-to-open placeholder */}
-                  {shopSettings?.map_embed_src ? (
-                    <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #ebebeb', minHeight: isMobile ? 220 : 300, cursor: 'pointer', position: 'relative' }}
-                      onClick={() => shopSettings?.map_url && window.open(shopSettings.map_url, '_blank')}>
-                      <iframe
-                        src={shopSettings.map_embed_src}
-                        width="100%" height={isMobile ? 220 : 300}
-                        style={{ border: 0, display: 'block', pointerEvents: 'none' }}
-                        allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
-                      />
-                      {shopSettings?.map_url && (
-                        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', padding: 12, background: 'transparent' }}>
-                          <a href={shopSettings.map_url} target="_blank" rel="noopener noreferrer"
-                            style={{ background: '#fff', color: '#1E88E5', padding: '7px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, boxShadow: '0 2px 8px rgba(0,0,0,.2)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5 }}
-                            onClick={e => e.stopPropagation()}>
-                            <Map size={13} /> Open in Google Maps
-                          </a>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <a href={shopSettings.map_url} target="_blank" rel="noopener noreferrer"
-                      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: isMobile ? 180 : 280, background: 'linear-gradient(135deg,#E3F2FD,#BBDEFB)', borderRadius: 12, border: '2px dashed #1E88E5', textDecoration: 'none', transition: 'background .15s', gap: 10 }}
-                      onMouseEnter={e => e.currentTarget.style.background='linear-gradient(135deg,#BBDEFB,#90CAF9)'}
-                      onMouseLeave={e => e.currentTarget.style.background='linear-gradient(135deg,#E3F2FD,#BBDEFB)'}>
-                      <Map size={52} color="#1E88E5" />
-                      <span style={{ fontSize: 15, fontWeight: 800, color: '#1E88E5' }}>View on Google Maps</span>
-                      <span style={{ fontSize: 12, color: '#1565C0' }}>Tap to open directions</span>
-                    </a>
-                  )}
-                </div>
+              <SectionHeader title="আমাদের শপ খুঁজুন" Icon={MapPin} extra={<span style={{ marginLeft: 8, fontSize: 12, color: '#9aa5b1', fontWeight: 400 }}>Visit our shop</span>} />
+              <div style={{ padding: isMobile ? '14px 12px' : '18px 18px 20px', background: '#F8FAFC' }}>
+                <ShopLocation settings={shopSettings} isMobile={isMobile} />
               </div>
             </Block>
           </div>
