@@ -4,7 +4,7 @@ import {
   Cable, Power, ShieldCheck, Lightbulb, Wind, Smartphone, Cpu,
   Home as HomeIcon, Wrench, Droplets, Camera, Sun, Battery, Car,
   Sparkles, DoorOpen, Package, Zap, ShoppingCart, Search, TrendingUp, Star, Flame,
-  MapPin, Phone, Clock, User, HardHat, Map,
+  MapPin, Phone, Clock, User, HardHat, Map, ChevronRight,
 } from 'lucide-react';
 import CustomerLayout from '../../components/layout/CustomerLayout';
 import ProductCard from '../../components/ProductCard';
@@ -12,6 +12,7 @@ import { supabase } from '../../lib/supabase';
 import { addToCart } from '../../store/cartStore';
 import { fetchProductPage } from '../../lib/catalog';
 import ShopLocation from '../../components/ShopLocation';
+import ProductRail from '../../components/ProductRail';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 
 const CAT_ICONS = {
@@ -39,79 +40,34 @@ const CatIcon = ({ name, size = 15, color = 'currentColor' }) => {
 };
 
 /* ─── Shared: Section Header ─────────────────────────────────── */
-function SectionHeader({ title, Icon, onViewAll, viewAllLabel = 'View All →', extra }) {
+function SectionHeader({ title, Icon, onViewAll, viewAllLabel = 'View all', extra }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', padding: '14px 18px 10px', borderBottom: '1px solid #F8F9FA' }}>
-      <div style={{ width: 3, height: 20, background: '#1E88E5', borderRadius: 2, marginRight: 10, flexShrink: 0 }} />
-      {Icon && <span style={{ marginRight: 7, display: 'flex', alignItems: 'center' }}><Icon size={18} color="#1E88E5" /></span>}
-      <span style={{ fontWeight: 800, fontSize: 16, color: '#212529' }}>{title}</span>
-      {extra}
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px 12px 18px', borderBottom: '1px solid #F1F4F7' }}>
+      {Icon && (
+        <span style={{ width: 34, height: 34, borderRadius: 10, background: '#EEF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Icon size={18} color="#1E88E5" />
+        </span>
+      )}
+      <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', columnGap: 8 }}>
+        <span style={{ fontWeight: 800, fontSize: 16.5, color: '#0F172A', letterSpacing: -.1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>{title}</span>
+        {extra}
+      </div>
       {onViewAll && (
         <button onClick={onViewAll}
-          style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 600, color: '#1E88E5', background: 'none', border: '1px solid #1E88E5', borderRadius: 16, padding: '3px 12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-          {viewAllLabel}
+          style={{ marginLeft: 'auto', flexShrink: 0, fontSize: 13, fontWeight: 700, color: '#1E88E5', background: 'none', border: 'none', borderRadius: 8, padding: '6px 6px 6px 10px', cursor: 'pointer', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: 2, fontFamily: 'inherit', transition: 'background .15s' }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#EEF6FF'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'none'; }}>
+          {viewAllLabel.replace(/\s*→\s*$/, '')} <ChevronRight size={16} />
         </button>
       )}
     </div>
   );
 }
 
-/* ─── Horizontal Product Strip ───────────────────────────────── */
-function ProductStrip({ products, cardWidth = 170, cardHeight = 150 }) {
-  const navigate = useNavigate();
-  const ref      = useRef(null);
-
-  if (!products.length) return null;
-
-  return (
-    <div style={{ position: 'relative' }}>
-      <div ref={ref} style={{ display: 'flex', gap: 10, overflowX: 'auto', scrollbarWidth: 'none', padding: '12px 18px 14px' }} className="hide-scrollbar">
-        {products.map(p => {
-          const price   = p.flash_sale && p.flash_price ? p.flash_price : p.price;
-          const orig    = p.flash_sale && p.flash_price ? p.price : p.original_price;
-          const disc    = orig && orig > price ? Math.round((1 - price / orig) * 100) : null;
-          const inStock = p.stock > 0;
-
-          return (
-            <div key={p.id}
-              style={{ minWidth: cardWidth, maxWidth: cardWidth, background: '#fff', border: '1px solid #f0f0f0', borderRadius: 10, overflow: 'hidden', flexShrink: 0, cursor: 'pointer', transition: 'box-shadow .2s, transform .15s', display: 'flex', flexDirection: 'column' }}
-              onMouseEnter={e => { e.currentTarget.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'; e.currentTarget.style.transform='translateY(-2px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.boxShadow='none'; e.currentTarget.style.transform='none'; }}
-              onClick={() => navigate(`/products/${p.id}`)}>
-
-              <div style={{ height: cardHeight, background: '#f8f9fa', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 8 }}>
-                {p.image
-                  ? <img src={p.image} alt={p.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
-                  : <Package size={38} color="#ccc" />}
-                {disc && <span style={{ position: 'absolute', top: 6, left: 6, background: '#DC3545', color: '#fff', fontSize: 10, fontWeight: 800, padding: '2px 6px', borderRadius: 4 }}>-{disc}%</span>}
-                {p.flash_sale && <span style={{ position: 'absolute', top: 6, right: 6, background: '#DC3545', color: '#fff', fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, display: 'flex', alignItems: 'center' }}><Zap size={10} fill="currentColor" /></span>}
-                {!inStock && (
-                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ background: '#555', color: '#fff', fontSize: 10, padding: '3px 8px', borderRadius: 12, fontWeight: 700 }}>Out of Stock</span>
-                  </div>
-                )}
-              </div>
-
-              <div style={{ padding: '8px 10px 10px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ fontSize: 12, color: '#222', fontWeight: 500, lineHeight: 1.4, marginBottom: 5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: 32 }}>{p.name}</div>
-                <div style={{ marginTop: 'auto' }}>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 5, marginBottom: 6 }}>
-                    <span style={{ fontSize: 15, fontWeight: 800, color: p.flash_sale ? '#DC3545' : '#212529' }}>৳{price.toLocaleString('en-BD')}</span>
-                    {orig && orig > price && <span style={{ fontSize: 11, color: '#bbb', textDecoration: 'line-through' }}>৳{orig.toLocaleString('en-BD')}</span>}
-                  </div>
-                  <button onClick={e => { e.stopPropagation(); addToCart(p, { price }); }}
-                    disabled={!inStock}
-                    style={{ width: '100%', padding: '6px 0', background: inStock ? '#1E88E5' : '#e0e0e0', color: '#fff', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: inStock ? 'pointer' : 'not-allowed' }}>
-                    {inStock ? '+ Add to Cart' : 'Out of Stock'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
+/* ─── Horizontal Product Strip (auto-sliding rail with arrows) ── */
+function ProductStrip({ products, cardWidth = 176 }) {
+  const { isMobile } = useBreakpoint();
+  return <ProductRail products={products} cardWidth={isMobile ? 152 : cardWidth} compact={isMobile} />;
 }
 
 /* ─── Banner Carousel ─────────────────────────────────────────── */
@@ -188,7 +144,6 @@ function BannerCarousel({ banners }) {
 /* ─── Flash Sale Section ─────────────────────────────────────── */
 function FlashSaleSection({ products, flashConfig }) {
   const navigate = useNavigate();
-  const stripRef = useRef(null);
   const [time, setTime] = useState({ h: '00', m: '00', s: '00', ended: false });
 
   useEffect(() => {
@@ -204,7 +159,7 @@ function FlashSaleSection({ products, flashConfig }) {
   if (!flashConfig?.flash_sale_active || products.length === 0) return null;
 
   return (
-    <div style={{ background: '#fff', borderRadius: 12, overflow: 'hidden', border: '2px solid #f0d0d0', boxShadow: '0 2px 8px rgba(192,57,43,.08)' }}>
+    <div style={{ background: '#fff', borderRadius: 14, overflow: 'hidden', border: '1px solid #EDF0F3', boxShadow: '0 1px 3px rgba(15,23,42,.05)', minWidth: 0 }}>
       {/* Red header */}
       <div style={{ background: 'linear-gradient(90deg, #1565C0, #1E88E5)', padding: '10px 18px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
@@ -228,50 +183,20 @@ function FlashSaleSection({ products, flashConfig }) {
         </button>
       </div>
 
-      {/* Cards */}
-      <div ref={stripRef} style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', padding: '12px 14px 14px' }} className="hide-scrollbar">
-        {products.map(p => {
-          const price   = p.flash_price || p.price;
-          const disc    = p.price > price ? Math.round((1 - price / p.price) * 100) : null;
-          const inStock = p.stock > 0;
-          return (
-            <div key={p.id}
-              style={{ minWidth: 160, maxWidth: 160, background: '#fff', border: '1px solid #f4d0d0', borderRadius: 10, overflow: 'hidden', flexShrink: 0, cursor: 'pointer', transition: 'box-shadow .2s, transform .15s', display: 'flex', flexDirection: 'column' }}
-              onMouseEnter={e => { e.currentTarget.style.boxShadow='0 4px 16px rgba(192,57,43,.18)'; e.currentTarget.style.transform='translateY(-2px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.boxShadow='none'; e.currentTarget.style.transform='none'; }}
-              onClick={() => navigate(`/products/${p.id}`)}>
-
-              <div style={{ height: 140, background: '#fff8f8', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 8 }}>
-                {p.image ? <img src={p.image} alt={p.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} /> : <Package size={40} color="#ccc" />}
-                {disc && <span style={{ position: 'absolute', top: 6, left: 6, background: '#DC3545', color: '#fff', fontSize: 10, fontWeight: 800, padding: '2px 6px', borderRadius: 4 }}>-{disc}%</span>}
-                {!inStock && <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ background: '#555', color: '#fff', fontSize: 10, padding: '3px 8px', borderRadius: 12 }}>Out of Stock</span></div>}
-              </div>
-
-              <div style={{ padding: '8px 10px 10px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ fontSize: 11, color: '#333', fontWeight: 500, lineHeight: 1.4, marginBottom: 5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: 30 }}>{p.name}</div>
-                <div style={{ marginTop: 'auto' }}>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 6 }}>
-                    <span style={{ fontSize: 15, fontWeight: 800, color: '#DC3545' }}>৳{price.toLocaleString('en-BD')}</span>
-                    {disc && <span style={{ fontSize: 11, color: '#bbb', textDecoration: 'line-through' }}>৳{p.price.toLocaleString('en-BD')}</span>}
-                  </div>
-                  <button onClick={e => { e.stopPropagation(); addToCart(p, { price }); }}
-                    disabled={!inStock}
-                    style={{ width: '100%', padding: '6px 0', background: inStock ? '#1E88E5' : '#e0e0e0', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 11, cursor: inStock ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-                    {inStock ? <><ShoppingCart size={11} /> Add to Cart</> : 'Out of Stock'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      {/* Cards — same auto-sliding rail as the other sections */}
+      <FlashRail products={products} />
     </div>
   );
 }
 
+function FlashRail({ products }) {
+  const { isMobile } = useBreakpoint();
+  return <ProductRail products={products} cardWidth={isMobile ? 152 : 176} compact={isMobile} />;
+}
+
 /* ─── Shared: Block wrapper ──────────────────────────────────── */
 const Block = ({ children, style = {} }) => (
-  <div style={{ background: '#fff', borderRadius: 12, overflow: 'hidden', border: '1px solid #ebebeb', boxShadow: '0 1px 4px rgba(0,0,0,.05)', ...style }}>
+  <div style={{ background: '#fff', borderRadius: 14, overflow: 'hidden', border: '1px solid #EDF0F3', boxShadow: '0 1px 3px rgba(15,23,42,.05)', minWidth: 0, ...style }}>
     {children}
   </div>
 );
@@ -479,7 +404,7 @@ export default function Home() {
           <div style={{ ...W, marginTop: 14 }}>
             <Block>
               <SectionHeader title="Featured Products" Icon={Star} onViewAll={() => { setCatFilter('all'); document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth' }); }} />
-              <ProductStrip products={featuredProducts} cardWidth={175} cardHeight={155} />
+              <ProductStrip products={featuredProducts} cardWidth={184} />
             </Block>
           </div>
         )}
@@ -489,7 +414,7 @@ export default function Home() {
           <div style={{ ...W, marginTop: 14 }}>
             <Block>
               <SectionHeader title="Top Selling Products" Icon={TrendingUp} onViewAll={() => { setCatFilter('all'); document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth' }); }} />
-              <ProductStrip products={topSellProducts} cardWidth={175} cardHeight={155} />
+              <ProductStrip products={topSellProducts} cardWidth={184} />
             </Block>
           </div>
         )}
@@ -499,7 +424,7 @@ export default function Home() {
           <div style={{ ...W, marginTop: 14 }}>
             <Block>
               <SectionHeader title="Trending Products" Icon={Flame} onViewAll={() => { setCatFilter('all'); document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth' }); }} />
-              <ProductStrip products={trending} cardWidth={175} cardHeight={155} />
+              <ProductStrip products={trending} cardWidth={184} />
             </Block>
           </div>
         )}
@@ -511,8 +436,8 @@ export default function Home() {
               {catSections.slice(0, 2).map(c => (
                 <Block key={c.id}>
                   <SectionHeader title={c.name} Icon={CAT_ICONS[c.name] || Package}
-                    onViewAll={() => { setCatFilter(String(c.id)); setPage(1); document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth' }); }} />
-                  <ProductStrip products={c.products} cardWidth={isMobile ? 150 : 155} cardHeight={isMobile ? 120 : 135} />
+                    onViewAll={() => navigate(`/products?cat=${c.id}`)} />
+                  <ProductStrip products={c.products} cardWidth={170} />
                 </Block>
               ))}
             </div>
@@ -527,21 +452,21 @@ export default function Home() {
               <div style={{ display: 'grid', gridTemplateColumns: (!isCompact && partner) ? '1fr 1fr' : '1fr', gap: isMobile ? 10 : 14 }}>
                 <Block>
                   <SectionHeader title={c.name} Icon={CAT_ICONS[c.name] || Package}
-                    onViewAll={() => { setCatFilter(String(c.id)); setPage(1); document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth' }); }} />
-                  <ProductStrip products={c.products} cardWidth={isMobile ? 150 : 155} cardHeight={isMobile ? 120 : 135} />
+                    onViewAll={() => navigate(`/products?cat=${c.id}`)} />
+                  <ProductStrip products={c.products} cardWidth={170} />
                 </Block>
                 {partner && !isCompact && (
                   <Block>
                     <SectionHeader title={partner.name} Icon={CAT_ICONS[partner.name] || Package}
-                      onViewAll={() => { setCatFilter(String(partner.id)); setPage(1); document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth' }); }} />
-                    <ProductStrip products={partner.products} cardWidth={155} cardHeight={135} />
+                      onViewAll={() => navigate(`/products?cat=${partner.id}`)} />
+                    <ProductStrip products={partner.products} cardWidth={170} />
                   </Block>
                 )}
                 {partner && isCompact && (
                   <Block>
                     <SectionHeader title={partner.name} Icon={CAT_ICONS[partner.name] || Package}
-                      onViewAll={() => { setCatFilter(String(partner.id)); setPage(1); document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth' }); }} />
-                    <ProductStrip products={partner.products} cardWidth={isMobile ? 150 : 155} cardHeight={isMobile ? 120 : 135} />
+                      onViewAll={() => navigate(`/products?cat=${partner.id}`)} />
+                    <ProductStrip products={partner.products} cardWidth={170} />
                   </Block>
                 )}
               </div>

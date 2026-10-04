@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingCart, Package, Zap } from 'lucide-react';
 import { addToCart, useWishlistStore } from '../store/cartStore';
@@ -5,6 +6,7 @@ import { addToCart, useWishlistStore } from '../store/cartStore';
 export default function ProductCard({ product: p }) {
   const { toggle, has } = useWishlistStore();
   const wished = has(p.id);
+  const [imgOk, setImgOk] = useState(!!p.image);  // broken picture → tidy placeholder, not alt text
 
   const price    = p.flash_sale && p.flash_price ? p.flash_price : p.price;
   const original = p.flash_sale && p.flash_price ? p.price : p.original_price;
@@ -39,9 +41,9 @@ export default function ProductCard({ product: p }) {
 
       {/* Image */}
       <Link to={`/products/${p.id}`} style={{ textDecoration: 'none' }}>
-        <div style={{ aspectRatio: '1/1', background: '#F8F9FA', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {p.image
-            ? <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s' }} />
+        <div style={{ aspectRatio: '1/1', background: '#fff', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 10, boxSizing: 'border-box' }}>
+          {imgOk
+            ? <img src={p.image} alt={p.name} loading="lazy" onError={() => setImgOk(false)} style={{ width: '100%', height: '100%', objectFit: 'contain', transition: 'transform 0.3s' }} />
             : <Package size={48} color="#ccc" />
           }
         </div>
