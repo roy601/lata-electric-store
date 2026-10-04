@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { X, FileSpreadsheet, Download, Images, Upload, CheckCircle2, AlertTriangle, XCircle, History, Undo2 } from 'lucide-react';
-import { uploadImage, getProducts, lookupProducts, startImport, getImports, getImport, undoImport, errMsg } from '../../api/adminApi';
+import { uploadImage, getProducts, getCategories, getSubcategories, createSubcategory, getProductMeta, lookupProducts, startImport, getImports, getImport, undoImport, errMsg } from '../../api/adminApi';
 import { compressImage } from '../../lib/compressImage';
 import { downloadTemplate, downloadProducts, downloadProblemRows, readProductFile, parseNumber, parseOptions } from '../../lib/productExcel';
 import { quickCreateCategory } from './CategoryPanel';
@@ -38,8 +38,11 @@ const variantFor = (label, options) => {
  * and the data to send. Nothing is saved here.
  *   known – existing products that matter for this file (from /products/lookup)
  */
-function analyse(rows, { known, categories, photoMap, skipExisting, createCats }) {
+const subKey = (catId, name) => `${catId}::${String(name).trim().toLowerCase()}`;
+
+function analyse(rows, { known, categories, subcategories = [], photoMap, skipExisting, createCats }) {
   const catByName = new Map(categories.map(c => [c.name.trim().toLowerCase(), c]));
+  const subByKey  = new Map(subcategories.map(sc => [subKey(sc.category_id, sc.header), sc]));
   const seenSku = new Map(), seenId = new Map(), seenNewName = new Map();
 
   const findPhoto = (ref) => {
@@ -69,7 +72,7 @@ function analyse(rows, { known, categories, photoMap, skipExisting, createCats }
     const isNew = !target && !v.id;
 
     const data = {};
-    let newCategory = null;
+    let newCategory = null, newSubcategory = null;
     if (isNew && !name) errors.push('Name is missing');
     if (name) data.name = name;
 
@@ -97,8 +100,44 @@ function analyse(rows, { known, categories, photoMap, skipExisting, createCats }
       const c = catByName.get(v.category.trim().toLowerCase());
       if (c) data.category_id = c.id;
       else if (createCats) { newCategory = v.category.trim(); warnings.push(`New category "${newCategory}" will be created`); }
-      else errors.push(`Category "${v.category}" doesn't exist. Pick one from the dropdown, or tick "Create missing categories".`);
+      else errors.push(`Category "${v.category}" doesn't exist. Pick one from the dropdown, or turn on "Create new categories & subcategories".`);
     } else if (isNew) warnings.push('No category — product will be hard to find in the shop');
+
+    // Subcategory belongs to the row's category (or the product's current one when updating)
+    const rowCatId = data.category_id ?? (newCategory ? null : target?.category_id ?? null);
+    const rowCatName = newCategory || categories.find(c => c.id === rowCatId)?.name?.trim();
+    if (v.subcategory !== undefined) {
+      const sub = v.subcategory.trim();
+      if (!rowCatName) { if (v.category === undefined) errors.push(`Subcategory "${sub}" needs a Category in the same row`); }
+      else {
+        const found = rowCatId != null && subByKey.get(subKey(rowCatId, sub));
+        if (found) data.subcategory_id = found.id;
+        else if (createCats) { newSubcategory = sub; warnings.push(`New subcategory "${sub}" will be created in "${rowCatName}"`); }
+        else errors.push(`"${rowCatName}" has no subcategory "${sub}". Pick one from the dropdown, or turn on "Create new categories & subcategories".`);
+      }
+    } else if (target && data.category_id != null && data.category_id !== target.category_id) {
+      data.subcategory_id = null;   // moved to another category → old subcategory no longer fits
+    }
+
+    // Home-page sections and Flash Sale
+    [['featured', 'Featured'], ['top_sell', 'Top Selling'], ['trending', 'Trending']].forEach(([k, label]) => {
+      if (v[k] === undefined) return;
+      const a = v[k].trim().toLowerCase();
+      if (YES.includes(a)) data[k] = true;
+      else if (NO.includes(a)) data[k] = false;
+      else errors.push(`${label} "${v[k]}" must be Yes or No`);
+    });
+    if (v.flash_price !== undefined) {
+      const t = v.flash_price.trim().toLowerCase();
+      if (NO.includes(t)) { data.flash_sale = false; data.flash_price = null; }
+      else {
+        const n = parseNumber(v.flash_price);
+        const base = data.price ?? target?.price;
+        if (!(n > 0)) errors.push(`Flash Sale Price "${v.flash_price}" is not a number above 0 (write "No" to remove from Flash Sale)`);
+        else if (base && n >= base) errors.push(`Flash Sale Price ৳${n} must be lower than the Price ৳${base}`);
+        else { data.flash_sale = true; data.flash_price = n; }
+      }
+    }
 
     if (v.active !== undefined) {
       const a = v.active.trim().toLowerCase();
@@ -170,7 +209,7 @@ function analyse(rows, { known, categories, photoMap, skipExisting, createCats }
     return {
       rowNumber, name: name || target?.name || '(no name)',
       action: errors.length ? 'error' : target ? 'update' : 'new',
-      targetId: target?.id, errors, warnings, data, newCategory, photo, extras,
+      targetId: target?.id, errors, warnings, data, newCategory, newSubcategory, rowCatId, photo, extras,
       price: data.price ?? target?.price, stock: data.stock ?? target?.stock,
     };
   });
@@ -212,7 +251,10 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
   const [reading,  setReading]  = useState(false);
   const [readErr,  setReadErr]  = useState('');
   const [skipExisting, setSkipExisting] = useState(true);
-  const [createCats,   setCreateCats]   = useState(false);
+  const [createCats,   setCreateCats]   = useState(true);   // new categories/subcategories are created automatically
+  const [subcategories, setSubcategories] = useState([]);
+  const loadSubcategories = () => getSubcategories().then(({ data }) => setSubcategories(data.subcategories || [])).catch(() => {});
+  useEffect(() => { loadSubcategories(); }, []);
   const [onlyProblems, setOnlyProblems] = useState(false);
   const [busy,     setBusy]     = useState(false);
   const [progress, setProgress] = useState('');
@@ -227,8 +269,8 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
     return m;
   }, [photos]);
 
-  const plan = useMemo(() => sheet ? analyse(sheet.rows, { known: sheet.known, categories, photoMap, skipExisting, createCats }) : [],
-    [sheet, categories, photoMap, skipExisting, createCats]);
+  const plan = useMemo(() => sheet ? analyse(sheet.rows, { known: sheet.known, categories, subcategories, photoMap, skipExisting, createCats }) : [],
+    [sheet, categories, subcategories, photoMap, skipExisting, createCats]);
   const count = (a) => plan.filter(r => r.action === a).length;
   const toImport = plan.filter(r => r.action === 'new' || r.action === 'update');
   const withWarnings = plan.filter(r => r.action !== 'skip' && r.warnings.length).length;
@@ -260,13 +302,25 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
     return () => clearTimeout(t);
   }, [tab, history]);
 
+  /* Read the website's current lists, so every downloaded file is up to date */
+  const liveLists = async () => {
+    const [cRes, sRes, mRes] = await Promise.all([getCategories(), getSubcategories(), getProductMeta()]);
+    return {
+      categories:    cRes.data.categories || [],
+      subcategories: sRes.data.subcategories || [],
+      brands:        mRes.data.brands || [],
+      specKeysByCat: mRes.data.specKeys || {},
+    };
+  };
+
   const doDownload = async (kind) => {
     setDownloading(kind);
     try {
-      if (kind === 'template') await downloadTemplate(categories);
+      const ctx = await liveLists();
+      if (kind === 'template') await downloadTemplate(ctx);
       else {
         const { data } = await getProducts();   // every product, paged on the server
-        await downloadProducts(categories, data.products || []);
+        await downloadProducts(ctx, data.products || []);
       }
     } catch (err) { toast.error('Could not create the file: ' + errMsg(err)); }
     setDownloading('');
@@ -285,7 +339,7 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
     });
     if (!rows.length) { toast('No rows with problems'); return; }
     setDownloading('problems');
-    try { await downloadProblemRows(categories, rows); } catch (err) { toast.error('Could not create the file: ' + errMsg(err)); }
+    try { await downloadProblemRows(await liveLists(), rows); } catch (err) { toast.error('Could not create the file: ' + errMsg(err)); }
     setDownloading('');
   };
 
@@ -335,6 +389,22 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
         onCategoriesChanged?.();
       }
 
+      // 1b. New subcategories, inside their (existing or just-created) category
+      const subId = new Map(subcategories.map(sc => [subKey(sc.category_id, sc.header), sc.id]));
+      const rowCat = (r) => r.data.category_id ?? (r.newCategory ? catId.get(r.newCategory.toLowerCase()) : r.rowCatId);
+      let createdSubs = 0;
+      for (const r of toImport.filter(x => x.newSubcategory)) {
+        const cid = rowCat(r);
+        const key = subKey(cid, r.newSubcategory);
+        if (!cid || subId.has(key)) continue;
+        setProgress(`Creating subcategory "${r.newSubcategory}"…`);
+        const order = subcategories.filter(sc => sc.category_id === cid).length + createdSubs;
+        const { data } = await createSubcategory({ category_id: cid, header: r.newSubcategory, items: [], sort_order: order });
+        subId.set(key, data.item.id);
+        createdSubs++;
+      }
+      if (createdSubs) loadSubcategories();
+
       // 2. Upload the photo files the rows use (each file once)
       const files = [...new Set(toImport.flatMap(r => [r.photo, ...r.extras].filter(p => p?.file).map(p => p.file)))];
       const urlOf = new Map();
@@ -354,6 +424,7 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
         const body = { ...r.data };
         if (r.targetId) body.id = r.targetId;
         if (r.newCategory) body.category_id = catId.get(r.newCategory.toLowerCase());
+        if (r.newSubcategory) body.subcategory_id = subId.get(subKey(rowCat(r), r.newSubcategory)) ?? null;
         const main = resolve(r.photo);
         if (main) body.image = main;
         if (r.extras.length) body.extra_images = r.extras.map(resolve).filter(Boolean);
@@ -455,7 +526,7 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>{stepNo(1)}<span style={{ fontWeight: 800 }}>Get the Excel sheet and fill it in</span></div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
               <button onClick={() => doDownload('template')} disabled={!!downloading} style={btn(true)}>
-                <Download size={15} /> {downloading === 'template' ? 'Preparing…' : 'Download empty template'}
+                <Download size={15} /> {downloading === 'template' ? 'Preparing…' : 'Download empty template (latest lists)'}
               </button>
               <button onClick={() => doDownload('products')} disabled={!!downloading} style={btn(false)}>
                 <Download size={15} /> {downloading === 'products' ? 'Preparing…' : 'Download my products'}
@@ -464,7 +535,9 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
             <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: '#4B5563', lineHeight: 1.75 }}>
               <li><strong>New products:</strong> use the empty template. One product per row in the <em>Products</em> sheet. <strong>Name</strong> and <strong>Price</strong> are required.</li>
               <li><strong>Change prices / stock:</strong> download your products, edit the cells, keep the <em>ID</em> column as it is, then import. Empty cells keep the current value.</li>
-              <li><strong>Category:</strong> pick from the dropdown — or type a new name and tick <em>Create missing categories</em> below.</li>
+              <li><strong>One row per product</strong> — as many different products as you like in one file.</li>
+              <li><strong>Category &amp; Subcategory:</strong> pick from the dropdowns (the subcategory list follows the category you chose). A new name creates it automatically.</li>
+              <li><strong>Featured / Top Selling / Trending:</strong> Yes or No. <strong>Flash Sale Price:</strong> a lower price puts the product in the Flash Sale.</li>
               <li><strong>Specs:</strong> columns named like <em>Spec: Wattage</em>. <strong>Options</strong> customers choose: columns like <em>Option: Size</em> with <em>48 inch, 56 inch = 4200</em>.</li>
               <li><strong>Photos:</strong> write the file name (e.g. <em>bulb-12w.jpg</em>) and choose those photos in step 2 — or paste a web link.</li>
               <li>Full instructions (also in Bangla) are in the <em>Instructions</em> sheet inside the file.</li>
@@ -522,7 +595,7 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
               <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 13, marginBottom: 10 }}>
                 <label style={{ display: 'flex', gap: 6, alignItems: 'center', cursor: 'pointer' }}>
                   <input type="checkbox" checked={createCats} onChange={e => setCreateCats(e.target.checked)} />
-                  Create missing categories
+                  Create new categories &amp; subcategories
                 </label>
                 <label style={{ display: 'flex', gap: 6, alignItems: 'center', cursor: 'pointer' }}>
                   <input type="checkbox" checked={skipExisting} onChange={e => setSkipExisting(e.target.checked)} />
