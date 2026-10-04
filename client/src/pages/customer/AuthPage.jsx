@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link, useSearchParams, Navigate } from 'react-router-dom';
 import { Eye, EyeOff, AlertCircle, CheckCircle2, ArrowLeft, Zap } from 'lucide-react';
 import { useCustomerAuth, safeNext } from '../../context/CustomerAuthContext';
+import { useSeo } from '../../lib/seo';
 
 /* ─── Brand icon SVGs (lucide doesn't carry brand logos) ─── */
 const GoogleIcon = () => (
@@ -54,6 +55,7 @@ const STRENGTH_COLORS = ['#E2E8F0', '#DC3545', '#F59E0B', '#22C55E'];
 const STRENGTH_LABELS = ['', 'Weak', 'Fair', 'Strong'];
 
 export default function AuthPage() {
+  useSeo({ title: 'Sign In', noindex: true });
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, loading: authLoading, signIn, signUp, signInWithGoogle, signInWithFacebook, forgotPassword } = useCustomerAuth();

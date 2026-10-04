@@ -13,6 +13,7 @@ import { useCartStore } from '../../store/cartStore';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { supabase } from '../../lib/supabase';
 import { fetchCategoryCounts, fetchSuggestions } from '../../lib/catalog';
+import { POLICY_LINKS } from '../../content/policies';
 import CartSidebar from '../CartSidebar';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 
@@ -478,11 +479,13 @@ export default function CustomerLayout({ children }) {
       {/* Top info bar */}
       {!isMobile && (
         <div style={{ background: '#212529', color: '#9aa5b1', fontSize: 12, padding: '5px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20 }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><MapPin size={12} /> {branding.address || 'Ka/6 Nadda, Gulshan, Dhaka-1212'}</span>
-          <span style={{ opacity: .4 }}>|</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><Phone size={12} /> {branding.phone || '01700-000000'}</span>
-          <span style={{ opacity: .4 }}>|</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><Clock size={12} /> {branding.hours || 'Sat–Thu: 9am–8pm'}</span>
+          {/* Only real details from Settings — never placeholders */}
+          {[
+            branding.address && <span key="a" style={{ display: 'flex', alignItems: 'center', gap: 5 }}><MapPin size={12} /> {branding.address}</span>,
+            branding.phone && !/0{6}/.test(String(branding.phone).replace(/\D/g, '')) &&
+              <a key="p" href={`tel:${String(branding.phone).replace(/[^+\d]/g, '')}`} style={{ display: 'flex', alignItems: 'center', gap: 5, color: 'inherit', textDecoration: 'none' }}><Phone size={12} /> {branding.phone}</a>,
+            branding.hours && <span key="h" style={{ display: 'flex', alignItems: 'center', gap: 5 }}><Clock size={12} /> {branding.hours}</span>,
+          ].filter(Boolean).flatMap((el, i) => i ? [<span key={'s' + i} style={{ opacity: .4 }}>|</span>, el] : [el])}
         </div>
       )}
 
@@ -740,12 +743,23 @@ export default function CustomerLayout({ children }) {
                 </div>
                 <span style={{ color: '#fff', fontWeight: 700 }}>{branding.store_name_bn || 'লতা ইলেকট্রিক'}</span>
               </div>
-              <p style={{ fontSize: 13, lineHeight: 1.7, margin: 0 }}>Your trusted electrical & hardware shop in Gulshan, Dhaka.</p>
+              <p style={{ fontSize: 13, lineHeight: 1.7, margin: 0 }}>Your trusted electrical & hardware shop in Dhaka — genuine products, delivery across Bangladesh, cash on delivery.</p>
+              {import.meta.env.VITE_TRADE_LICENSE && (
+                <p style={{ fontSize: 12, margin: '8px 0 0', color: '#7d8995' }}>Trade Licence: {import.meta.env.VITE_TRADE_LICENSE}</p>
+              )}
+            </div>
+            <div>
+              <div style={{ color: '#fff', fontWeight: 600, marginBottom: 10 }}>Help & Policies</div>
+              {[...POLICY_LINKS.map(([k, label]) => [`/policies/${k}`, label]), ['/track', 'Track Your Order'], ['/contact', 'Contact Us']].map(([to, label]) => (
+                <div key={to} style={{ marginBottom: 6 }}>
+                  <Link to={to} style={{ color: '#9aa5b1', textDecoration: 'none', fontSize: 13 }}>{label}</Link>
+                </div>
+              ))}
             </div>
             {!isMobile && (
               <div>
                 <div style={{ color: '#fff', fontWeight: 600, marginBottom: 10 }}>Quick Links</div>
-                {[['/', 'Home'], ['/flash-sale', 'Flash Sale'], ['/electricians', 'Electricians'], ['/account', 'My Orders']].map(([to, label]) => (
+                {[['/', 'Home'], ['/products', 'All Products'], ['/flash-sale', 'Flash Sale'], ['/electricians', 'Electricians'], ['/about', 'About Us'], ['/account', 'My Account']].map(([to, label]) => (
                   <div key={to} style={{ marginBottom: 6 }}>
                     <Link to={to} style={{ color: '#9aa5b1', textDecoration: 'none', fontSize: 13 }}>{label}</Link>
                   </div>
@@ -755,14 +769,21 @@ export default function CustomerLayout({ children }) {
             <div>
               <div style={{ color: '#fff', fontWeight: 600, marginBottom: 10 }}>Contact</div>
               <div style={{ fontSize: 13, lineHeight: 2.2 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><MapPin size={13} /> {branding.address || 'Ka/6 Nadda, Gulshan, Dhaka-1212'}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Phone size={13} /> {branding.phone || '01700-000000'}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Clock size={13} /> {branding.hours || 'Sat–Thu: 9am–8pm'}</div>
+                {branding.address && <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, lineHeight: 1.6, marginBottom: 6 }}><MapPin size={13} style={{ flexShrink: 0, marginTop: 4 }} /> {branding.address}</div>}
+                {branding.phone && !/0{6}/.test(String(branding.phone).replace(/\D/g, '')) && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Phone size={13} /> <a href={`tel:${String(branding.phone).replace(/[^+\d]/g, '')}`} style={{ color: '#9aa5b1', textDecoration: 'none' }}>{branding.phone}</a></div>
+                )}
+                {branding.hours && <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Clock size={13} /> {branding.hours}</div>}
               </div>
             </div>
           </div>
-          <div style={{ borderTop: '1px solid #343A40', paddingTop: 14, textAlign: 'center', fontSize: 12 }}>
-            © {new Date().getFullYear()} {branding.store_name_bn || 'লতা ইলেকট্রিক'} — All rights reserved
+          <div style={{ borderTop: '1px solid #343A40', paddingTop: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', fontSize: 12 }}>
+            <span>© {new Date().getFullYear()} {branding.site_name || 'Lata Electric'} — All rights reserved</span>
+            <span style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {['Cash on Delivery', 'bKash', 'Nagad'].map(m => (
+                <span key={m} style={{ border: '1px solid #3d444b', borderRadius: 6, padding: '3px 8px', color: '#c3cbd3', fontWeight: 600 }}>{m}</span>
+              ))}
+            </span>
           </div>
         </div>
       </footer>

@@ -12,6 +12,7 @@ import { supabase } from '../../lib/supabase';
 import { BD_DISTRICTS, AREAS } from '../../lib/bdLocations';
 import { placeOrder, getMyOrders, validateCoupon } from '../../api/customerApi';
 import toast from 'react-hot-toast';
+import { useSeo } from '../../lib/seo';
 
 /* ── design tokens ── */
 const CRM   = '#C0143C';
@@ -84,6 +85,7 @@ function Select({ value, onChange, children, style }) {
    MAIN CHECKOUT
 ══════════════════════════════════════════════════════════ */
 export default function Checkout() {
+  useSeo({ title: 'Checkout', noindex: true });
   const { items, clear, replace } = useCartStore();
   const { user, updateProfile } = useCustomerAuth();
   const { isMobile }     = useBreakpoint();

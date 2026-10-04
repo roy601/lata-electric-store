@@ -5,8 +5,10 @@ import CustomerLayout from '../../components/layout/CustomerLayout';
 import ProductCard from '../../components/ProductCard';
 import { useWishlistStore } from '../../store/cartStore';
 import { supabase } from '../../lib/supabase';
+import { useSeo } from '../../lib/seo';
 
 export default function Wishlist() {
+  useSeo({ title: 'My Wishlist', noindex: true });
   const { ids } = useWishlistStore();
   const [products, setProducts] = useState([]);
   const [loading,  setLoading]  = useState(true);

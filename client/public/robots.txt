@@ -1,0 +1,14 @@
+# Lata Electric
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /account
+Disallow: /login
+Disallow: /reset-password
+Disallow: /track
+Disallow: /wishlist
+Disallow: /api/
+
+Sitemap: https://www.lataelectric.com/sitemap.xml

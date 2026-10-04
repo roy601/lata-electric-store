@@ -4,8 +4,10 @@ import { Zap, Package, ShoppingCart, Clock } from 'lucide-react';
 import CustomerLayout from '../../components/layout/CustomerLayout';
 import { supabase } from '../../lib/supabase';
 import { addToCart } from '../../store/cartStore';
+import { useSeo } from '../../lib/seo';
 
 export default function FlashSalePage() {
+  useSeo({ title: 'Flash Sale — Limited-Time Deals', description: 'Today’s flash deals on electrical products and home appliances at Lata Electric. Limited stock, cash on delivery.' });
   const [products,  setProducts]  = useState([]);
   const [config,    setConfig]    = useState(null);
   const [loading,   setLoading]   = useState(true);

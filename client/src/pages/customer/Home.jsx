@@ -14,6 +14,7 @@ import { fetchProductPage } from '../../lib/catalog';
 import ShopLocation from '../../components/ShopLocation';
 import ProductRail from '../../components/ProductRail';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
+import { useSeo, storeJsonLd } from '../../lib/seo';
 
 const CAT_ICONS = {
   'Electrical Wire & Cable':      Cable,
@@ -306,6 +307,8 @@ export default function Home() {
 
   const totalPages = Math.ceil(gridTotal / PER_PAGE);
   const gotoPage   = (n) => { setPage(n); window.scrollTo({ top: document.getElementById('all-products')?.offsetTop - 80 || 0, behavior: 'smooth' }); };
+
+  useSeo({ path: '/', jsonLd: storeJsonLd(shopSettings || {}) });
 
   const W = { maxWidth: 1260, margin: '0 auto', padding: isMobile ? '0 8px' : '0 14px' };
 

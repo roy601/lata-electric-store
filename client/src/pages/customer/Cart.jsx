@@ -3,8 +3,10 @@ import { ShoppingCart, Package } from 'lucide-react';
 import CustomerLayout from '../../components/layout/CustomerLayout';
 import { useCartStore } from '../../store/cartStore';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
+import { useSeo } from '../../lib/seo';
 
 export default function Cart() {
+  useSeo({ title: 'Shopping Cart', noindex: true });
   const { items, remove, update, clear } = useCartStore();
   const navigate = useNavigate();
   const { isMobile } = useBreakpoint();

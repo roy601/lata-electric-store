@@ -37,6 +37,7 @@ const AboutPage      = lazy(() => import('./pages/customer/About'));
 const ContactPage    = lazy(() => import('./pages/customer/Contact'));
 const AuthPage          = lazy(() => import('./pages/customer/AuthPage'));
 const ResetPassword     = lazy(() => import('./pages/customer/ResetPassword'));
+const PolicyPage        = lazy(() => import('./pages/customer/Policy'));
 const ElectriciansPage  = lazy(() => import('./pages/customer/Electricians'));
 
 const PageLoader = () => (
@@ -70,6 +71,8 @@ export default function App() {
             <Route path="/electricians"       element={<ElectriciansPage />} />
             <Route path="/login"              element={<AuthPage />} />
             <Route path="/reset-password"     element={<ResetPassword />} />
+            <Route path="/policies/:slug"     element={<PolicyPage />} />
+            <Route path="/policies"           element={<Navigate to="/policies/returns" replace />} />
 
             {/* ── Admin login (public) ── */}
             <Route path="/admin/login" element={<AdminLogin />} />

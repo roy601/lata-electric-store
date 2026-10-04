@@ -1,7 +1,9 @@
 ﻿import { Zap, CheckCircle2, Truck, CreditCard, Wrench } from 'lucide-react';
 import CustomerLayout from '../../components/layout/CustomerLayout';
+import { useSeo } from '../../lib/seo';
 
 export default function About() {
+  useSeo({ title: 'About Us', description: 'About Lata Electric — a trusted electrical and hardware shop in Dhaka selling genuine fans, lights, wires, switches and home appliances.' });
   return (
     <CustomerLayout>
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '40px 16px' }}>

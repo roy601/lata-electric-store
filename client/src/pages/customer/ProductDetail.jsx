@@ -8,6 +8,7 @@ import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
+import { useSeo, productJsonLd } from '../../lib/seo';
 
 const BLUE = '#1E88E5';
 
@@ -264,6 +265,16 @@ export default function ProductDetail() {
     setImgIdx(0);
     setSelectedVariants({});
   }, [id]);
+
+  const seoPrice = product ? (product.flash_sale && product.flash_price ? product.flash_price : product.price) : null;
+  useSeo(product ? {
+    title: `${product.name}${product.brand && !product.name.toLowerCase().includes(product.brand.toLowerCase()) ? ` — ${product.brand}` : ''}`,
+    description: `${product.name} — ৳${Number(seoPrice).toLocaleString('en-BD')}${product.stock > 0 ? ', in stock' : ''}. ${product.description || 'Genuine product from Lata Electric, Dhaka.'} Cash on delivery across Bangladesh.`,
+    image: product.image || undefined,
+    path: `/products/${product.id}`,
+    type: 'product',
+    jsonLd: productJsonLd(product, product.categories?.name),
+  } : { title: loading ? undefined : 'Product not found', noindex: !loading });
 
   if (loading) return <CustomerLayout><div style={{ padding: 80, textAlign: 'center', color: '#9aa5b1' }}>Loading…</div></CustomerLayout>;
   if (!product) return <CustomerLayout><div style={{ padding: 80, textAlign: 'center', color: '#9aa5b1' }}>Product not found.</div></CustomerLayout>;

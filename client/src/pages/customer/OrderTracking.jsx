@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { ClipboardList, CheckCircle2, Truck, Star, X, LogIn } from 'lucide-react';
 import CustomerLayout from '../../components/layout/CustomerLayout';
 import { trackOrder } from '../../api/customerApi';
+import { useSeo } from '../../lib/seo';
 
 const STEPS = [
   { key: 'pending',   label: 'Order Placed',  Icon: ClipboardList,  desc: 'Your order has been received.' },
@@ -17,6 +18,7 @@ const stepIndex = (status) => {
 };
 
 export default function OrderTracking() {
+  useSeo({ title: 'Track Your Order', noindex: true });
   const { orderId: urlOrderId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();

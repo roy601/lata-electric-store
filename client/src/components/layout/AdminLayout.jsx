@@ -7,6 +7,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import toast from 'react-hot-toast';
+import { useSeo } from '../../lib/seo';
 
 const NAV = [
   { to: '/admin/dashboard',    Icon: LayoutDashboard, label: 'Dashboard' },
@@ -26,6 +27,7 @@ const NAV = [
 ];
 
 export default function AdminLayout({ children, title }) {
+  useSeo({ title: title ? `Admin · ${title}` : 'Admin', noindex: true });
   const { admin, logout } = useAuth();
   const navigate = useNavigate();
   const { isMobile } = useBreakpoint();

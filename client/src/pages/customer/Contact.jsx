@@ -2,8 +2,10 @@
 import { MapPin, Phone, Clock, Calendar, MessageCircle, CheckCircle2 } from 'lucide-react';
 import CustomerLayout from '../../components/layout/CustomerLayout';
 import toast from 'react-hot-toast';
+import { useSeo } from '../../lib/seo';
 
 export default function Contact() {
+  useSeo({ title: 'Contact Us', description: 'Call, WhatsApp or visit Lata Electric in Dhaka. Opening hours, address and directions.' });
   const [form, setForm]   = useState({ name: '', phone: '', message: '' });
   const [sent, setSent]   = useState(false);
 

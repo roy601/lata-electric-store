@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { Phone, HardHat, Inbox } from 'lucide-react';
 import CustomerLayout from '../../components/layout/CustomerLayout';
 import { supabase } from '../../lib/supabase';
+import { useSeo } from '../../lib/seo';
 
 export default function Electricians() {
+  useSeo({ title: 'Our Electricians', description: 'Book an experienced electrician from Lata Electric for wiring, fan and light installation and repairs in Dhaka.' });
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
 

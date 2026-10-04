@@ -8,6 +8,7 @@ import { supabase } from '../../lib/supabase';
 import { BD_DISTRICTS, AREAS } from '../../lib/bdLocations';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import toast from 'react-hot-toast';
+import { useSeo } from '../../lib/seo';
 
 const BLUE = '#1E88E5';
 const NAVY = '#1E3A5F';
@@ -380,6 +381,7 @@ function PasswordTab({ user, updatePassword }) {
 
 /* ═════════ Page ═════════ */
 export default function Account() {
+  useSeo({ title: 'My Account', noindex: true });
   const { user, loading: authLoading, signOut, updateProfile, updatePassword } = useCustomerAuth();
   const { isMobile } = useBreakpoint();
   const [searchParams, setSearchParams] = useSearchParams();

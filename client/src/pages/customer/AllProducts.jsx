@@ -7,6 +7,7 @@ import { supabase } from '../../lib/supabase';
 import { fetchProductPage, fetchBrands } from '../../lib/catalog';
 import { addToCart } from '../../store/cartStore';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
+import { useSeo } from '../../lib/seo';
 
 const SORT_OPTIONS = [
   { value: 'newest',     label: 'Newest Arrivals' },
@@ -130,6 +131,15 @@ export default function AllProducts() {
 
   const totalPages = Math.ceil(total / PER_PAGE);
   const paginated  = products;
+
+  const seoCat = categories.find(c => String(c.id) === catFilter)?.name;
+  useSeo({
+    title: search ? `Search: ${search}` : seoCat ? `${seoCat} — Buy Online in Bangladesh` : 'All Products',
+    description: seoCat
+      ? `Shop ${seoCat} at Lata Electric: genuine products, best prices in Bangladesh, delivery across the country and cash on delivery.`
+      : 'Browse all electrical and hardware products at Lata Electric — fans, lights, cables, switches, appliances and more. Cash on delivery across Bangladesh.',
+    noindex: !!search,   // search result pages stay out of Google
+  });
 
   const resetAll = () => { setSearchParams({}, { replace: true }); setBrandFilter('all'); setPriceRange(0); setSort('newest'); setPage(1); };
   const gotoPage = (n) => { setPage(n); window.scrollTo({ top: 0, behavior: 'smooth' }); };

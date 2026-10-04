@@ -3,12 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, AlertCircle, CheckCircle2, KeyRound } from 'lucide-react';
 import CustomerLayout from '../../components/layout/CustomerLayout';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
+import { useSeo } from '../../lib/seo';
 
 const A = '#1E88E5';   // same accent as the sign-in page
 
 /* The "reset password" email link opens this page. Supabase reads the link and
    signs the customer in for this one purpose; they then choose a new password. */
 export default function ResetPassword() {
+  useSeo({ title: 'Reset Password', noindex: true });
   const navigate = useNavigate();
   const { user, loading, updatePassword } = useCustomerAuth();
   const [pw, setPw]       = useState('');
