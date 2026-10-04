@@ -1,4 +1,4 @@
-import { useEffect, useState, Fragment } from 'react';
+import { useEffect, useRef, useState, Fragment } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Truck, CreditCard, CheckCircle2, Check, Copy,
@@ -9,7 +9,8 @@ import { useCartStore } from '../../store/cartStore';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { supabase } from '../../lib/supabase';
-import api from '../../api/axiosConfig';
+import { BD_DISTRICTS, AREAS } from '../../lib/bdLocations';
+import { placeOrder, getMyOrders, validateCoupon } from '../../api/customerApi';
 import toast from 'react-hot-toast';
 
 /* ── design tokens ── */
@@ -17,38 +18,6 @@ const CRM   = '#C0143C';
 const BKASH = '#E2136E';
 const BLUE  = '#1E88E5';
 const GREEN = '#16A34A';
-
-/* ── all 64 BD districts ── */
-const BD_DISTRICTS = [
-  'Barguna','Barishal','Bhola','Bogra','Brahmanbaria','Chandpur','Chapainawabganj',
-  'Chattogram',"Cox's Bazar",'Chuadanga','Comilla','Dhaka','Dinajpur','Faridpur',
-  'Feni','Gaibandha','Gazipur','Gopalganj','Habiganj','Jamalpur','Jashore',
-  'Jhenaidah','Jhalokathi','Joypurhat','Khagrachhari','Khulna','Kishoreganj',
-  'Kurigram','Kushtia','Lakshmipur','Lalmonirhat','Madaripur','Magura','Manikganj',
-  'Meherpur','Moulvibazar','Munshiganj','Mymensingh','Naogaon','Narail',
-  'Narayanganj','Narsingdi','Natore','Netrokona','Nilphamari','Noakhali','Pabna',
-  'Panchagarh','Patuakhali','Pirojpur','Rajbari','Rajshahi','Rangamati','Rangpur',
-  'Satkhira','Shariatpur','Sherpur','Sirajganj','Sunamganj','Sylhet','Tangail','Thakurgaon',
-].sort();
-
-/* ── thanas for major districts ── */
-const AREAS = {
-  'Dhaka': ['Adabor','Badda','Banani','Bangshal','Cantonment','Chawkbazar','Dhanmondi','Demra','Gulshan','Hazaribagh','Jatrabari','Kafrul','Khilgaon','Khilkhet','Kotwali','Lalbagh','Mirpur','Mohammadpur','Motijheel','Mugda','New Market','Pallabi','Paltan','Ramna','Rampura','Sabujbagh','Shah Ali','Shahjahanpur','Shyampur','Tejgaon','Turag','Uttara','Vatara'],
-  'Gazipur': ['Gazipur Sadar','Kaliakair','Kaliganj','Kapasia','Sreepur','Tongi'],
-  'Narayanganj': ['Araihazar','Bandar','Narayanganj Sadar','Rupganj','Sonargaon'],
-  'Narsingdi': ['Belabo','Monohardi','Narsingdi Sadar','Palash','Raipura','Shibpur'],
-  'Chattogram': ['Anwara','Banshkhali','Boalkhali','Chandgaon','Double Mooring','Fatikchhari','Hathazari','Khulshi','Kotwali','Mirsarai','Pahartali','Panchlaish','Patiya','Rangunia','Raozan','Satkania','Sitakund'],
-  "Cox's Bazar": ["Cox's Bazar Sadar",'Chakaria','Kutubdia','Maheshkhali','Pekua','Ramu','Teknaf','Ukhia'],
-  'Comilla': ['Barura','Brahmanpara','Burichang','Chandina','Chauddagram','Comilla Sadar','Daudkandi','Debidwar','Homna','Laksam','Muradnagar','Nangalkot','Titas'],
-  'Sylhet': ['Balaganj','Beani Bazar','Bishwanath','Companiganj','Dakshin Surma','Fenchuganj','Golapganj','Gowainghat','Jaintiapur','Kanaighat','Osmani Nagar','Sylhet Sadar','Zakiganj'],
-  'Rajshahi': ['Bagha','Bagmara','Boalia','Charghat','Durgapur','Godagari','Matihar','Mohanpur','Paba','Puthia','Rajpara','Shah Makhdum','Tanore'],
-  'Khulna': ['Batiaghata','Dacope','Daulatpur','Dighalia','Dumuria','Khan Jahan Ali','Khulna Sadar','Koyra','Paikgachha','Phultala','Rupsa','Sonadanga','Terokhada'],
-  'Barishal': ['Agailjhara','Babuganj','Bakerganj','Banaripara','Barishal Sadar','Gournadi','Hizla','Mehendiganj','Muladi','Wazirpur'],
-  'Rangpur': ['Badarganj','Gangachara','Kaunia','Mithapukur','Pirgachha','Pirganj','Rangpur Sadar','Taraganj'],
-  'Mymensingh': ['Bhaluka','Dhobaura','Fulbaria','Gafargaon','Gauripur','Haluaghat','Ishwarganj','Muktagachha','Mymensingh Sadar','Nandail','Phulpur','Trishal'],
-  'Bogra': ['Adamdighi','Bogra Sadar','Dhunat','Dhupchanchia','Gabtali','Kahaloo','Nandigram','Sariakandi','Shibganj','Sonatala'],
-  'Tangail': ['Basail','Bhuapur','Delduar','Dhanbari','Ghatail','Gopalpur','Kalihati','Madhupur','Mirzapur','Nagarpur','Sakhipur','Tangail Sadar'],
-};
 
 /* ── step config ── */
 const STEPS = [
@@ -115,8 +84,8 @@ function Select({ value, onChange, children, style }) {
    MAIN CHECKOUT
 ══════════════════════════════════════════════════════════ */
 export default function Checkout() {
-  const { items, clear } = useCartStore();
-  const { user }         = useCustomerAuth();
+  const { items, clear, replace } = useCartStore();
+  const { user, updateProfile } = useCustomerAuth();
   const { isMobile }     = useBreakpoint();
   const navigate         = useNavigate();
 
@@ -136,6 +105,38 @@ export default function Checkout() {
     notes: '', email: '', payment: 'Cash on Delivery', txId: '',
   });
   const upd = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const [saveDetails, setSaveDetails] = useState(true);
+
+  /* Signed in → fill in the customer's saved details (or their last order's), never
+     overwriting what they already typed */
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    const m = user.user_metadata || {};
+    const fill = (src) => setForm(f => ({
+      ...f,
+      name:     f.name     || src.name     || '',
+      phone:    f.phone    || src.phone    || '',
+      address:  f.address  || src.address  || '',
+      district: f.district || src.district || '',
+      area:     f.area     || src.area     || '',
+      email:    user.email || f.email,
+    }));
+    const saved = { name: m.full_name || [m.first_name, m.last_name].filter(Boolean).join(' '), phone: m.phone, address: m.address, district: m.district, area: m.area };
+    fill(saved);
+    if (!m.address || !m.phone) {
+      getMyOrders().then(({ data }) => {
+        const o = data.orders?.[0];
+        if (!o || cancelled) return;
+        // Stored address ends with ", <district>" — drop that part (district has its own field)
+        const district = o.customer_district || o.customer_city || '';
+        const full = String(o.customer_address || '');
+        const street = district && full.endsWith(`, ${district}`) ? full.slice(0, -(district.length + 2)) : full;
+        fill({ name: o.customer_name, phone: o.customer_phone, address: street, district });
+      }).catch(() => {});
+    }
+    return () => { cancelled = true; };
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* load settings */
   useEffect(() => {
@@ -148,17 +149,54 @@ export default function Checkout() {
       });
   }, []);
 
-  /* fetch original prices for savings display */
+  /* empty cart → back to cart page (but not right after placing an order) */
+  const placedRef = useRef(false);
   useEffect(() => {
-    if (items.length === 0) { navigate('/cart'); return; }
-    const ids = items.map(i => i.id);
-    supabase.from('products').select('id,original_price,price').in('id', ids)
-      .then(({ data }) => {
-        const map = {};
-        (data || []).forEach(p => { map[p.id] = p; });
-        setProdDetails(map);
-      });
-  }, [items]);
+    if (items.length === 0 && !placedRef.current) navigate('/cart');
+  }, [items, navigate]);
+
+  /* Re-check the saved cart against live products: removes products that are gone,
+     fixes changed prices and caps quantities to current stock. Carts live in the
+     browser, so they can be days old. */
+  const syncCart = async () => {
+    const current = useCartStore.getState().items;
+    if (current.length === 0) return;
+    const { data } = await supabase.from('products')
+      .select('id,name,price,original_price,flash_sale,flash_price,variants,stock,is_active,image')
+      .in('id', [...new Set(current.map(i => i.id))]);
+    if (!data) return;
+    const map = {};
+    data.forEach(p => { map[p.id] = p; });
+    setProdDetails(map);
+
+    const notes = [];
+    const used  = {};
+    const next  = [];
+    for (const i of current) {
+      const p = map[i.id];
+      if (!p || p.is_active === false) { notes.push(`"${i.name}" is no longer available and was removed`); continue; }
+      const allowed = [+p.price];
+      if (p.flash_sale && p.flash_price) allowed.push(+p.flash_price);
+      (Array.isArray(p.variants) ? p.variants : []).forEach(v => (v.options || []).forEach(o => { if (o?.price != null && o.price !== '') allowed.push(+o.price); }));
+      let price = +i.price;
+      if (!allowed.includes(price)) {
+        price = p.flash_sale && p.flash_price ? +p.flash_price : +p.price;
+        notes.push(`The price of "${p.name}" changed to ৳${price}`);
+      }
+      const stock = Math.max(0, +p.stock || 0);
+      const left  = stock - (used[p.id] || 0);
+      if (left <= 0) { notes.push(`"${p.name}" is out of stock and was removed`); continue; }
+      const qty = Math.min(i.qty, left);
+      if (qty < i.qty) notes.push(`Only ${qty} of "${p.name}" in stock — quantity updated`);
+      used[p.id] = (used[p.id] || 0) + qty;
+      next.push({ ...i, name: p.name, price, qty, stock });
+    }
+    const changed = notes.length > 0 || next.some((n, k) => n.stock !== current[k]?.stock);
+    if (changed) replace(next);
+    notes.forEach(n => toast(n, { duration: 5000 }));
+    return notes.length;
+  };
+  useEffect(() => { syncCart(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* calculations */
   const subtotal      = items.reduce((s, i) => s + i.qty * i.price, 0);
@@ -182,10 +220,7 @@ export default function Checkout() {
     if (!couponCode.trim()) return;
     setCouponLoading(true);
     try {
-      const { data } = await api.post('/coupons/validate', {
-        code: couponCode.trim(),
-        subtotal,
-      });
+      const { data } = await validateCoupon(couponCode.trim(), subtotal);
       setCouponDiscount(data.discount);
       setAppliedCoupon(data.coupon);
       toast.success(`Coupon applied — ৳${data.discount} off!`);
@@ -213,7 +248,7 @@ export default function Checkout() {
   const place = async () => {
     setPlacing(true);
     try {
-      const { data } = await api.post('/orders', {
+      const { data } = await placeOrder({
         customer_name:     form.name,
         customer_phone:    form.phone,
         customer_address:  [form.address, form.area, form.district].filter(Boolean).join(', '),
@@ -221,7 +256,7 @@ export default function Checkout() {
         customer_district: form.district,
         customer_email:    form.email || null,
         order_notes:       form.notes || null,
-        items:             items.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty, image: i.image })),
+        items:             items.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty, image: i.image, variant: i.variant || null })),
         subtotal,
         delivery_charge:   delivery,
         total,
@@ -230,11 +265,23 @@ export default function Checkout() {
         coupon_code:       appliedCoupon?.code || null,
         coupon_discount:   couponDiscount || null,
       });
+      placedRef.current = true;
       clear();
+      // Remember the delivery details on the account for next time
+      if (user && saveDetails) {
+        const m = user.user_metadata || {};
+        const [first, ...rest] = form.name.trim().split(/\s+/);
+        updateProfile({
+          phone: form.phone.trim(), address: form.address.trim(), district: form.district, area: form.area,
+          ...(!m.first_name && first ? { first_name: first, last_name: rest.join(' ') } : {}),
+        }).catch(() => {});
+      }
       toast.success('Order placed successfully!');
-      navigate(`/track/${data.order_id}`);
+      navigate(`/track/${data.order_id}`, { state: { phone: form.phone, justPlaced: true } });
     } catch (err) {
-      toast.error('Order failed: ' + (err.response?.data?.message || err.message));
+      toast.error('Order failed: ' + (err.response?.data?.message || err.message), { duration: 6000 });
+      // Prices/stock moved since the cart was filled — refresh it so the next try succeeds
+      if (err.response?.status === 409) await syncCart();
     } finally { setPlacing(false); }
   };
 
@@ -286,7 +333,7 @@ export default function Checkout() {
               </div>
               {/* actions */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-                <Link to="/login" style={{ padding: '8px 18px', background: 'linear-gradient(135deg,#1E3A5F,#1E88E5)', color: '#fff', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap' }}>
+                <Link to="/login?next=/checkout" style={{ padding: '8px 18px', background: 'linear-gradient(135deg,#1E3A5F,#1E88E5)', color: '#fff', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap' }}>
                   Login →
                 </Link>
                 <button onClick={() => setDismissed(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', fontSize: 12, fontWeight: 500, fontFamily: 'inherit', padding: '4px 2px', whiteSpace: 'nowrap' }}>
@@ -370,11 +417,22 @@ export default function Checkout() {
                 </div>
 
                 <div style={{ ...fd, marginBottom: 24 }}>
-                  <label style={lb}>Email (Optional)</label>
-                  <input type="email" value={form.email} onChange={e => upd('email', e.target.value)}
-                    placeholder="your@email.com"
-                    style={inp} onFocus={inpFocus} onBlur={inpBlur} />
+                  <label style={lb}>Email {user ? '' : '(Optional)'}</label>
+                  {user ? (
+                    <div style={{ ...inp, background: '#F1F5F9', color: '#475569' }}>{user.email}</div>
+                  ) : (
+                    <input type="email" value={form.email} onChange={e => upd('email', e.target.value)}
+                      placeholder="your@email.com"
+                      style={inp} onFocus={inpFocus} onBlur={inpBlur} />
+                  )}
+                  {user && <div style={{ fontSize: 11, color: '#6B7280', marginTop: 4 }}>This order will be saved under My Orders in your account.</div>}
                 </div>
+                {user && (
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#374151', margin: '-8px 0 20px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={saveDetails} onChange={e => setSaveDetails(e.target.checked)} />
+                    Save these delivery details for next time
+                  </label>
+                )}
 
                 <button onClick={goNext}
                   style={{ width: '100%', padding: '14px', background: CRM, color: '#fff', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: 'inherit' }}
@@ -566,12 +624,13 @@ export default function Checkout() {
                 <div style={{ background: '#fff', borderRadius: 14, padding: '20px 24px', boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: 20 }}>
                   <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 800, color: '#0F172A' }}>Order Items ({items.reduce((s, i) => s + i.qty, 0)})</h3>
                   {items.map(i => (
-                    <div key={i.id} style={{ display: 'flex', gap: 12, alignItems: 'center', paddingBottom: 10, marginBottom: 10, borderBottom: '1px solid #F3F4F6' }}>
+                    <div key={i.key || i.id} style={{ display: 'flex', gap: 12, alignItems: 'center', paddingBottom: 10, marginBottom: 10, borderBottom: '1px solid #F3F4F6' }}>
                       <div style={{ width: 46, height: 46, borderRadius: 8, background: '#F3F4F6', backgroundImage: i.image ? `url(${i.image})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {!i.image && <Package size={18} color="#ccc" />}
                       </div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>{i.name}</div>
+                        {i.variant && <div style={{ fontSize: 11, color: '#6B7280' }}>{i.variant}</div>}
                         <div style={{ fontSize: 12, color: '#6B7280' }}>Qty: {i.qty} × ৳{i.price.toLocaleString('en-BD')}</div>
                       </div>
                       <div style={{ fontWeight: 700, fontSize: 14, color: '#0F172A' }}>৳{(i.price * i.qty).toLocaleString('en-BD')}</div>
@@ -610,13 +669,13 @@ export default function Checkout() {
                 const orig = pd?.original_price || i.price;
                 const pct  = orig > i.price ? Math.round((1 - i.price / orig) * 100) : 0;
                 return (
-                  <div key={i.id} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 14, paddingBottom: 14, borderBottom: '1px solid #F3F4F6' }}>
+                  <div key={i.key || i.id} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 14, paddingBottom: 14, borderBottom: '1px solid #F3F4F6' }}>
                     <div style={{ width: 52, height: 52, borderRadius: 8, background: '#F3F4F6', backgroundImage: i.image ? `url(${i.image})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       {!i.image && <Package size={20} color="#ccc" />}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: '#0F172A', lineHeight: 1.4, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{i.name}</div>
-                      <div style={{ fontSize: 11, color: '#6B7280' }}>Qty: {i.qty}</div>
+                      <div style={{ fontSize: 11, color: '#6B7280' }}>{i.variant ? `${i.variant} · ` : ''}Qty: {i.qty}</div>
                     </div>
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>৳{(i.price * i.qty).toLocaleString('en-BD')}</div>

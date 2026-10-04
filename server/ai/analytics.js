@@ -361,15 +361,7 @@ const demandForecast = (orders, products, { history_days = 60, horizon_days = 30
 
 const ORDER_COLS = 'id, order_id, created_at, status, total, subtotal, delivery_charge, coupon_code, coupon_discount, payment_method, payment_paid, customer_name, customer_phone, customer_city, customer_district, items, return_reason';
 
-const fetchAll = async (build) => {
-  const PAGE = 1000, out = [];
-  for (let from = 0; ; from += PAGE) {
-    const { data, error } = await build().range(from, from + PAGE - 1);
-    if (error) throw new Error(error.message);
-    out.push(...data);
-    if (data.length < PAGE) return out;
-  }
-};
+const { fetchAll } = require('../utils/fetchAll');
 
 const fetchOrders = (range, cols = ORDER_COLS) => {
   const { gte, lt } = rangeToUtc(range);

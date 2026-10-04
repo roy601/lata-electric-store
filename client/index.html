@@ -9,8 +9,71 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    #lata-intro {
+      position: fixed; inset: 0; z-index: 99999;
+      display: flex; align-items: center; justify-content: center;
+      /* Continues the video's own light-grey vignette across the screen */
+      background: radial-gradient(ellipse at center, #eef2f5 0%, #e2e8ed 30%, #c6d1db 100%);
+      transition: opacity .5s ease, visibility .5s ease;
+    }
+    #lata-intro.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    #lata-intro video {
+      width: 280px; max-width: 60vw; height: auto;
+      display: block; outline: none; pointer-events: none;
+      /* Feather the edges so the video melts into the background (no visible box) */
+      -webkit-mask-image: radial-gradient(ellipse 50% 50% at center, #000 55%, transparent 100%);
+              mask-image: radial-gradient(ellipse 50% 50% at center, #000 55%, transparent 100%);
+    }
+    @media (max-width: 600px) {
+      #lata-intro video { width: 200px; max-width: 62vw; }
+    }
+  </style>
 </head>
 <body>
+  <!-- Intro animation: plays while the homepage pictures load behind it -->
+  <div id="lata-intro" aria-hidden="true">
+    <video src="/intro/lata-intro.mp4" autoplay muted playsinline preload="auto"></video>
+  </div>
+  <script>
+    (function () {
+      var intro = document.getElementById('lata-intro');
+      var path = location.pathname;
+      var seen = false;
+      try { seen = sessionStorage.getItem('lata-intro-seen') === '1'; } catch (e) {}
+
+      // Only on first entry per visit, and never on the admin panel
+      if (seen || path.indexOf('/admin') === 0) { intro.remove(); return; }
+      try { sessionStorage.setItem('lata-intro-seen', '1'); } catch (e) {}
+
+      var video = intro.querySelector('video');
+      var videoDone = false, pageReady = false, closed = false;
+
+      function close() {
+        if (closed) return;
+        closed = true;
+        intro.classList.add('is-hidden');
+        setTimeout(function () { intro.remove(); }, 600);
+      }
+      function check() { if (videoDone && pageReady) close(); }
+
+      video.addEventListener('ended', function () { videoDone = true; check(); });
+      video.addEventListener('error', function () { videoDone = true; check(); });
+      // If autoplay is blocked, don't hold the visitor on the intro
+      var p = video.play && video.play();
+      if (p && p.catch) p.catch(function () { videoDone = true; check(); });
+
+      if (path === '/') {
+        if (window.__lataHomeReady) pageReady = true;
+        window.addEventListener('lata:home-ready', function () { pageReady = true; check(); });
+      } else {
+        window.addEventListener('load', function () { pageReady = true; check(); });
+      }
+
+      intro.addEventListener('click', close); // tap to skip
+      setTimeout(close, 12000);               // safety cap
+    })();
+  </script>
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
 </body>

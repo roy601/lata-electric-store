@@ -10,6 +10,18 @@ export const getProducts    = (params) => api.get('/products', { params });
 export const createProduct  = (data)   => api.post('/products', data);
 export const updateProduct  = (id, d)  => api.patch(`/products/${id}`, d);
 export const deleteProduct  = (id)     => api.delete(`/products/${id}`);
+// Paged list: getProducts({ page, limit, q, category, stock, sort }) → { products, total, pages, stats }
+// Without page → every product (used by Featured, Flash Sale, Banners, Excel export)
+export const getProductMeta  = ()       => api.get('/products/meta');
+export const getProductRefs  = (categoryId) => api.get('/products', { params: { fields: 'refs', category: categoryId } });
+// Up to 100 rows, answered right away; rows with an id are updated, the rest are added
+export const bulkProducts    = (products) => api.post('/products/bulk', { products }, { timeout: 120_000 });
+// Excel import (runs on the server, with history and undo)
+export const lookupProducts  = (body)   => api.post('/products/lookup', body, { timeout: 60_000 });
+export const startImport     = (body)   => api.post('/products/imports', body, { timeout: 120_000 });
+export const getImports      = ()       => api.get('/products/imports');
+export const getImport       = (id)     => api.get(`/products/imports/${id}`);
+export const undoImport      = (id)     => api.post(`/products/imports/${id}/undo`, {}, { timeout: 300_000 });
 
 // ── Categories & subcategories ─────────────────────────────
 export const getCategories      = ()       => api.get('/categories');

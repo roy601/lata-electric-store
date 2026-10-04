@@ -10,7 +10,6 @@ import { lazy, Suspense } from 'react';
 const AdminLogin     = lazy(() => import('./pages/admin/AdminLogin'));
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
 const AdminProducts  = lazy(() => import('./pages/admin/Products'));
-const AdminCategories= lazy(() => import('./pages/admin/Categories'));
 const AdminOrders    = lazy(() => import('./pages/admin/Orders'));
 const AdminCustomers = lazy(() => import('./pages/admin/Customers'));
 const AdminSettings  = lazy(() => import('./pages/admin/Settings'));
@@ -19,7 +18,6 @@ const AdminShipping  = lazy(() => import('./pages/admin/Shipping'));
 const AdminFeatured  = lazy(() => import('./pages/admin/Featured'));
 const AdminFlashSale = lazy(() => import('./pages/admin/FlashSale'));
 const AdminBanners        = lazy(() => import('./pages/admin/Banners'));
-const AdminSubcategories  = lazy(() => import('./pages/admin/Subcategories'));
 const AdminElectricians   = lazy(() => import('./pages/admin/Electricians'));
 const AdminCoupons        = lazy(() => import('./pages/admin/Coupons'));
 const AdminAssistant      = lazy(() => import('./pages/admin/Assistant'));
@@ -38,6 +36,7 @@ const TrackingPage   = lazy(() => import('./pages/customer/OrderTracking'));
 const AboutPage      = lazy(() => import('./pages/customer/About'));
 const ContactPage    = lazy(() => import('./pages/customer/Contact'));
 const AuthPage          = lazy(() => import('./pages/customer/AuthPage'));
+const ResetPassword     = lazy(() => import('./pages/customer/ResetPassword'));
 const ElectriciansPage  = lazy(() => import('./pages/customer/Electricians'));
 
 const PageLoader = () => (
@@ -70,6 +69,7 @@ export default function App() {
             <Route path="/contact"            element={<ContactPage />} />
             <Route path="/electricians"       element={<ElectriciansPage />} />
             <Route path="/login"              element={<AuthPage />} />
+            <Route path="/reset-password"     element={<ResetPassword />} />
 
             {/* ── Admin login (public) ── */}
             <Route path="/admin/login" element={<AdminLogin />} />
@@ -79,11 +79,11 @@ export default function App() {
               <Route path="/admin"            element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="/admin/dashboard"  element={<AdminDashboard />} />
               <Route path="/admin/products"   element={<AdminProducts />} />
-              <Route path="/admin/categories" element={<AdminCategories />} />
+              <Route path="/admin/categories" element={<Navigate to="/admin/products" replace />} />
               <Route path="/admin/orders"     element={<AdminOrders />} />
               <Route path="/admin/customers"  element={<AdminCustomers />} />
               <Route path="/admin/banners"        element={<AdminBanners />} />
-              <Route path="/admin/subcategories"  element={<AdminSubcategories />} />
+              <Route path="/admin/subcategories"  element={<Navigate to="/admin/products" replace />} />
               <Route path="/admin/featured"   element={<AdminFeatured />} />
               <Route path="/admin/flash-sale" element={<AdminFlashSale />} />
               <Route path="/admin/payments"   element={<AdminPayments />} />

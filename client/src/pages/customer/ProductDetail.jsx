@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ShoppingCart, Heart, Package, Zap, Link as LinkIcon, Share2, MessageCircle, Star, Pencil, Filter } from 'lucide-react';
 import CustomerLayout from '../../components/layout/CustomerLayout';
 import ProductCard from '../../components/ProductCard';
-import { useCartStore, useWishlistStore } from '../../store/cartStore';
+import { addToCart, useWishlistStore } from '../../store/cartStore';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { supabase } from '../../lib/supabase';
@@ -243,14 +243,14 @@ export default function ProductDetail() {
   const [imgIdx,           setImgIdx]          = useState(0);
   const [imgHovered,       setImgHovered]      = useState(false);
   const [selectedVariants, setSelectedVariants] = useState({});
-  const addToCart = useCartStore(s => s.add);
   const { toggle, has } = useWishlistStore();
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       setProduct(null);
-      const { data: p } = await supabase.from('products').select('*, categories(id, name)').eq('id', id).single();
+      const { data: p } = await supabase.from('products').select('*, categories(id, name)').eq('id', id).maybeSingle();
+      if (!p || p.is_active === false) { setProduct(null); setRelated([]); setLoading(false); return; }
       setProduct(p);
       setTab(p?.specifications?.length ? 'specs' : 'description');
       if (p?.category_id) {
@@ -285,7 +285,7 @@ export default function ProductDetail() {
   })();
 
   const price    = variantPrice ?? basePrice;
-  const discount = original ? Math.round((1 - price / original) * 100) : null;
+  const discount = original && original > price ? Math.round((1 - price / original) * 100) : null;
   const wished   = has(product.id);
 
   // Parse specs — stored as [{key,value}] JSONB
@@ -295,9 +295,14 @@ export default function ProductDetail() {
   const images = [product.image, ...(Array.isArray(product.extra_images) ? product.extra_images : [])].filter(Boolean);
   const currentImg = images[imgIdx] || null;
 
+  // Every enabled variant group (Color, Size…) must have a choice before adding
+  const variantGroups = (Array.isArray(product.variants) ? product.variants : []).filter(v => v?.enabled && v.options?.length);
+  const missingVariant = variantGroups.find(v => !selectedVariants[v.key]);
+  const variantLabel = variantGroups.map(v => `${v.label || v.key}: ${selectedVariants[v.key]}`).join(', ');
+
   const handleAdd = () => {
-    for (let i = 0; i < qty; i++) addToCart({ id: product.id, name: product.name, price, image: product.image, stock: product.stock });
-    toast.success('Added to cart', { duration: 1500 });
+    if (missingVariant) { toast.error(`Please select ${missingVariant.label || missingVariant.key}`); return; }
+    addToCart(product, { price, qty, variant: variantLabel });
   };
 
   const hasTabs = specs.length > 0 || product.description;
@@ -311,7 +316,7 @@ export default function ProductDetail() {
           <Link to="/" style={{ color: '#9aa5b1' }}>Home</Link>
           {product.categories && <>
             <span>›</span>
-            <Link to={`/category/${product.categories.id}`} style={{ color: '#9aa5b1' }}>{product.categories.name}</Link>
+            <Link to={`/products?cat=${product.categories.id}`} style={{ color: '#9aa5b1' }}>{product.categories.name}</Link>
           </>}
           <span>›</span>
           <span style={{ color: '#212529', fontWeight: 500 }}>{product.name}</span>
@@ -376,7 +381,7 @@ export default function ProductDetail() {
               {/* Price */}
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
                 <span style={{ fontSize: isMobile ? 28 : 34, fontWeight: 800, color: product.flash_sale ? '#DC3545' : '#212529' }}>৳{price?.toLocaleString('en-BD')}</span>
-                {original && <span style={{ fontSize: 18, color: '#bbb', textDecoration: 'line-through' }}>৳{original?.toLocaleString('en-BD')}</span>}
+                {discount && <span style={{ fontSize: 18, color: '#bbb', textDecoration: 'line-through' }}>৳{original?.toLocaleString('en-BD')}</span>}
                 {discount && <span style={{ background: '#d1e7dd', color: '#0f5132', padding: '4px 12px', borderRadius: 20, fontSize: 13, fontWeight: 700 }}>{discount}% OFF</span>}
               </div>
 

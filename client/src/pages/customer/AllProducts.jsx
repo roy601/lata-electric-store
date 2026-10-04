@@ -4,7 +4,8 @@ import { Search, Package, Zap, ShoppingCart, LayoutGrid, List } from 'lucide-rea
 import CustomerLayout from '../../components/layout/CustomerLayout';
 import ProductCard from '../../components/ProductCard';
 import { supabase } from '../../lib/supabase';
-import { useCartStore } from '../../store/cartStore';
+import { fetchProductPage, fetchBrands } from '../../lib/catalog';
+import { addToCart } from '../../store/cartStore';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 
 const SORT_OPTIONS = [
@@ -50,17 +51,30 @@ function SidebarSection({ title, children }) {
 }
 
 export default function AllProducts() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [products,   setProducts]   = useState([]);
   const [categories, setCategories] = useState([]);
+  const [subcats,    setSubcats]    = useState([]);
   const [loading,    setLoading]    = useState(true);
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const { isMobile, isTablet } = useBreakpoint();
   const isCompact = isMobile || isTablet;
 
-  const [search,     setSearch]     = useState(searchParams.get('q') || '');
-  const [searchInput, setSearchInput] = useState(searchParams.get('q') || '');
-  const [catFilter,  setCatFilter]  = useState(searchParams.get('cat') || 'all');
+  // Category, subcategory group and search live in the URL (?cat=…&sub=…&q=…), so the
+  // mega menu, mobile drawer, header search and back button all work — even while
+  // this page is already open.
+  const catFilter = searchParams.get('cat') || 'all';
+  const subFilter = searchParams.get('sub') || '';
+  const search    = searchParams.get('q')   || '';
+  const setUrl = (patch) => {
+    const next = new URLSearchParams(searchParams);
+    Object.entries(patch).forEach(([k, v]) => { if (!v || v === 'all') next.delete(k); else next.set(k, v); });
+    setSearchParams(next, { replace: true });
+  };
+  const setCatFilter = (v) => setUrl({ cat: v, sub: '' });
+  const setSubFilter = (v) => setUrl({ sub: v });
+  const setSearch    = (v) => setUrl({ q: v });
+
   const [brandFilter,setBrandFilter]= useState('all');
   const [brandSearch,setBrandSearch]= useState('');
   const [priceRange, setPriceRange] = useState(0); // index into PRICE_RANGES
@@ -68,67 +82,68 @@ export default function AllProducts() {
   const [viewMode,   setViewMode]   = useState('grid'); // 'grid' | 'list'
   const [page,       setPage]       = useState(1);
 
-  // Listen for category events from nav
+  useEffect(() => { setPage(1); window.scrollTo({ top: 0 }); }, [catFilter, subFilter, search]);
+  useEffect(() => { setPage(1); }, [brandFilter, priceRange, sort]);
+
+  // Categories, subcategory groups and brands (small lists)
+  const [brandList, setBrandList] = useState([]);
   useEffect(() => {
-    const handler = (e) => { setCatFilter(String(e.detail)); setPage(1); };
-    window.addEventListener('lata:cat', handler);
-    return () => window.removeEventListener('lata:cat', handler);
+    Promise.all([
+      supabase.from('categories').select('id, name').eq('is_active', true).order('sort_order'),
+      supabase.from('subcategories').select('id, category_id, header').order('sort_order'),
+      fetchBrands(),
+    ]).then(([cRes, sRes, b]) => { setCategories(cRes.data || []); setSubcats(sRes.data || []); setBrandList(b); });
   }, []);
 
+  const brands = useMemo(() => brandSearch
+    ? brandList.filter(b => b.toLowerCase().includes(brandSearch.toLowerCase()))
+    : brandList, [brandList, brandSearch]);
+
+  // One page of products, filtered and sorted by the database.
+  // When a search inside a category finds nothing (e.g. a mega-menu item no product
+  // name mentions), show the whole category instead.
+  const [total, setTotal] = useState(0);
+  const [searchFellBack, setSearchFellBack] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   useEffect(() => {
-    const load = async () => {
-      const [pRes, cRes] = await Promise.all([
-        supabase.from('products').select('*').eq('is_active', true),
-        supabase.from('categories').select('id, name').eq('is_active', true).order('sort_order'),
-      ]);
-      setProducts(pRes.data || []);
-      setCategories(cRes.data || []);
-      setLoading(false);
-    };
-    load();
-  }, []);
-
-  // Derived: unique brands
-  const brands = useMemo(() => {
-    const all = [...new Set(products.map(p => p.brand).filter(Boolean))].sort();
-    if (!brandSearch) return all;
-    return all.filter(b => b.toLowerCase().includes(brandSearch.toLowerCase()));
-  }, [products, brandSearch]);
-
-  // Filtered + sorted products
-  const filtered = useMemo(() => {
+    let cancelled = false;
     const range = PRICE_RANGES[priceRange];
-    let list = [...products];
-    if (catFilter !== 'all')   list = list.filter(p => p.category_id === +catFilter);
-    if (brandFilter !== 'all') list = list.filter(p => p.brand === brandFilter);
-    if (search)                list = list.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || (p.brand||'').toLowerCase().includes(search.toLowerCase()));
-    list = list.filter(p => p.price >= range.min && p.price < range.max);
-    list.sort((a, b) => {
-      if (sort === 'price_asc')  return a.price - b.price;
-      if (sort === 'price_desc') return b.price - a.price;
-      if (sort === 'name_asc')   return a.name.localeCompare(b.name);
-      if (sort === 'popular')    return (b.top_sell ? 1 : 0) - (a.top_sell ? 1 : 0);
-      return new Date(b.created_at) - new Date(a.created_at);
-    });
-    return list;
-  }, [products, catFilter, brandFilter, search, priceRange, sort]);
+    const opts = { cat: catFilter, sub: subFilter, brand: brandFilter, minPrice: range.min, maxPrice: range.max, sort, page, perPage: PER_PAGE };
+    setLoading(true); setLoadError(false);
+    (async () => {
+      try {
+        let res = await fetchProductPage({ ...opts, q: search });
+        let fellBack = false;
+        if (search && res.total === 0 && catFilter !== 'all') {
+          const all = await fetchProductPage(opts);
+          if (all.total > 0) { res = all; fellBack = true; }
+        }
+        if (cancelled) return;
+        setProducts(res.products); setTotal(res.total); setSearchFellBack(fellBack);
+      } catch {
+        if (!cancelled) { setProducts([]); setTotal(0); setLoadError(true); }
+      }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [catFilter, subFilter, brandFilter, priceRange, sort, page, search]);
 
-  const totalPages = Math.ceil(filtered.length / PER_PAGE);
-  const paginated  = filtered.slice((page-1)*PER_PAGE, page*PER_PAGE);
+  const totalPages = Math.ceil(total / PER_PAGE);
+  const paginated  = products;
 
-  const resetAll = () => { setCatFilter('all'); setBrandFilter('all'); setPriceRange(0); setSearch(''); setSearchInput(''); setSort('newest'); setPage(1); };
+  const resetAll = () => { setSearchParams({}, { replace: true }); setBrandFilter('all'); setPriceRange(0); setSort('newest'); setPage(1); };
   const gotoPage = (n) => { setPage(n); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
-  const hasFilters = catFilter !== 'all' || brandFilter !== 'all' || priceRange !== 0 || search;
+  const hasFilters = catFilter !== 'all' || subFilter || brandFilter !== 'all' || priceRange !== 0 || search;
 
   const FilterPanel = ({ onApply }) => (
     <div>
       <SidebarSection title="Category">
         <div style={{ maxHeight: 220, overflowY: 'auto', scrollbarWidth: 'thin' }}>
-          <RadioRow label="All Categories" checked={catFilter === 'all'} onChange={() => { setCatFilter('all'); setPage(1); onApply?.(); }} />
+          <RadioRow label="All Categories" checked={catFilter === 'all'} onChange={() => { setCatFilter('all'); onApply?.(); }} />
           {categories.map(c => (
             <RadioRow key={c.id} label={c.name} checked={catFilter === String(c.id)}
-              onChange={() => { setCatFilter(String(c.id)); setPage(1); onApply?.(); }} />
+              onChange={() => { setCatFilter(String(c.id)); onApply?.(); }} />
           ))}
         </div>
       </SidebarSection>
@@ -171,7 +186,7 @@ export default function AllProducts() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 16 }}>≡</span>
                 <span style={{ fontWeight: 800, fontSize: 15, color: '#212529' }}>Filter & Sort</span>
-                {hasFilters && <span style={{ background: '#1E88E5', color: '#fff', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 12 }}>{[catFilter!=='all',brandFilter!=='all',priceRange!==0,!!search].filter(Boolean).length} active</span>}
+                {hasFilters && <span style={{ background: '#1E88E5', color: '#fff', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 12 }}>{[catFilter!=='all',!!subFilter,brandFilter!=='all',priceRange!==0,!!search].filter(Boolean).length} active</span>}
               </div>
               <button onClick={() => setFilterDrawerOpen(false)} style={{ background: '#F8F9FA', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 13, cursor: 'pointer', color: '#333' }}>Done</button>
             </div>
@@ -213,7 +228,7 @@ export default function AllProducts() {
               {isCompact && (
                 <button onClick={() => setFilterDrawerOpen(true)}
                   style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', background: hasFilters ? '#1E88E5' : '#F8F9FA', color: hasFilters ? '#fff' : '#333', border: `1px solid ${hasFilters ? '#1E88E5' : '#e0e0e0'}`, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', flexShrink: 0 }}>
-                  <span>≡</span> Filter {hasFilters ? `(${[catFilter!=='all',brandFilter!=='all',priceRange!==0,!!search].filter(Boolean).length})` : ''}
+                  <span>≡</span> Filter {hasFilters ? `(${[catFilter!=='all',!!subFilter,brandFilter!=='all',priceRange!==0,!!search].filter(Boolean).length})` : ''}
                 </button>
               )}
 
@@ -246,10 +261,22 @@ export default function AllProducts() {
                     <button onClick={() => setPriceRange(0)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1E88E5', fontSize: 14, lineHeight: 1, padding: 0 }}>×</button>
                   </span>
                 )}
+                {subFilter && (
+                  <span style={{ background: '#E3F2FD', color: '#1E88E5', fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 16, display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                    {subcats.find(s => String(s.id) === subFilter)?.header || 'Subcategory'}
+                    <button onClick={() => setSubFilter('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1E88E5', fontSize: 14, lineHeight: 1, padding: 0 }}>×</button>
+                  </span>
+                )}
+                {search && (
+                  <span style={{ background: '#E3F2FD', color: '#1E88E5', fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 16, display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                    "{search}"
+                    <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1E88E5', fontSize: 14, lineHeight: 1, padding: 0 }}>×</button>
+                  </span>
+                )}
               </div>
 
               <span style={{ fontSize: 12, color: '#9aa5b1', whiteSpace: 'nowrap', marginLeft: 'auto', flexShrink: 0 }}>
-                <strong style={{ color: '#212529' }}>{filtered.length}</strong> items
+                <strong style={{ color: '#212529' }}>{total}</strong> items
               </span>
 
               {/* Grid/List toggle — desktop only */}
@@ -265,6 +292,12 @@ export default function AllProducts() {
               )}
             </div>
 
+            {searchFellBack && !loading && (
+              <div style={{ background: '#FFF8E1', border: '1px solid #FFE082', color: '#7a5d00', borderRadius: 10, padding: '9px 14px', fontSize: 13, marginBottom: 10 }}>
+                No exact matches for "<strong>{search}</strong>" — showing all products in {categories.find(c => String(c.id) === catFilter)?.name || 'this category'}.
+              </div>
+            )}
+
             {/* Products */}
             {loading ? (
               <div style={{ background: '#fff', borderRadius: 12, padding: 80, textAlign: 'center' }}>
@@ -274,8 +307,8 @@ export default function AllProducts() {
             ) : paginated.length === 0 ? (
               <div style={{ background: '#fff', borderRadius: 12, padding: '60px 0', textAlign: 'center', color: '#9aa5b1' }}>
                 <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'center' }}><Search size={56} color="#ccc" /></div>
-                <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8, color: '#333' }}>No products found</div>
-                <div style={{ fontSize: 13, marginBottom: 20 }}>Try adjusting your filters or search.</div>
+                <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8, color: '#333' }}>{loadError ? 'Could not load products' : 'No products found'}</div>
+                <div style={{ fontSize: 13, marginBottom: 20 }}>{loadError ? 'Please check your connection and try again.' : 'Try adjusting your filters or search.'}</div>
                 <button onClick={resetAll} style={{ padding: '10px 24px', background: '#1E88E5', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 14 }}>Reset Filters</button>
               </div>
 
@@ -304,7 +337,6 @@ export default function AllProducts() {
 
 /* ─── List view card ─────────────────────────────────────────── */
 function ListCard({ product: p }) {
-  const { add } = useCartStore();
   const navigate = useNavigate();
   const price    = p.flash_sale && p.flash_price ? p.flash_price : p.price;
   const orig     = p.flash_sale && p.flash_price ? p.price : p.original_price;
@@ -345,7 +377,7 @@ function ListCard({ product: p }) {
           {disc && <div style={{ fontSize: 11, fontWeight: 700, color: '#28A745' }}>Save {disc}%</div>}
         </div>
         <button
-          onClick={() => { if (inStock) { add({ id: p.id, name: p.name, price, image: p.image }); window.dispatchEvent(new CustomEvent('lata:open-cart')); } }}
+          onClick={() => { addToCart(p, { price }); }}
           disabled={!inStock}
           style={{ padding: '9px 20px', background: inStock ? '#1E88E5' : '#e0e0e0', color: '#fff', border: 'none', borderRadius: 9, fontWeight: 700, fontSize: 13, cursor: inStock ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6 }}>
           {inStock ? <><ShoppingCart size={14} /> Add to Cart</> : 'Out of Stock'}

@@ -73,7 +73,7 @@ export default function CartSidebar({ open, onClose }) {
             </div>
           ) : (
             items.map(item => (
-              <div key={item.id} style={{ display: 'flex', gap: 12, padding: '14px 20px', borderBottom: '1px solid #f8f9fa', alignItems: 'flex-start' }}>
+              <div key={item.key || item.id} style={{ display: 'flex', gap: 12, padding: '14px 20px', borderBottom: '1px solid #f8f9fa', alignItems: 'flex-start' }}>
                 <div style={{ width: 64, height: 64, borderRadius: 10, background: '#F8F9FA', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {item.image
                     ? <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -81,16 +81,17 @@ export default function CartSidebar({ open, onClose }) {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#212529', lineHeight: 1.4, marginBottom: 4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.name}</div>
+                  {item.variant && <div style={{ fontSize: 11, color: '#7f8c9a', marginBottom: 4 }}>{item.variant}</div>}
                   <div style={{ fontSize: 15, fontWeight: 800, color: '#1E88E5', marginBottom: 8 }}>৳{(item.price * item.qty).toLocaleString('en-BD')}</div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #e0e0e0', borderRadius: 8, overflow: 'hidden' }}>
-                      <button onClick={() => update(item.id, item.qty - 1)}
+                      <button onClick={() => update(item.key || item.id, item.qty - 1)}
                         style={{ width: 30, height: 30, border: 'none', background: '#f8f9fa', cursor: 'pointer', fontSize: 16, fontWeight: 700, color: '#555', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
                       <span style={{ width: 32, textAlign: 'center', fontWeight: 700, fontSize: 14 }}>{item.qty}</span>
-                      <button onClick={() => update(item.id, item.qty + 1)}
-                        style={{ width: 30, height: 30, border: 'none', background: '#f8f9fa', cursor: 'pointer', fontSize: 16, fontWeight: 700, color: '#555', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+                      <button onClick={() => update(item.key || item.id, item.qty + 1)} disabled={item.stock != null && item.qty >= item.stock}
+                        style={{ width: 30, height: 30, border: 'none', background: '#f8f9fa', cursor: item.stock != null && item.qty >= item.stock ? 'not-allowed' : 'pointer', opacity: item.stock != null && item.qty >= item.stock ? .4 : 1, fontSize: 16, fontWeight: 700, color: '#555', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
                     </div>
-                    <button onClick={() => remove(item.id)}
+                    <button onClick={() => remove(item.key || item.id)}
                       style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#bbb', padding: 4, display: 'flex', alignItems: 'center', transition: 'color .15s' }}
                       onMouseEnter={e => e.currentTarget.style.color='#DC3545'}
                       onMouseLeave={e => e.currentTarget.style.color='#bbb'}>

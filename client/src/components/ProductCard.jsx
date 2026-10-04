@@ -1,22 +1,18 @@
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingCart, Package, Zap } from 'lucide-react';
-import { useCartStore, useWishlistStore } from '../store/cartStore';
-import toast from 'react-hot-toast';
+import { addToCart, useWishlistStore } from '../store/cartStore';
 
 export default function ProductCard({ product: p }) {
-  const addToCart = useCartStore(s => s.add);
   const { toggle, has } = useWishlistStore();
   const wished = has(p.id);
 
   const price    = p.flash_sale && p.flash_price ? p.flash_price : p.price;
   const original = p.flash_sale && p.flash_price ? p.price : p.original_price;
-  const discount = original ? Math.round((1 - price / original) * 100) : null;
+  const discount = original && original > price ? Math.round((1 - price / original) * 100) : null;
 
   const handleAddToCart = (e) => {
     e.preventDefault();
-    if (p.stock === 0) return;
-    addToCart({ id: p.id, name: p.name, price, flash_price: null, image: p.image, stock: p.stock });
-    window.dispatchEvent(new CustomEvent('lata:open-cart'));
+    addToCart(p, { price });
   };
 
   return (
@@ -32,7 +28,7 @@ export default function ProductCard({ product: p }) {
           </span>
         )}
         {discount && !p.flash_sale && <span style={{ background: '#28A745', color: '#fff', fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20 }}>{discount}% OFF</span>}
-        {p.stock === 0 && <span style={{ background: '#555', color: '#fff', fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20 }}>Out of Stock</span>}
+        {!(p.stock > 0) && <span style={{ background: '#555', color: '#fff', fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20 }}>Out of Stock</span>}
       </div>
 
       {/* Wishlist */}
@@ -60,11 +56,11 @@ export default function ProductCard({ product: p }) {
         <div style={{ marginTop: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 8 }}>
             <span style={{ fontSize: 16, fontWeight: 700, color: p.flash_sale ? '#DC3545' : '#212529' }}>৳{price}</span>
-            {original && <span style={{ fontSize: 12, color: '#9aa5b1', textDecoration: 'line-through' }}>৳{original}</span>}
+            {discount && <span style={{ fontSize: 12, color: '#9aa5b1', textDecoration: 'line-through' }}>৳{original}</span>}
           </div>
-          <button onClick={handleAddToCart} disabled={p.stock === 0}
-            style={{ width: '100%', padding: '8px', background: p.stock === 0 ? '#e0e0e0' : '#1E88E5', color: p.stock === 0 ? '#999' : '#fff', border: 'none', borderRadius: 8, cursor: p.stock === 0 ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-            {p.stock === 0 ? 'Out of Stock' : <><ShoppingCart size={14} /> Add to Cart</>}
+          <button onClick={handleAddToCart} disabled={!(p.stock > 0)}
+            style={{ width: '100%', padding: '8px', background: !(p.stock > 0) ? '#e0e0e0' : '#1E88E5', color: !(p.stock > 0) ? '#999' : '#fff', border: 'none', borderRadius: 8, cursor: !(p.stock > 0) ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            {!(p.stock > 0) ? 'Out of Stock' : <><ShoppingCart size={14} /> Add to Cart</>}
           </button>
         </div>
       </div>

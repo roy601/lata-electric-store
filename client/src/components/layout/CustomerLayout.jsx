@@ -12,6 +12,7 @@ import {
 import { useCartStore } from '../../store/cartStore';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { supabase } from '../../lib/supabase';
+import { fetchCategoryCounts, fetchSuggestions } from '../../lib/catalog';
 import CartSidebar from '../CartSidebar';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 
@@ -41,7 +42,12 @@ const CatIcon = ({ name, size = 16, color = 'currentColor' }) => {
 };
 
 /* ─── Mobile Category Drawer ────────────────────────────────── */
-function MobileDrawer({ open, onClose, categories, subcategories, products, navigate }) {
+// Shared across pages (the layout re-mounts on every page)
+const LAYOUT_TTL = 5 * 60 * 1000;
+let layoutCache = null;
+const megaPreviewCache = {};
+
+function MobileDrawer({ open, onClose, categories, subcategories, counts, navigate }) {
   const [activeCat, setActiveCat] = useState(null);
 
   useEffect(() => {
@@ -109,12 +115,13 @@ function MobileDrawer({ open, onClose, categories, subcategories, products, navi
                 <CatIcon name={activeCat.name} size={20} color="#1E88E5" />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 800, fontSize: 14, color: '#1E88E5' }}>{activeCat.name}</div>
-                  <div style={{ fontSize: 11, color: '#9aa5b1' }}>View all {products.filter(p=>p.category_id===activeCat.id).length} products →</div>
+                  <div style={{ fontSize: 11, color: '#9aa5b1' }}>View all {counts[activeCat.id] || 0} products →</div>
                 </div>
               </div>
               {subcats.map((group, gi) => (
-                <div key={gi} style={{ padding: '12px 16px', borderBottom: '1px solid #F8F9FA' }}>
-                  <div style={{ fontWeight: 800, fontSize: 13, color: '#212529', marginBottom: 8 }}>{group.header}</div>
+                <div key={group.id ?? gi} style={{ padding: '12px 16px', borderBottom: '1px solid #F8F9FA' }}>
+                  <div onClick={() => { navigate(`/products?cat=${activeCat.id}&sub=${group.id}`); onClose(); }}
+                    style={{ fontWeight: 800, fontSize: 13, color: '#212529', marginBottom: 8, cursor: 'pointer' }}>{group.header}</div>
                   {(group.items || []).map(item => (
                     <div key={item}
                       onClick={() => { navigate(`/products?cat=${activeCat.id}&q=${encodeURIComponent(item)}`); onClose(); }}
@@ -154,10 +161,9 @@ function MobileDrawer({ open, onClose, categories, subcategories, products, navi
 }
 
 /* ─── Desktop Mega Menu ─────────────────────────────────────── */
-function MegaMenu({ categories, products, subcategories, onClose, navigate }) {
+function MegaMenu({ categories, counts, flashCount, subcategories, onClose, navigate }) {
   const [activeCat, setActiveCat] = useState(categories[0] || null);
   const hoverTimer = useRef(null);
-  const flashProds = products.filter(p => p.flash_sale && p.flash_price);
 
   const handleCatHover = (cat) => {
     clearTimeout(hoverTimer.current);
@@ -173,6 +179,17 @@ function MegaMenu({ categories, products, subcategories, onClose, navigate }) {
   const subcats = activeCat
     ? subcategories.filter(s => s.category_id === activeCat.id).sort((a,b) => a.sort_order - b.sort_order)
     : [];
+
+  // Categories without subcategory groups show a few of their products — fetched on hover, cached
+  const [preview, setPreview] = useState(megaPreviewCache);
+  useEffect(() => {
+    const id = activeCat?.id;
+    if (!id || subcats.length || preview[id]) return;
+    supabase.from('products').select('id, name, price, image, flash_sale, flash_price')
+      .eq('is_active', true).eq('category_id', id)
+      .order('top_sell', { ascending: false }).order('created_at', { ascending: false }).limit(8)
+      .then(({ data }) => { megaPreviewCache[id] = data || []; setPreview(p => ({ ...p, [id]: data || [] })); });
+  }, [activeCat?.id, subcats.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 500, background: '#fff', borderRadius: '0 0 12px 12px', boxShadow: '0 20px 60px rgba(0,0,0,.18)', display: 'flex', width: 'min(1060px, 90vw)', border: '1px solid #e8e8e8', borderTop: '3px solid #1E88E5', overflow: 'hidden' }}
@@ -207,7 +224,7 @@ function MegaMenu({ categories, products, subcategories, onClose, navigate }) {
                 <CatIcon name={activeCat.name} size={18} color="#1E88E5" />
                 <span style={{ fontWeight: 800, fontSize: 15, color: '#212529' }}>{activeCat.name}</span>
                 <span style={{ fontSize: 11, color: '#9aa5b1', background: '#F8F9FA', padding: '2px 8px', borderRadius: 12 }}>
-                  {products.filter(p => p.category_id === activeCat.id).length} products
+                  {counts[activeCat.id] || 0} products
                 </span>
               </div>
               <button onClick={() => goToCat(activeCat.id)} style={{ fontSize: 12, color: '#1E88E5', background: '#E3F2FD', border: 'none', borderRadius: 14, padding: '4px 14px', cursor: 'pointer', fontWeight: 700 }}>View All →</button>
@@ -216,12 +233,13 @@ function MegaMenu({ categories, products, subcategories, onClose, navigate }) {
             {subcats.length > 0 ? (
               <div style={{ padding: '16px 20px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px 24px', flex: 1 }}>
                 {subcats.map((group, gi) => (
-                  <div key={gi} style={{ marginBottom: 8 }}>
-                    <div style={{ fontWeight: 800, fontSize: 13, color: '#212529', marginBottom: 7, paddingBottom: 5, borderBottom: '1px solid #f4f4f4' }}>{group.header}</div>
+                  <div key={group.id ?? gi} style={{ marginBottom: 8 }}>
+                    <div onClick={() => { navigate(`/products?cat=${activeCat.id}&sub=${group.id}`); onClose(); }}
+                      style={{ fontWeight: 800, fontSize: 13, color: '#212529', marginBottom: 7, paddingBottom: 5, borderBottom: '1px solid #f4f4f4', cursor: 'pointer' }}>{group.header}</div>
                     <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                       {(group.items || []).map(item => (
                         <li key={item}>
-                          <span onClick={() => goToCat(activeCat.id)}
+                          <span onClick={() => goToCat(activeCat.id, item)}
                             style={{ display: 'block', fontSize: 12.5, color: '#555', padding: '3px 0', cursor: 'pointer', lineHeight: 1.5, transition: 'color .12s' }}
                             onMouseEnter={e => e.currentTarget.style.color='#1E88E5'}
                             onMouseLeave={e => e.currentTarget.style.color='#555'}>
@@ -235,7 +253,8 @@ function MegaMenu({ categories, products, subcategories, onClose, navigate }) {
               </div>
             ) : (
               <div style={{ padding: '16px 20px', display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10 }}>
-                {products.filter(p => p.category_id === activeCat.id).slice(0, 8).map(p => {
+                {!preview[activeCat.id] && <div style={{ gridColumn: '1 / -1', fontSize: 12, color: '#9aa5b1' }}>Loading…</div>}
+                {(preview[activeCat.id] || []).map(p => {
                   const price = p.flash_sale && p.flash_price ? p.flash_price : p.price;
                   return (
                     <div key={p.id} onClick={() => { navigate(`/products/${p.id}`); onClose(); }}
@@ -265,7 +284,7 @@ function MegaMenu({ categories, products, subcategories, onClose, navigate }) {
           <div style={{ position: 'absolute', right: -6, top: -6, opacity: .1 }}><Zap size={70} fill="currentColor" /></div>
           <div style={{ fontSize: 10, fontWeight: 700, opacity: .85, letterSpacing: .8, textTransform: 'uppercase', marginBottom: 6 }}>Limited Time</div>
           <div style={{ fontWeight: 900, fontSize: 20, lineHeight: 1.1, marginBottom: 4 }}>Flash Sale</div>
-          <div style={{ fontSize: 11, opacity: .85, marginBottom: 12 }}>{flashProds.length} deals live!</div>
+          <div style={{ fontSize: 11, opacity: .85, marginBottom: 12 }}>{flashCount} deals live!</div>
           <div style={{ background: '#fff', color: '#DC3545', borderRadius: 6, padding: '5px 12px', fontSize: 11, fontWeight: 800, display: 'inline-block' }}>Shop Now →</div>
         </div>
         <div onClick={() => { navigate('/products'); onClose(); }}
@@ -287,7 +306,9 @@ export default function CustomerLayout({ children }) {
   const cartCount = useCartStore(s => s.items.reduce((a, i) => a + i.qty, 0));
   const [search, setSearch]             = useState('');
   const [categories, setCategories]     = useState([]);
-  const [products, setProducts]         = useState([]);
+  const [counts, setCounts]             = useState({});
+  const [flashCount, setFlashCount]     = useState(0);
+  const [prodSugg, setProdSugg]         = useState([]);
   const [subcategories,setSubcategories]= useState([]);
   const [branding, setBranding]         = useState({});
   const [cartOpen, setCartOpen]         = useState(false);
@@ -313,18 +334,33 @@ export default function CustomerLayout({ children }) {
   const initial = (displayName[0] || 'A').toUpperCase();
 
   useEffect(() => {
+    // Menu data is small; keep it for a few minutes so page changes don't re-download it
+    const apply = (d) => {
+      setCategories(d.categories); setSubcategories(d.subcategories); setBranding(d.branding);
+      setCounts(d.counts); setFlashCount(d.flashCount);
+    };
+    if (layoutCache && Date.now() - layoutCache.at < LAYOUT_TTL) { apply(layoutCache.data); return; }
     Promise.all([
       supabase.from('categories').select('id, name').eq('is_active', true).order('sort_order'),
-      supabase.from('products').select('id, name, price, image, category_id, flash_sale, flash_price, stock').eq('is_active', true),
       supabase.from('subcategories').select('*').order('sort_order'),
       supabase.from('settings').select('logo_url,logo_bg_color,store_name_bn,store_tagline,site_name,phone,address,hours,whatsapp,facebook').eq('id',1).maybeSingle(),
-    ]).then(([cRes, pRes, sRes, bRes]) => {
-      setCategories(cRes.data || []);
-      setProducts(pRes.data || []);
-      setSubcategories(sRes.data || []);
-      setBranding(bRes.data || {});
+      fetchCategoryCounts(),
+      supabase.from('products').select('id', { count: 'exact', head: true }).eq('is_active', true).eq('flash_sale', true).gt('flash_price', 0),
+    ]).then(([cRes, sRes, bRes, catCounts, fRes]) => {
+      const data = { categories: cRes.data || [], subcategories: sRes.data || [], branding: bRes.data || {}, counts: catCounts, flashCount: fRes.count || 0 };
+      layoutCache = { at: Date.now(), data };
+      apply(data);
     });
   }, []);
+
+  // Product suggestions for the search box, from the database (debounced)
+  useEffect(() => {
+    const q = search.trim();
+    if (!q) { setProdSugg([]); return; }
+    let cancelled = false;
+    const t = setTimeout(() => fetchSuggestions(q).then(r => { if (!cancelled) setProdSugg(r); }), 220);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [search]);
 
   useEffect(() => {
     const handler = () => setCartOpen(true);
@@ -362,10 +398,8 @@ export default function CustomerLayout({ children }) {
   const suggestions = (() => {
     if (!search.trim()) return [];
     const q = search.trim().toLowerCase();
-    const prodMatches = products
-      .filter(p => p.name.toLowerCase().includes(q) || (p.brand || '').toLowerCase().includes(q))
+    const prodMatches = [...prodSugg]
       .sort((a, b) => (a.name.toLowerCase().startsWith(q) ? 0 : 1) - (b.name.toLowerCase().startsWith(q) ? 0 : 1))
-      .slice(0, 6)
       .map(p => ({ type: 'product', id: p.id, label: p.name, sub: `৳${(p.flash_sale && p.flash_price ? p.flash_price : p.price).toLocaleString('en-BD')}`, image: p.image, flash: p.flash_sale }));
     const catMatches = categories
       .filter(c => c.name.toLowerCase().includes(q)).slice(0, 3)
@@ -571,8 +605,9 @@ export default function CustomerLayout({ children }) {
                           </div>
                           <div style={{ padding: '6px 0' }}>
                             {[
-                              { to: '/account',    Icon: ShoppingBag, label: 'My Orders' },
-                              { to: '/wishlist',   Icon: Heart,       label: 'Wishlist' },
+                              { to: '/account',             Icon: ShoppingBag, label: 'My Orders' },
+                              { to: '/account?tab=profile', Icon: User,        label: 'Profile & Address' },
+                              { to: '/wishlist',            Icon: Heart,       label: 'Wishlist' },
                             ].map(({ to, Icon, label }) => (
                               <Link key={to} to={to} onClick={() => setUserMenuOpen(false)}
                                 style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', textDecoration: 'none', color: '#374151', fontSize: 14, transition: 'background .12s' }}
@@ -645,7 +680,7 @@ export default function CustomerLayout({ children }) {
                   <Menu size={18} /> All Categories <ChevronRight size={14} style={{ opacity: .8, transform: megaOpen ? 'rotate(90deg)' : 'none', transition: 'transform .2s' }} />
                 </button>
                 {megaOpen && categories.length > 0 && (
-                  <MegaMenu categories={categories} products={products} subcategories={subcategories} onClose={() => setMegaOpen(false)} navigate={navigate} />
+                  <MegaMenu categories={categories} counts={counts} flashCount={flashCount} subcategories={subcategories} onClose={() => setMegaOpen(false)} navigate={navigate} />
                 )}
               </div>
               <div style={{ width: 1, background: 'rgba(255,255,255,.2)', margin: '8px 4px' }} />
@@ -685,7 +720,7 @@ export default function CustomerLayout({ children }) {
         )}
       </header>
 
-      <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} categories={categories} subcategories={subcategories} products={products} navigate={navigate} />
+      <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} categories={categories} subcategories={subcategories} counts={counts} navigate={navigate} />
       <CartSidebar open={cartOpen} onClose={() => setCartOpen(false)} />
       <main style={{ flex: 1 }}>{children}</main>
 

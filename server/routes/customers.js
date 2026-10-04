@@ -2,16 +2,18 @@ const express      = require('express');
 const router       = express.Router();
 const { supabase } = require('../config/db');
 const { protect, authorize } = require('../middleware/authMiddleware');
+const { fetchAll } = require('../utils/fetchAll');
 
 router.use(protect, authorize('admin', 'super_admin'));
 
 // Customers are derived from orders, grouped by phone number
 router.get('/', async (req, res) => {
-  const { data, error } = await supabase
-    .from('orders')
-    .select('customer_name, customer_phone, customer_city, total, created_at')
-    .order('created_at', { ascending: false });
-  if (error) return res.status(400).json({ success: false, message: error.message });
+  let data;
+  try {
+    data = await fetchAll(() => supabase.from('orders')
+      .select('customer_name, customer_phone, customer_city, total, created_at')
+      .order('created_at', { ascending: false }).order('id', { ascending: false }));
+  } catch (err) { return res.status(400).json({ success: false, message: err.message }); }
 
   const map = new Map();
   (data || []).forEach(o => {

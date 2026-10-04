@@ -49,7 +49,12 @@ app.use(cors({
 }));
 
 /* ─── Body & cookie parsing ── */
-app.use(express.json({ limit: '200kb' }));   // product payloads (description, specs, variants) exceed 10kb
+// Product payloads (description, specs, variants) exceed 10kb. An Excel import sends
+// all its rows in one request, so that one admin route gets a larger limit.
+const jsonSmall = express.json({ limit: '200kb' });
+const jsonLarge = express.json({ limit: '15mb' });
+app.use((req, res, next) =>
+  (req.method === 'POST' && req.path === '/api/products/imports' ? jsonLarge : jsonSmall)(req, res, next));
 app.use(express.urlencoded({ extended: false, limit: '10kb' }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 

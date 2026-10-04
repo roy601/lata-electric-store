@@ -9,7 +9,8 @@ import {
 import CustomerLayout from '../../components/layout/CustomerLayout';
 import ProductCard from '../../components/ProductCard';
 import { supabase } from '../../lib/supabase';
-import { useCartStore } from '../../store/cartStore';
+import { addToCart } from '../../store/cartStore';
+import { fetchProductPage } from '../../lib/catalog';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 
 const CAT_ICONS = {
@@ -57,7 +58,6 @@ function SectionHeader({ title, Icon, onViewAll, viewAllLabel = 'View All →', 
 /* ─── Horizontal Product Strip ───────────────────────────────── */
 function ProductStrip({ products, cardWidth = 170, cardHeight = 150 }) {
   const navigate = useNavigate();
-  const { add }  = useCartStore();
   const ref      = useRef(null);
 
   if (!products.length) return null;
@@ -98,7 +98,7 @@ function ProductStrip({ products, cardWidth = 170, cardHeight = 150 }) {
                     <span style={{ fontSize: 15, fontWeight: 800, color: p.flash_sale ? '#DC3545' : '#212529' }}>৳{price.toLocaleString('en-BD')}</span>
                     {orig && orig > price && <span style={{ fontSize: 11, color: '#bbb', textDecoration: 'line-through' }}>৳{orig.toLocaleString('en-BD')}</span>}
                   </div>
-                  <button onClick={e => { e.stopPropagation(); if (inStock) { add({ id: p.id, name: p.name, price, image: p.image }); window.dispatchEvent(new CustomEvent('lata:open-cart')); } }}
+                  <button onClick={e => { e.stopPropagation(); addToCart(p, { price }); }}
                     disabled={!inStock}
                     style={{ width: '100%', padding: '6px 0', background: inStock ? '#1E88E5' : '#e0e0e0', color: '#fff', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: inStock ? 'pointer' : 'not-allowed' }}>
                     {inStock ? '+ Add to Cart' : 'Out of Stock'}
@@ -187,7 +187,6 @@ function BannerCarousel({ banners }) {
 /* ─── Flash Sale Section ─────────────────────────────────────── */
 function FlashSaleSection({ products, flashConfig }) {
   const navigate = useNavigate();
-  const { add }  = useCartStore();
   const stripRef = useRef(null);
   const [time, setTime] = useState({ h: '00', m: '00', s: '00', ended: false });
 
@@ -254,7 +253,7 @@ function FlashSaleSection({ products, flashConfig }) {
                     <span style={{ fontSize: 15, fontWeight: 800, color: '#DC3545' }}>৳{price.toLocaleString('en-BD')}</span>
                     {disc && <span style={{ fontSize: 11, color: '#bbb', textDecoration: 'line-through' }}>৳{p.price.toLocaleString('en-BD')}</span>}
                   </div>
-                  <button onClick={e => { e.stopPropagation(); if (inStock) { add({ id: p.id, name: p.name, price, image: p.image }); window.dispatchEvent(new CustomEvent('lata:open-cart')); } }}
+                  <button onClick={e => { e.stopPropagation(); addToCart(p, { price }); }}
                     disabled={!inStock}
                     style={{ width: '100%', padding: '6px 0', background: inStock ? '#1E88E5' : '#e0e0e0', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 11, cursor: inStock ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
                     {inStock ? <><ShoppingCart size={11} /> Add to Cart</> : 'Out of Stock'}
@@ -281,7 +280,7 @@ export default function Home() {
   const navigate = useNavigate();
   const { isMobile, isTablet } = useBreakpoint();
   const isCompact = isMobile || isTablet;
-  const [allProducts,   setAllProducts]   = useState([]);
+  const [sections,      setSections]      = useState({ flash: [], featured: [], topSell: [], trending: [], byCat: {} });
   const [categories,    setCategories]    = useState([]);
   const [banners,       setBanners]       = useState([]);
   const [flashConfig,   setFlashConfig]   = useState(null);
@@ -307,54 +306,79 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    // Each section asks the database only for what it shows (never the whole catalogue)
+    const strip = (flag) => supabase.from('products').select('*').eq('is_active', true).eq(flag, true)
+      .order('created_at', { ascending: false }).order('id', { ascending: false }).limit(20);
     const load = async () => {
-      const [pRes, cRes, bRes, sRes, eRes] = await Promise.all([
-        supabase.from('products').select('*').eq('is_active', true),
+      const [cRes, bRes, sRes, eRes, flashRes, featRes, topRes, trendRes, catRes] = await Promise.all([
         supabase.from('categories').select('*').eq('is_active', true).order('sort_order'),
         supabase.from('banners').select('*').eq('is_active', true).order('sort_order'),
         supabase.from('settings').select('*').eq('id', 1).maybeSingle(),
         supabase.from('electricians').select('*').eq('is_active', true).order('sort_order').order('id'),
+        strip('flash_sale').gt('flash_price', 0),
+        strip('featured'),
+        strip('top_sell'),
+        strip('trending'),
+        supabase.rpc('home_category_products', { p_per_cat: 10 }),
       ]);
-      setAllProducts(pRes.data || []);
+      const byCat = {};
+      (catRes.data || []).forEach(p => { (byCat[p.category_id] ||= []).push(p); });
+      const next = { flash: flashRes.data || [], featured: featRes.data || [], topSell: topRes.data || [], trending: trendRes.data || [], byCat };
+      setSections(next);
       setCategories(cRes.data || []);
       setBanners(bRes.data || []);
       setElectricians(eRes.data || []);
       setShopSettings(sRes.data || null);
       if (sRes.data?.flash_sale_active) setFlashConfig(sRes.data);
       setLoading(false);
+
+      // Preload above-the-fold pictures, then let the intro overlay (index.html) fade out
+      const urls = [
+        ...(bRes.data || []).map(b => b.image),
+        ...[...next.flash, ...next.featured, ...(catRes.data || [])].slice(0, 12).map(p => p.image),
+      ].filter(Boolean);
+      const preload = (src) => new Promise(res => {
+        const img = new Image();
+        img.onload = img.onerror = res;
+        img.src = src;
+      });
+      await Promise.race([Promise.all(urls.map(preload)), new Promise(r => setTimeout(r, 6000))]);
+      window.__lataHomeReady = true;
+      window.dispatchEvent(new Event('lata:home-ready'));
     };
     load();
   }, []);
 
-  const flashProducts    = useMemo(() => allProducts.filter(p => p.flash_sale && p.flash_price && p.is_active), [allProducts]);
-  const featuredProducts = useMemo(() => allProducts.filter(p => p.featured), [allProducts]);
-  const topSellProducts  = useMemo(() => allProducts.filter(p => p.top_sell), [allProducts]);
-  const trending         = useMemo(() => allProducts.filter(p => p.trending), [allProducts]);
+  const flashProducts    = sections.flash;
+  const featuredProducts = sections.featured;
+  const topSellProducts  = sections.topSell;
+  const trending         = sections.trending;
 
   // Category sections: only categories with at least 1 product
   const catSections = useMemo(() =>
     categories
-      .map(c => ({ ...c, products: allProducts.filter(p => p.category_id === c.id).slice(0, 10) }))
+      .map(c => ({ ...c, products: sections.byCat[c.id] || [] }))
       .filter(c => c.products.length > 0),
-    [categories, allProducts]
+    [categories, sections]
   );
 
-  // All-products grid
-  const filtered = useMemo(() => {
-    let list = [...allProducts];
-    if (catFilter !== 'all') list = list.filter(p => p.category_id === +catFilter);
-    if (search) list = list.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || (p.brand||'').toLowerCase().includes(search.toLowerCase()));
-    list.sort((a, b) => {
-      if (sort === 'price_asc')  return a.price - b.price;
-      if (sort === 'price_desc') return b.price - a.price;
-      if (sort === 'name_asc')   return a.name.localeCompare(b.name);
-      return new Date(b.created_at) - new Date(a.created_at);
-    });
-    return list;
-  }, [allProducts, catFilter, search, sort]);
+  // All-products grid — one page at a time from the database
+  const [paginated,   setPaginated]   = useState([]);
+  const [gridTotal,   setGridTotal]   = useState(0);
+  const [gridLoading, setGridLoading] = useState(true);
+  const [debounced,   setDebounced]   = useState(search);
+  useEffect(() => { const t = setTimeout(() => setDebounced(search), 300); return () => clearTimeout(t); }, [search]);
+  useEffect(() => {
+    let cancelled = false;
+    setGridLoading(true);
+    fetchProductPage({ cat: catFilter, q: debounced, sort, page, perPage: PER_PAGE })
+      .then(r => { if (!cancelled) { setPaginated(r.products); setGridTotal(r.total); } })
+      .catch(() => { if (!cancelled) { setPaginated([]); setGridTotal(0); } })
+      .finally(() => { if (!cancelled) setGridLoading(false); });
+    return () => { cancelled = true; };
+  }, [catFilter, debounced, sort, page]);
 
-  const totalPages = Math.ceil(filtered.length / PER_PAGE);
-  const paginated  = filtered.slice((page-1)*PER_PAGE, page*PER_PAGE);
+  const totalPages = Math.ceil(gridTotal / PER_PAGE);
   const gotoPage   = (n) => { setPage(n); window.scrollTo({ top: document.getElementById('all-products')?.offsetTop - 80 || 0, behavior: 'smooth' }); };
 
   const W = { maxWidth: 1260, margin: '0 auto', padding: isMobile ? '0 8px' : '0 14px' };
@@ -537,7 +561,7 @@ export default function Home() {
                     {categories.find(c => String(c.id) === catFilter)?.name}
                   </span>
                 )}
-                <span style={{ fontSize: 12, color: '#9aa5b1' }}>{filtered.length} items</span>
+                <span style={{ fontSize: 12, color: '#9aa5b1' }}>{gridTotal} items</span>
                 {(search || catFilter !== 'all') && (
                   <button onClick={() => { setSearch(''); setCatFilter('all'); setPage(1); }}
                     style={{ padding: '4px 10px', fontSize: 11, color: '#1E88E5', background: 'none', border: '1px solid #1E88E5', borderRadius: 16, cursor: 'pointer' }}>
@@ -579,7 +603,7 @@ export default function Home() {
 
             {/* Grid */}
             <div style={{ padding: isMobile ? '10px 10px 14px' : '16px 18px 18px' }}>
-              {loading ? (
+              {gridLoading && paginated.length === 0 ? (
                 <div style={{ padding: 60, textAlign: 'center' }}>
                   <div style={{ width: 38, height: 38, border: '4px solid #f0f0f0', borderTop: '4px solid #1E88E5', borderRadius: '50%', animation: 'spin .8s linear infinite', margin: '0 auto' }} />
                 </div>

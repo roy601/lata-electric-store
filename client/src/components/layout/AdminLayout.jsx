@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, ShoppingCart, Package, LayoutGrid, List,
+  LayoutDashboard, ShoppingCart, Package, List,
   Users, Image, Star, Zap, CreditCard, Truck, HardHat, Settings, LogOut, Tag, Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -12,8 +12,7 @@ const NAV = [
   { to: '/admin/dashboard',    Icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/admin/assistant',    Icon: Sparkles,        label: 'AI Assistant' },
   { to: '/admin/orders',       Icon: ShoppingCart,    label: 'Orders' },
-  { to: '/admin/products',     Icon: Package,         label: 'Products' },
-  { to: '/admin/categories',   Icon: LayoutGrid,      label: 'Categories' },
+  { to: '/admin/products',     Icon: Package,         label: 'Products & Categories' },
 
   { to: '/admin/customers',    Icon: Users,           label: 'Customers' },
   { to: '/admin/banners',      Icon: Image,           label: 'Banners' },

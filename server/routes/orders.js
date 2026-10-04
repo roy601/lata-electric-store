@@ -2,16 +2,24 @@ const express  = require('express');
 const router   = express.Router();
 const { supabase } = require('../config/db');
 const { protect, authorize } = require('../middleware/authMiddleware');
-const { protectCustomer }    = require('../middleware/customerAuthMiddleware');
+const { protectCustomer, optionalCustomer } = require('../middleware/customerAuthMiddleware');
 const { validId }            = require('../utils/crudRouter');
 const { priceOrder, PricingError } = require('../services/orderPricing');
+const { fetchAll } = require('../utils/fetchAll');
+const rateLimit    = require('express-rate-limit');
+
+// Adding past orders needs order ID + phone — limit guessing
+const claimLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false,
+  message: { success: false, message: 'Too many attempts. Please try again in 15 minutes.' },
+});
 
 const genOrderId = () => 'LE' + Date.now().toString(36).toUpperCase().slice(-6);
 
 const STATUSES = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returned'];
 
 /* ── Public: place order ────────────────────────────────────────── */
-router.post('/', async (req, res) => {
+router.post('/', optionalCustomer, async (req, res) => {
   const {
     customer_name, customer_phone, customer_address,
     customer_city, customer_district, customer_email, order_notes,
@@ -29,7 +37,7 @@ router.post('/', async (req, res) => {
   const ids  = [...new Set(items.map(i => +i.id).filter(Number.isInteger))];
   const code = coupon_code ? String(coupon_code).toUpperCase().trim() : null;
   const [prodRes, setRes, couponRes] = await Promise.all([
-    supabase.from('products').select('id, name, price, flash_sale, flash_price, variants, image, is_active').in('id', ids),
+    supabase.from('products').select('id, name, price, flash_sale, flash_price, variants, image, is_active, stock').in('id', ids),
     supabase.from('settings').select('shipping_inside, shipping_outside, free_delivery_threshold, payment_methods').eq('id', 1).maybeSingle(),
     code ? supabase.from('coupons').select('*').eq('code', code).maybeSingle() : Promise.resolve({ data: undefined }),
   ]);
@@ -67,7 +75,9 @@ router.post('/', async (req, res) => {
       customer_address:  String(customer_address).trim(),
       customer_city:     customer_city     || 'Dhaka',
       customer_district: customer_district || 'Dhaka',
-      customer_email:    customer_email ? String(customer_email).trim().toLowerCase() : null,
+      customer_email:    customer_email ? String(customer_email).trim().toLowerCase() : (req.customer?.email || null),
+      // Signed in → the order belongs to that account (shows under My Orders)
+      customer_user_id:  req.customer?.id || null,
       notes:             order_notes || null,
       items:             priced.lines,
       subtotal:          priced.subtotal,
@@ -83,6 +93,11 @@ router.post('/', async (req, res) => {
   if (error) {
     if (error.message?.includes('COUPON_UNAVAILABLE')) {
       return res.status(409).json({ success: false, code: 'COUPON_USED_UP', message: 'This coupon has reached its usage limit.' });
+    }
+    // Someone bought the last units between the price check and now
+    const oos = error.message?.match(/OUT_OF_STOCK:?(.*)/);
+    if (oos) {
+      return res.status(409).json({ success: false, code: 'OUT_OF_STOCK', message: `Sorry, ${oos[1] ? `"${oos[1].trim()}"` : 'an item in your cart'} just sold out. Please update your cart.` });
     }
     return res.status(400).json({ success: false, message: error.message });
   }
@@ -109,13 +124,40 @@ router.get('/track/:orderId', async (req, res) => {
 
 /* ── Signed-in customer: own orders ─────────────────────────────── */
 router.get('/mine', protectCustomer, async (req, res) => {
-  const { data, error } = await supabase
-    .from('orders')
-    .select('*')
-    .eq('customer_email', String(req.customer.email).toLowerCase())
-    .order('created_at', { ascending: false });
+  const c = req.customer;
+  const [own, byEmail] = await Promise.all([
+    supabase.from('orders').select('*').eq('customer_user_id', c.id).order('created_at', { ascending: false }),
+    // Guest orders with the same email — only when Google/Facebook verified that email
+    c.emailVerified && c.email
+      ? supabase.from('orders').select('*').is('customer_user_id', null).eq('customer_email', c.email).order('created_at', { ascending: false })
+      : Promise.resolve({ data: [] }),
+  ]);
+  const err = own.error || byEmail.error;
+  if (err) return res.status(400).json({ success: false, message: err.message });
+  const orders = [...own.data, ...byEmail.data].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  res.json({ success: true, orders });
+});
+
+/* ── Signed-in customer: add an earlier guest order to the account ──
+   Needs the order ID and the phone number used for it (same proof as tracking). */
+router.post('/claim', claimLimiter, protectCustomer, async (req, res) => {
+  const orderId = String(req.body?.order_id || '').trim().toUpperCase();
+  const phone   = String(req.body?.phone || '').replace(/\D/g, '');
+  if (!orderId || phone.length < 10) return res.status(400).json({ success: false, message: 'Enter the order ID and the phone number used for that order.' });
+
+  const { data: order, error } = await supabase.from('orders')
+    .select('id, customer_phone, customer_user_id').eq('order_id', orderId).maybeSingle();
   if (error) return res.status(400).json({ success: false, message: error.message });
-  res.json({ success: true, orders: data });
+  if (!order || String(order.customer_phone || '').replace(/\D/g, '') !== phone) {
+    return res.status(404).json({ success: false, message: 'No order found with that order ID and phone number.' });
+  }
+  if (order.customer_user_id === req.customer.id) return res.json({ success: true, message: 'This order is already in your account.' });
+  if (order.customer_user_id) return res.status(409).json({ success: false, message: 'This order already belongs to another account.' });
+
+  const { error: upErr } = await supabase.from('orders')
+    .update({ customer_user_id: req.customer.id }).eq('id', order.id).is('customer_user_id', null);
+  if (upErr) return res.status(400).json({ success: false, message: upErr.message });
+  res.json({ success: true, message: 'Order added to your account.' });
 });
 
 /* ── Admin routes (protected) ───────────────────────────────────── */
@@ -123,11 +165,14 @@ router.use(protect, authorize('admin', 'super_admin'));
 
 router.get('/', async (req, res) => {
   const { status } = req.query;
-  let q = supabase.from('orders').select('*').order('created_at', { ascending: false });
-  if (status && status !== 'all') q = q.eq('status', status);
-  const { data, error } = await q;
-  if (error) return res.status(400).json({ success: false, message: error.message });
-  res.json({ success: true, orders: data });
+  try {
+    const orders = await fetchAll(() => {
+      let q = supabase.from('orders').select('*').order('created_at', { ascending: false }).order('id', { ascending: false });
+      if (status && status !== 'all') q = q.eq('status', status);
+      return q;
+    });
+    res.json({ success: true, orders });
+  } catch (err) { res.status(400).json({ success: false, message: err.message }); }
 });
 
 router.patch('/:id/status', validId, async (req, res) => {

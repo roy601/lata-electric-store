@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { ClipboardList, CheckCircle2, Truck, Star, X, LogIn } from 'lucide-react';
 import CustomerLayout from '../../components/layout/CustomerLayout';
 import { trackOrder } from '../../api/customerApi';
@@ -19,8 +19,10 @@ const stepIndex = (status) => {
 export default function OrderTracking() {
   const { orderId: urlOrderId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const justPlaced = !!location.state?.justPlaced;
   const [orderId, setOrderId] = useState(urlOrderId || '');
-  const [phone,   setPhone]   = useState('');
+  const [phone,   setPhone]   = useState(location.state?.phone || '');
   const [order,   setOrder]   = useState(null);
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState('');
@@ -35,6 +37,11 @@ export default function OrderTracking() {
     else setOrder(data);
     setLoading(false);
   };
+
+  /* Coming straight from checkout we already know the phone — show the order at once */
+  useEffect(() => {
+    if (urlOrderId && location.state?.phone) lookup(urlOrderId, location.state.phone);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* auto-lookup only when URL has orderId and user supplies phone */
   const handleSearch = (e) => {
@@ -52,6 +59,17 @@ export default function OrderTracking() {
   return (
     <CustomerLayout>
       <div style={{ maxWidth: 700, margin: '0 auto', padding: '32px 16px' }}>
+        {justPlaced && (
+          <div style={{ background: '#E8F5E9', border: '1px solid #A5D6A7', borderRadius: 12, padding: '16px 18px', marginBottom: 24, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+            <CheckCircle2 size={26} color="#2E7D32" style={{ flexShrink: 0 }} />
+            <div>
+              <div style={{ fontWeight: 800, fontSize: 16, color: '#1B5E20', marginBottom: 4 }}>Thank you! Your order has been placed.</div>
+              <div style={{ fontSize: 13, color: '#2E7D32', lineHeight: 1.6 }}>
+                Order ID: <strong style={{ letterSpacing: .5 }}>{urlOrderId}</strong> — please save it. We'll call you on {location.state.phone} to confirm.
+              </div>
+            </div>
+          </div>
+        )}
         <h1 style={{ fontSize: 24, fontWeight: 800, color: '#212529', marginBottom: 4 }}>Track Your Order</h1>
         <p style={{ color: '#9aa5b1', fontSize: 14, marginBottom: 24 }}>
           Enter your Order ID and the phone number used at checkout.

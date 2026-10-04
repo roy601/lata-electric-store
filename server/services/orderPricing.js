@@ -45,7 +45,7 @@ const couponDiscount = (coupon, subtotal, now = new Date()) => {
 
 /**
  * @param {object}   input
- * @param {Array}    input.items      cart lines from the client: { id, price, qty, image }
+ * @param {Array}    input.items      cart lines from the client: { id, price, qty, image, variant? }
  * @param {Map}      input.products   id → product row
  * @param {object}   input.settings   settings row (id = 1)
  * @param {object}   [input.coupon]   coupons row, if a code was sent
@@ -55,6 +55,7 @@ const couponDiscount = (coupon, subtotal, now = new Date()) => {
 const priceOrder = ({ items, products, settings, coupon, district, clientTotal }) => {
   if (!Array.isArray(items) || items.length === 0) throw new PricingError('No items in order', 'NO_ITEMS');
 
+  const ordered = new Map(); // product id → total qty across lines (variants share stock)
   const lines = items.map(i => {
     const p   = products.get(+i.id);
     const qty = +i.qty;
@@ -62,8 +63,23 @@ const priceOrder = ({ items, products, settings, coupon, district, clientTotal }
     if (!Number.isInteger(qty) || qty < 1 || qty > 1000) throw new PricingError('Invalid quantity.', 'BAD_QTY');
     const price = +i.price;
     if (!allowedPrices(p).includes(price))            throw new PricingError(`The price of "${p.name}" has changed. Please refresh your cart.`, 'PRICE_CHANGED');
-    return { id: p.id, name: p.name, price, qty, image: i.image || p.image || null };
+    const variant = typeof i.variant === 'string' ? i.variant.trim().slice(0, 200) : '';
+    ordered.set(p.id, (ordered.get(p.id) || 0) + qty);
+    return { id: p.id, name: variant ? `${p.name} (${variant})` : p.name, price, qty, image: i.image || p.image || null };
   });
+
+  // Never accept more than is in stock (only when the stock column was loaded)
+  for (const [id, qty] of ordered) {
+    const p = products.get(id);
+    if (p.stock === undefined) continue;
+    const stock = Math.max(0, +p.stock || 0);
+    if (qty > stock) {
+      throw new PricingError(
+        stock === 0 ? `Sorry, "${p.name}" is out of stock. Please remove it from your cart.`
+                    : `Only ${stock} of "${p.name}" left in stock. Please reduce the quantity.`,
+        'OUT_OF_STOCK');
+    }
+  }
 
   const subtotal      = lines.reduce((s, l) => s + l.qty * l.price, 0);
   const inside        = INSIDE_DHAKA.includes(district);

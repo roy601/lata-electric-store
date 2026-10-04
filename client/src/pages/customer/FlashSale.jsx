@@ -3,14 +3,13 @@ import { Link } from 'react-router-dom';
 import { Zap, Package, ShoppingCart, Clock } from 'lucide-react';
 import CustomerLayout from '../../components/layout/CustomerLayout';
 import { supabase } from '../../lib/supabase';
-import { useCartStore } from '../../store/cartStore';
+import { addToCart } from '../../store/cartStore';
 
 export default function FlashSalePage() {
   const [products,  setProducts]  = useState([]);
   const [config,    setConfig]    = useState(null);
   const [loading,   setLoading]   = useState(true);
   const [time,      setTime]      = useState({ h: '00', m: '00', s: '00', ended: false });
-  const { add } = useCartStore();
 
   useEffect(() => {
     const load = async () => {
@@ -171,7 +170,7 @@ export default function FlashSalePage() {
 
                         <div style={{ display: 'flex', gap: 7 }}>
                           <button
-                            onClick={() => { if (inStock) { add({ id: p.id, name: p.name, price, image: p.image }); window.dispatchEvent(new CustomEvent('lata:open-cart')); } }}
+                            onClick={() => { addToCart(p, { price }); }}
                             disabled={!inStock}
                             style={{ flex: 1, padding: '8px 0', background: inStock ? '#fff' : '#eee', color: inStock ? '#1E88E5' : '#bbb', border: `1.5px solid ${inStock ? '#1E88E5' : '#eee'}`, borderRadius: 7, fontWeight: 700, fontSize: 12, cursor: inStock ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
                             <ShoppingCart size={13} /> Cart

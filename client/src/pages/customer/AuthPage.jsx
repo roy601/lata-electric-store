@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams, Navigate } from 'react-router-dom';
 import { Eye, EyeOff, AlertCircle, CheckCircle2, ArrowLeft, Zap } from 'lucide-react';
-import { useCustomerAuth } from '../../context/CustomerAuthContext';
+import { useCustomerAuth, safeNext } from '../../context/CustomerAuthContext';
 
 /* ─── Brand icon SVGs (lucide doesn't carry brand logos) ─── */
 const GoogleIcon = () => (
@@ -56,7 +56,9 @@ const STRENGTH_LABELS = ['', 'Weak', 'Fair', 'Strong'];
 export default function AuthPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { signIn, signUp, signInWithGoogle, signInWithFacebook, forgotPassword } = useCustomerAuth();
+  const { user, loading: authLoading, signIn, signUp, signInWithGoogle, signInWithFacebook, forgotPassword } = useCustomerAuth();
+  // Where to go after signing in (e.g. /checkout) — only pages on this site
+  const next = safeNext(searchParams.get('next'));
 
   /* Tab / view state — default to signup tab if ?tab=signup */
   const [tab,  setTab]  = useState(searchParams.get('tab') === 'signup' ? 'signup' : 'signin');
@@ -100,7 +102,7 @@ export default function AuthPage() {
       setError(err.message === 'Invalid login credentials' ? 'Invalid email or password.' : err.message);
       return;
     }
-    navigate('/account');
+    navigate(next, { replace: true });
   };
 
   const handleSignUp = async (e) => {
@@ -109,9 +111,17 @@ export default function AuthPage() {
     if (suPassword.length < 6) { setError('Password must be at least 6 characters.'); return; }
     if (!terms) { setError('Please agree to the Terms of Service to continue.'); return; }
     setLoading(true);
-    const { error: err } = await signUp({ email: suEmail, password: suPassword, firstName: suFirst, lastName: suLast });
+    const { data, error: err } = await signUp({ email: suEmail, password: suPassword, firstName: suFirst, lastName: suLast, next });
     setLoading(false);
-    if (err) { setError(err.message); return; }
+    if (err) { setError(/registered|exists/i.test(err.message) ? 'An account with this email already exists. Please sign in instead.' : err.message); return; }
+    // Supabase hides "already registered" behind an empty identities list
+    if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      switchTab('signin'); setSiEmail(suEmail);
+      setError('An account with this email already exists. Please sign in, or use "Forgot password".');
+      return;
+    }
+    // Email confirmation switched off in Supabase → already signed in
+    if (data?.session) { navigate(next, { replace: true }); return; }
     setSignedUp(true);
   };
 
@@ -125,8 +135,13 @@ export default function AuthPage() {
     setFpSent(true);
   };
 
-  const handleGoogle   = async () => { clear(); const { error: e } = await signInWithGoogle();   if (e) setError(e.message); };
-  const handleFacebook = async () => { clear(); const { error: e } = await signInWithFacebook(); if (e) setError(e.message); };
+  const oauthError = (e, name) => setError(/provider is not enabled|Unsupported provider/i.test(e.message)
+    ? `${name} sign-in isn't available yet. Please use email and password.` : e.message);
+  const handleGoogle   = async () => { clear(); const { error: e } = await signInWithGoogle(next);   if (e) oauthError(e, 'Google'); };
+  const handleFacebook = async () => { clear(); const { error: e } = await signInWithFacebook(next); if (e) oauthError(e, 'Facebook'); };
+
+  // Already signed in → straight on
+  if (!authLoading && user && !signedUp) return <Navigate to={next} replace />;
 
   const pw_strength = strength(suPassword);
 
@@ -206,6 +221,8 @@ export default function AuthPage() {
                 <h2 style={{ margin: '0 0 3px', fontSize: 22, fontWeight: 800, color: '#0F172A' }}>Welcome back</h2>
                 <p  style={{ margin: '0 0 24px', fontSize: 13, color: '#8FA3BB' }}>Sign in to your account to continue</p>
 
+                <SocialBlock onGoogle={handleGoogle} onFacebook={handleFacebook} />
+
                 <form onSubmit={handleSignIn} noValidate>
                   {/* Email */}
                   <div style={fieldSt}>
@@ -266,20 +283,6 @@ export default function AuthPage() {
                   </button>
                 </form>
 
-                {/* Divider */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '24px 0' }}>
-                  <div style={{ flex: 1, height: 1, background: '#EEF2F7' }} />
-                  <span style={{ fontSize: 11, color: '#A8B4C0', fontWeight: 600, letterSpacing: .4, whiteSpace: 'nowrap', textTransform: 'uppercase' }}>
-                    Or continue with
-                  </span>
-                  <div style={{ flex: 1, height: 1, background: '#EEF2F7' }} />
-                </div>
-
-                {/* Social buttons */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                  <SocialBtn onClick={handleGoogle}   brandColor="#4285F4" icon={<GoogleIcon />}   label="Google" />
-                  <SocialBtn onClick={handleFacebook} brandColor="#1877F2" icon={<FacebookIcon />} label="Facebook" />
-                </div>
 
                 <p style={{ textAlign: 'center', marginTop: 24, fontSize: 13, color: '#8FA3BB' }}>
                   Don't have an account?{' '}
@@ -352,6 +355,8 @@ export default function AuthPage() {
                   <>
                     <h2 style={{ margin: '0 0 3px', fontSize: 22, fontWeight: 800, color: '#0F172A' }}>Create your account</h2>
                     <p  style={{ margin: '0 0 24px', fontSize: 13, color: '#8FA3BB' }}>Join Lata Electric — shop smarter today</p>
+
+                    <SocialBlock onGoogle={handleGoogle} onFacebook={handleFacebook} />
 
                     <form onSubmit={handleSignUp} noValidate>
                       {/* Name row */}
@@ -447,20 +452,6 @@ export default function AuthPage() {
                       </button>
                     </form>
 
-                    {/* Divider */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '24px 0' }}>
-                      <div style={{ flex: 1, height: 1, background: '#EEF2F7' }} />
-                      <span style={{ fontSize: 11, color: '#A8B4C0', fontWeight: 600, letterSpacing: .4, whiteSpace: 'nowrap', textTransform: 'uppercase' }}>
-                        Or continue with
-                      </span>
-                      <div style={{ flex: 1, height: 1, background: '#EEF2F7' }} />
-                    </div>
-
-                    {/* Social buttons */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                      <SocialBtn onClick={handleGoogle}   brandColor="#4285F4" icon={<GoogleIcon />}   label="Google" />
-                      <SocialBtn onClick={handleFacebook} brandColor="#1877F2" icon={<FacebookIcon />} label="Facebook" />
-                    </div>
 
                     <p style={{ textAlign: 'center', marginTop: 22, fontSize: 13, color: '#8FA3BB' }}>
                       Already have an account?{' '}
@@ -489,7 +480,7 @@ export default function AuthPage() {
                       {suEmail}
                     </p>
                     <p  style={{ margin: '0 0 24px', fontSize: 13, color: '#8FA3BB', lineHeight: 1.7 }}>
-                      Click the link in that email to activate your account, then sign in.
+                      Click the link in that email to activate your account. (Tip: next time, “Continue with Google” skips this step.)
                     </p>
                     <button
                       onClick={() => { switchTab('signin'); setSignedUp(false); }}
@@ -517,6 +508,41 @@ export default function AuthPage() {
   );
 }
 
+/* ─── One-tap sign-in: Google first (no password, nothing to confirm) ───
+   Facebook shows only when VITE_ENABLE_FACEBOOK=true, i.e. once it is set up in Supabase. */
+const SHOW_FACEBOOK = import.meta.env.VITE_ENABLE_FACEBOOK === 'true';
+function SocialBlock({ onGoogle, onFacebook }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <>
+      <button type="button" onClick={onGoogle}
+        onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+        style={{
+          width: '100%', padding: '12px 14px', borderRadius: 10, cursor: 'pointer',
+          border: `1.5px solid ${hov ? '#4285F4' : '#DADCE0'}`, background: hov ? '#F8FAFF' : '#fff',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+          fontSize: 15, fontWeight: 700, color: '#1F2937', fontFamily: 'inherit',
+          boxShadow: '0 1px 2px rgba(0,0,0,.06)', transition: 'border-color .2s, background .2s',
+        }}>
+        <GoogleIcon /> Continue with Google
+      </button>
+      {SHOW_FACEBOOK && (
+        <div style={{ marginTop: 10 }}>
+          <SocialBtn onClick={onFacebook} brandColor="#1877F2" icon={<FacebookIcon />} label="Continue with Facebook" />
+        </div>
+      )}
+      <div style={{ fontSize: 11.5, color: '#94A3B8', textAlign: 'center', marginTop: 8 }}>One tap — no password to remember</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '20px 0' }}>
+        <div style={{ flex: 1, height: 1, background: '#EEF2F7' }} />
+        <span style={{ fontSize: 11, color: '#A8B4C0', fontWeight: 600, letterSpacing: .4, whiteSpace: 'nowrap', textTransform: 'uppercase' }}>
+          or use your email
+        </span>
+        <div style={{ flex: 1, height: 1, background: '#EEF2F7' }} />
+      </div>
+    </>
+  );
+}
+
 /* ─── Social button sub-component ─── */
 function SocialBtn({ onClick, brandColor, icon, label }) {
   const [hov, setHov] = useState(false);
@@ -526,7 +552,7 @@ function SocialBtn({ onClick, brandColor, icon, label }) {
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        padding: '11px 8px',
+        width: '100%', padding: '11px 8px',
         border: `1.5px solid ${hov ? brandColor : '#E2E8F0'}`,
         borderRadius: 10,
         background: hov ? '#F7FAFF' : '#FAFBFC',
