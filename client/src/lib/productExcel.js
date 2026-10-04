@@ -15,9 +15,11 @@ export const COLUMNS = [
   { key: 'stock',          header: 'Stock',        width: 9,  aliases: ['stock', 'qty', 'quantity'],
     help: 'How many you have. Whole number. Blank = 0 for new products.',    example: '50' },
   { key: 'category',       header: 'Category',     width: 24, aliases: ['category'],
-    help: 'Pick from the dropdown. A new name works if you tick "Create missing categories" when importing.', example: 'Lights' },
+    help: 'Pick from the dropdown. A new name creates a new category automatically.', example: 'Home Cooling & Air Comfort' },
+  { key: 'subcategory',    header: 'Subcategory',  width: 24, aliases: ['subcategory', 'sub category', 'sub-category', 'subcat', 'group'],
+    help: 'Pick from the dropdown — it lists the subcategories of the Category in this row. A new name creates a new subcategory.', example: 'Ceiling Fans' },
   { key: 'brand',          header: 'Brand',        width: 16, aliases: ['brand'],
-    help: 'Brand or maker.',                                                 example: 'Walton' },
+    help: 'Pick from the dropdown (your existing brands) or type a new one.',                                                 example: 'Walton' },
   { key: 'original_price', header: 'Old Price',    width: 11, aliases: ['old price', 'original price', 'mrp', 'regular price'],
     help: 'Optional. Higher than Price → shown crossed out with "% OFF".',   example: '220' },
   { key: 'sku',            header: 'SKU',          width: 14, aliases: ['sku', 'code', 'product code'],
@@ -30,6 +32,14 @@ export const COLUMNS = [
     help: 'Extra photo file names or links, separated by commas.',           example: 'bulb-12w-box.jpg, bulb-12w-side.jpg' },
   { key: 'active',         header: 'Show in Shop', width: 13, aliases: ['show in shop', 'active', 'visible'],
     help: 'Yes or No. Blank = Yes.',                                         example: 'Yes' },
+  { key: 'featured',       header: 'Featured',     width: 11, aliases: ['featured'],
+    help: 'Yes = show in "Featured Products" on the home page.',              example: 'No' },
+  { key: 'top_sell',       header: 'Top Selling',  width: 12, aliases: ['top selling', 'top sell', 'top_sell', 'best seller'],
+    help: 'Yes = show in "Top Selling Products" on the home page.',           example: 'No' },
+  { key: 'trending',       header: 'Trending',     width: 11, aliases: ['trending'],
+    help: 'Yes = show in "Trending Products" on the home page.',              example: 'No' },
+  { key: 'flash_price',    header: 'Flash Sale Price', width: 15, aliases: ['flash sale price', 'flash price', 'flash_price'],
+    help: 'Optional. A lower price → the product joins the Flash Sale at this price. "No" removes it from the Flash Sale.', example: '' },
 ];
 const ID_HEADER   = 'ID (do not change)';
 const SPEC_PREFIX = 'Spec: ';
@@ -68,16 +78,23 @@ const fill = (argb) => ({ type: 'pattern', pattern: 'solid', fgColor: { argb } }
  * example rows; with `products` it is an export of the shop's products
  * (including IDs) ready to edit and upload again.
  */
-export async function buildWorkbook({ categories, products = null, problemRows = null }) {
+export async function buildWorkbook({ categories: rawCats, subcategories = [], brands = [], specKeysByCat = {}, products = null, problemRows = null }) {
   const ExcelJS = await loadExcel();
   const wb = new ExcelJS.Workbook();
   wb.creator = 'Lata Electric Admin';
 
+  const categories = rawCats.map(c => ({ ...c, name: String(c.name || '').trim() })).filter(c => c.name);
+  const subsOf = (catId) => subcategories.filter(sc => String(sc.category_id) === String(catId))
+    .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)).map(sc => String(sc.header || '').trim()).filter(Boolean);
   const catName = (id) => categories.find(c => String(c.id) === String(id))?.name || '';
+  const subName = (id) => String(subcategories.find(sc => String(sc.id) === String(id))?.header || '').trim();
+  const yn = (v) => (v ? 'Yes' : 'No');
+  // Spec columns for a new template: the spec names your products already use (most common first)
+  const shopSpecs = [...new Set(Object.values(specKeysByCat).flat())].slice(0, 8);
   const enabledVariants = (p) => (Array.isArray(p.variants) ? p.variants : []).filter(v => v?.enabled && v.options?.length);
   const specKeys = problemRows ? [...new Set(problemRows.flatMap(r => Object.keys(r.specs || {})))]
     : products ? [...new Set(products.flatMap(p => (Array.isArray(p.specifications) ? p.specifications : []).map(s => s.key?.trim()).filter(Boolean)))]
-    : TEMPLATE_SPECS;
+    : (shopSpecs.length ? shopSpecs : TEMPLATE_SPECS);
   const optionKeys = problemRows ? [...new Set(problemRows.flatMap(r => Object.keys(r.options || {})))]
     : products ? [...new Set(products.flatMap(p => enabledVariants(p).map(v => (v.label || v.key).trim())))]
     : TEMPLATE_OPTIONS;
@@ -124,19 +141,22 @@ export async function buildWorkbook({ categories, products = null, problemRows =
       const specs = Object.fromEntries((Array.isArray(p.specifications) ? p.specifications : []).map(s => ['spec:' + s.key?.trim(), s.value]));
       const opts  = Object.fromEntries(enabledVariants(p).map(v => ['opt:' + (v.label || v.key).trim(), formatOptions(v.options)]));
       ws.addRow({
-        name: p.name, price: p.price, stock: p.stock ?? 0, category: catName(p.category_id), brand: p.brand || '',
+        name: p.name, price: p.price, stock: p.stock ?? 0, category: catName(p.category_id), subcategory: subName(p.subcategory_id), brand: p.brand || '',
         original_price: p.original_price || '', sku: p.sku || '', description: p.description || '',
         photo: p.image || '', more_photos: (Array.isArray(p.extra_images) ? p.extra_images : []).join(', '),
-        active: p.is_active === false ? 'No' : 'Yes', ...specs, ...opts, id: p.id,
+        active: p.is_active === false ? 'No' : 'Yes', featured: yn(p.featured), top_sell: yn(p.top_sell), trending: yn(p.trending),
+        flash_price: p.flash_sale && p.flash_price ? p.flash_price : '', ...specs, ...opts, id: p.id,
       });
     });
   } else {
-    const firstCat = categories[0]?.name || '';
+    const exCat = categories.find(c => subsOf(c.id).length) || categories[0];
+    const firstCat = exCat?.name || '';
+    const firstSub = exCat ? (subsOf(exCat.id)[0] || '') : '';
     [
-      { name: 'EXAMPLE – Walton 12W LED Bulb', price: 180, stock: 50, category: firstCat, brand: 'Walton', original_price: 220, sku: 'WAL-LED-12',
+      { name: 'EXAMPLE – Walton 12W LED Bulb', price: 180, stock: 50, category: firstCat, subcategory: firstSub, brand: 'Walton', original_price: 220, featured: 'Yes', top_sell: 'No', trending: 'No', sku: 'WAL-LED-12',
         description: 'Energy-saving LED bulb, cool daylight, E27 base.', photo: 'bulb-12w.jpg', more_photos: 'bulb-12w-box.jpg', active: 'Yes',
         'spec:Wattage': '12W', 'spec:Warranty': '1 year' },
-      { name: 'EXAMPLE – Super Star Ceiling Fan', price: 3800, stock: 8, category: firstCat, brand: 'Super Star', sku: 'SS-FAN',
+      { name: 'EXAMPLE – Super Star Ceiling Fan', price: 3800, stock: 8, category: firstCat, subcategory: firstSub, brand: 'Super Star', sku: 'SS-FAN', flash_price: 3500,
         active: 'Yes', 'spec:Warranty': '2 years', 'opt:Size': '48 inch, 56 inch = 4200' },
       { name: 'EXAMPLE – BRB 1.5 rm Cable (per coil)', price: 2450, stock: 12, category: firstCat, brand: 'BRB', sku: 'BRB-1.5',
         photo: 'https://example.com/brb-cable.jpg', active: 'Yes', 'spec:Warranty': '' },
@@ -149,16 +169,31 @@ export async function buildWorkbook({ categories, products = null, problemRows =
   // Dropdowns and number checks (warnings only, so pasting never gets blocked)
   const last = Math.max(1000, ws.rowCount + 500);
   const colLetter = (key) => ws.getColumn(key).letter;
+  const cat = colLetter('category');
   if (categories.length) {
-    ws.dataValidations.add(`${colLetter('category')}2:${colLetter('category')}${last}`, {
+    ws.dataValidations.add(`${cat}2:${cat}${last}`, {
       type: 'list', allowBlank: true, formulae: [`Categories!$A$2:$A$${categories.length + 1}`],
-      showErrorMessage: true, errorStyle: 'warning', errorTitle: 'Unknown category',
-      error: 'Pick a category from the list. A new name is fine too — tick "Create missing categories" when you import.',
+      showErrorMessage: true, errorStyle: 'information', errorTitle: 'New category?',
+      error: 'This category is not in your shop yet. It will be created when you import. Press OK to keep it.',
+    });
+    // Subcategory list = the row of the chosen category on the Categories sheet
+    const row = `MATCH(TRIM($${cat}2),Categories!$A:$A,0)-1`;
+    ws.dataValidations.add(`${colLetter('subcategory')}2:${colLetter('subcategory')}${last}`, {
+      type: 'list', allowBlank: true,
+      formulae: [`OFFSET(Categories!$B$1,${row},0,1,MAX(1,COUNTA(OFFSET(Categories!$B$1,${row},0,1,60))))`],
+      showErrorMessage: true, errorStyle: 'information', errorTitle: 'New subcategory?',
+      error: 'This subcategory is not in the chosen category yet. It will be created when you import. Press OK to keep it.',
     });
   }
-  ws.dataValidations.add(`${colLetter('active')}2:${colLetter('active')}${last}`, {
+  if (brands.length) {
+    ws.dataValidations.add(`${colLetter('brand')}2:${colLetter('brand')}${last}`, {
+      type: 'list', allowBlank: true, formulae: [`Brands!$A$2:$A$${brands.length + 1}`],
+      showErrorMessage: true, errorStyle: 'information', errorTitle: 'New brand?', error: 'This brand is new. Press OK to keep it.',
+    });
+  }
+  ['active', 'featured', 'top_sell', 'trending'].forEach(k => ws.dataValidations.add(`${colLetter(k)}2:${colLetter(k)}${last}`, {
     type: 'list', allowBlank: true, formulae: ['"Yes,No"'], showErrorMessage: true, errorStyle: 'warning', error: 'Write Yes or No.',
-  });
+  }));
   ['price', 'original_price'].forEach(k => ws.dataValidations.add(`${colLetter(k)}2:${colLetter(k)}${last}`, {
     type: 'decimal', operator: 'greaterThan', formulae: [0], allowBlank: true,
     showErrorMessage: true, errorStyle: 'warning', error: 'Numbers only, more than 0 (no ৳ or commas).',
@@ -168,11 +203,28 @@ export async function buildWorkbook({ categories, products = null, problemRows =
     showErrorMessage: true, errorStyle: 'warning', error: 'Whole number, 0 or more.',
   });
 
-  /* Categories sheet (source of the dropdown) */
-  const cs = wb.addWorksheet('Categories');
-  cs.columns = [{ header: 'Category names (from your shop)', key: 'name', width: 36 }];
-  cs.getRow(1).font = { bold: true };
-  categories.forEach(c => cs.addRow({ name: c.name }));
+  /* Categories sheet: each row = a category and its subcategories (feeds both dropdowns) */
+  const cs = wb.addWorksheet('Categories', { views: [{ state: 'frozen', xSplit: 1, ySplit: 1 }] });
+  const maxSubs = Math.max(1, ...categories.map(c => subsOf(c.id).length));
+  cs.columns = [{ width: 36 }, ...Array.from({ length: maxSubs }, () => ({ width: 26 }))];
+  cs.addRow(['Category', 'Subcategories of this category →']);
+  cs.getRow(1).eachCell(c => { c.font = { bold: true, color: { argb: 'FFFFFFFF' } }; c.fill = fill(BLUE); });
+  categories.forEach(c => cs.addRow([c.name, ...subsOf(c.id)]));
+  cs.addRow([]);
+  cs.addRow(['From the website on ' + new Date().toLocaleDateString('en-GB') + '. Download a new template to get the latest lists.']).font = { italic: true, color: { argb: 'FF7F8C9A' } };
+
+  /* Brands sheet */
+  const bs = wb.addWorksheet('Brands');
+  bs.columns = [{ width: 30 }];
+  bs.addRow(['Brands in your shop']).font = { bold: true };
+  brands.forEach(b => bs.addRow([b]));
+
+  /* Spec names each category already uses — so new products match old ones */
+  const ss = wb.addWorksheet('Spec names');
+  ss.columns = [{ width: 36 }, ...Array.from({ length: 10 }, () => ({ width: 18 }))];
+  ss.addRow(['Category', 'Spec names already used (make a "Spec: <name>" column for any of these) →']);
+  ss.getRow(1).eachCell(c => { c.font = { bold: true, color: { argb: 'FFFFFFFF' } }; c.fill = fill(BLUE); });
+  categories.forEach(c => ss.addRow([c.name, ...(specKeysByCat[c.id] || [])]));
 
   return wb;
 }
@@ -198,10 +250,10 @@ function addInstructionsSheet(wb, categories) {
 
   title('How to use it (5 steps)');
   [
-    '1.  Open the "Products" sheet (tab at the bottom of the screen). Write ONE product per row, starting from row 2.',
+    '1.  Open the "Products" sheet (tab at the bottom of the screen). Write ONE product per row, starting from row 2 — as many different products as you like in one file.',
     '     The grey rows that start with "EXAMPLE –" are only examples. They are skipped automatically — you can delete them or leave them.',
     '2.  Fill in Name and Price for every product (red headings = required). All other columns are optional.',
-    '3.  Category: click the cell and pick from the dropdown arrow. For a NEW category just type its name, and tick "Create missing categories" in the import window.',
+    '3.  Category: pick from the dropdown. Then Subcategory: its dropdown shows only the subcategories of that category. A NEW category or subcategory name is created automatically when you import.',
     '4.  Photos: write the photo\'s file name exactly, for example  bulb-12w.jpg  — then choose those photo files in the import window.',
     '     Or paste a full web link that starts with https://. For several extra photos, separate them with commas.',
     '5.  Save the file as Excel (.xlsx). In Admin → Products → Import from Excel: choose the photos (if any), then this file.',
@@ -240,6 +292,14 @@ function addInstructionsSheet(wb, categories) {
   ].forEach(para);
   blank();
 
+  title('Lists in this file (always up to date when downloaded)');
+  [
+    '•  "Categories" sheet: every category and its subcategories, as they are on the website right now. The dropdowns read from here.',
+    '•  "Brands" sheet: brands already in the shop. "Spec names" sheet: the spec names each category already uses, so new products match.',
+    '•  Added a category on the website? Download a new template and it is included.',
+  ].forEach(para);
+  blank();
+
   title('Rules and tips');
   [
     '•  Do not change or delete the heading row (row 1). The order of columns does not matter, and you may delete columns you don\'t use (except Name and Price).',
@@ -258,7 +318,7 @@ function addInstructionsSheet(wb, categories) {
   [
     '১.  নিচের "Products" শিটে প্রতিটি সারিতে একটি করে পণ্য লিখুন। "EXAMPLE –" দিয়ে শুরু ধূসর সারিগুলো শুধু উদাহরণ, এগুলো বাদ দেওয়া হবে।',
     '২.  Name (নাম) এবং Price (দাম) অবশ্যই দিতে হবে। বাকি ঘরগুলো ঐচ্ছিক।',
-    '৩.  Category ঘরে ক্লিক করে ড্রপডাউন থেকে ক্যাটাগরি বেছে নিন। নতুন ক্যাটাগরি হলে নাম লিখুন এবং ইমপোর্টের সময় "Create missing categories" টিক দিন।',
+    '৩.  Category ড্রপডাউন থেকে ক্যাটাগরি বেছে নিন, তারপর Subcategory — সেখানে শুধু ওই ক্যাটাগরির সাব-ক্যাটাগরি দেখাবে। নতুন নাম লিখলে ইমপোর্টের সময় নিজে থেকেই তৈরি হবে।',
     '৪.  সাইজ/ওয়াট ইত্যাদি অপশনের জন্য "Option: Size" এর মতো কলাম দিন, ঘরে কমা দিয়ে লিখুন: 48 inch, 56 inch = 4200',
     '৫.  ছবির জন্য ফাইলের নাম লিখুন (যেমন bulb-12w.jpg), আর ইমপোর্টের সময় সেই ছবিগুলোও বেছে নিন।',
     '৬.  দাম বা স্টক বদলাতে "Download my products" নামিয়ে ঘর বদলান, ID কলাম যেমন আছে তেমন রাখুন, তারপর আবার ইমপোর্ট করুন।',
@@ -281,12 +341,13 @@ async function download(wb, filename) {
 }
 
 const today = () => new Date().toISOString().slice(0, 10);
-export const downloadTemplate = async (categories) =>
-  download(await buildWorkbook({ categories }), 'Lata-Electric-product-import-template.xlsx');
-export const downloadProblemRows = async (categories, problemRows) =>
-  download(await buildWorkbook({ categories, problemRows }), `Lata-Electric-rows-to-fix-${today()}.xlsx`);
-export const downloadProducts = async (categories, products) =>
-  download(await buildWorkbook({ categories, products }), `Lata-Electric-products-${today()}.xlsx`);
+/** ctx = { categories, subcategories, brands, specKeysByCat } — fetched fresh from the website */
+export const downloadTemplate = async (ctx) =>
+  download(await buildWorkbook({ ...ctx }), `Lata-Electric-product-template-${today()}.xlsx`);
+export const downloadProblemRows = async (ctx, problemRows) =>
+  download(await buildWorkbook({ ...ctx, problemRows }), `Lata-Electric-rows-to-fix-${today()}.xlsx`);
+export const downloadProducts = async (ctx, products) =>
+  download(await buildWorkbook({ ...ctx, products }), `Lata-Electric-products-${today()}.xlsx`);
 
 /* ───────────────────────── Reading ───────────────────────── */
 
