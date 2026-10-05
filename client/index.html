@@ -61,7 +61,7 @@
   <!-- Intro animation: plays while the homepage pictures load behind it -->
   <div id="lata-intro" aria-hidden="true">
     <div class="intro-media">
-      <video muted playsinline preload="auto" src="/intro/lata-intro-v3.mp4"></video>
+      <video autoplay muted playsinline webkit-playsinline preload="auto" disablepictureinpicture disableremoteplayback src="/intro/lata-intro-v3.mp4"></video>
       <img class="intro-still" src="/intro/lata-intro-end.jpg" alt="" decoding="async" />
     </div>
   </div>
@@ -102,23 +102,23 @@
       }
 
       var conn = navigator.connection || {};
-      var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (calm || conn.saveData || /(^|-)2g$/.test(conn.effectiveType || '')) {
-        showStill();
+      if (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || '')) {
+        showStill();   // data saver or a very slow connection: don't download the video
       } else {
-        // Start only when enough is buffered to play straight through
-        var go = function () {
-          if (started || still) return;
-          var p = video.play();
-          if (p && p.catch) p.catch(showStill);
-        };
-        video.addEventListener('canplaythrough', go);
-        if (video.readyState >= 4) go();
+        // iPhones only load a video once play() is called, so start right away;
+        // the video stays invisible until frames are really moving, then fades in.
+        video.muted = true; video.defaultMuted = true;
+        video.setAttribute('muted', '');
+        var go = function () { var p = video.play(); if (p && p.catch) p.catch(function () { setTimeout(function () { if (!started) showStill(); }, 400); }); };
+        go();
+        video.addEventListener('loadeddata', function () { if (video.paused && !still) go(); });
         video.addEventListener('playing', function () { started = true; intro.classList.add('is-playing'); });
+        video.addEventListener('timeupdate', function () { if (!started && video.currentTime > 0) { started = true; intro.classList.add('is-playing'); } });
         // hold the finished logo a moment before the page appears
         video.addEventListener('ended', function () { setTimeout(function () { videoDone = true; check(); }, 350); });
         video.addEventListener('error', showStill);
-        setTimeout(function () { if (!started) showStill(); }, 2500);
+        // could not start within 4 s (very slow network, battery saver): show the logo instead
+        setTimeout(function () { if (!started) showStill(); }, 4000);
       }
 
       if (path === '/') {
