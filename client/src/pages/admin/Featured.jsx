@@ -37,50 +37,50 @@ export default function AdminFeatured() {
     <AdminLayout title="Featured, Top Sells & Trending">
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 24 }}>
-        <div style={{ background: '#fff3cd', borderRadius: 10, padding: '14px 18px' }}>
-          <div style={{ fontWeight: 700, color: '#856404', display: 'flex', alignItems: 'center', gap: 5 }}><Star size={14} /> Featured Products</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: '#212529', marginTop: 4 }}>{products.filter(p => p.featured).length}</div>
+        <div style={{ background: 'var(--bg-fff3cd, #fff3cd)', borderRadius: 10, padding: '14px 18px' }}>
+          <div style={{ fontWeight: 700, color: 'var(--tx-856404, #856404)', display: 'flex', alignItems: 'center', gap: 5 }}><Star size={14} /> Featured Products</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--tx-212529, #212529)', marginTop: 4 }}>{products.filter(p => p.featured).length}</div>
         </div>
-        <div style={{ background: '#d1ecf1', borderRadius: 10, padding: '14px 18px' }}>
-          <div style={{ fontWeight: 700, color: '#0c5460', display: 'flex', alignItems: 'center', gap: 5 }}><TrendingUp size={14} /> Top Sells</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: '#212529', marginTop: 4 }}>{products.filter(p => p.top_sell).length}</div>
+        <div style={{ background: 'var(--bg-d1ecf1, #d1ecf1)', borderRadius: 10, padding: '14px 18px' }}>
+          <div style={{ fontWeight: 700, color: 'var(--tx-0c5460, #0c5460)', display: 'flex', alignItems: 'center', gap: 5 }}><TrendingUp size={14} /> Top Sells</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--tx-212529, #212529)', marginTop: 4 }}>{products.filter(p => p.top_sell).length}</div>
         </div>
-        <div style={{ background: '#fde8d8', borderRadius: 10, padding: '14px 18px' }}>
-          <div style={{ fontWeight: 700, color: '#923b00', display: 'flex', alignItems: 'center', gap: 5 }}><Flame size={14} /> Trending</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: '#212529', marginTop: 4 }}>{products.filter(p => p.trending).length}</div>
+        <div style={{ background: 'var(--bg-fde8d8, #fde8d8)', borderRadius: 10, padding: '14px 18px' }}>
+          <div style={{ fontWeight: 700, color: 'var(--tx-923b00, #923b00)', display: 'flex', alignItems: 'center', gap: 5 }}><Flame size={14} /> Trending</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--tx-212529, #212529)', marginTop: 4 }}>{products.filter(p => p.trending).length}</div>
         </div>
       </div>
 
       <div style={{ marginBottom: 16 }}>
         <input placeholder="Search products…" value={search} onChange={e => setSearch(e.target.value)}
-          style={{ padding: '9px 14px', border: '1px solid #e0e0e0', borderRadius: 8, fontSize: 14, width: '100%', maxWidth: 360 }} />
+          style={{ padding: '9px 14px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, fontSize: 14, width: '100%', maxWidth: 360 }} />
       </div>
 
-      <div style={{ background: '#fff', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+      <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
         {loading ? (
-          <div style={{ padding: 60, textAlign: 'center', color: '#9aa5b1' }}>Loading…</div>
+          <div style={{ padding: 60, textAlign: 'center', color: 'var(--tx-9aa5b1, #9aa5b1)' }}>Loading…</div>
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
-              <tr style={{ background: '#f8f9fa' }}>
+              <tr style={{ background: 'var(--bg-f8f9fa, #f8f9fa)' }}>
                 {['Product', 'Price', 'Stock', 'Featured', 'Top Sell', 'Trending'].map(h => (
-                  <th key={h} style={{ padding: '11px 14px', textAlign: 'left', color: '#7f8c9a', fontWeight: 600, borderBottom: '1px solid #eee' }}>{h}</th>
+                  <th key={h} style={{ padding: '11px 14px', textAlign: 'left', color: 'var(--tx-7f8c9a, #7f8c9a)', fontWeight: 600, borderBottom: '1px solid var(--bd-eee, #eee)' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {visible.map(p => (
-                <tr key={p.id} style={{ borderBottom: '1px solid #F8F9FA' }}>
+                <tr key={p.id} style={{ borderBottom: '1px solid var(--bd-f8f9fa, #F8F9FA)' }}>
                   <td style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 8, background: '#F8F9FA', backgroundImage: p.image ? `url(${p.image})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{!p.image && <Package size={18} color="#ccc" />}</div>
-                    <span style={{ fontWeight: 600, color: '#212529' }}>{p.name}</span>
+                    <div style={{ width: 36, height: 36, borderRadius: 8, background: 'var(--bg-f8f9fa, #F8F9FA)', backgroundImage: p.image ? `url(${p.image})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{!p.image && <Package size={18} color="#ccc" />}</div>
+                    <span style={{ fontWeight: 600, color: 'var(--tx-212529, #212529)' }}>{p.name}</span>
                   </td>
                   <td style={{ padding: '10px 14px', fontWeight: 600 }}>৳{p.price}</td>
                   <td style={{ padding: '10px 14px' }}>{p.stock}</td>
                   <td style={{ padding: '10px 14px' }}>
                     <button onClick={() => toggle(p.id, 'featured', p.featured)} style={{
                       padding: '5px 16px', border: 'none', borderRadius: 20, cursor: 'pointer', fontWeight: 600, fontSize: 12,
-                      background: p.featured ? '#fff3cd' : '#f0f0f0', color: p.featured ? '#856404' : '#555',
+                      background: p.featured ? 'var(--bg-fff3cd, #fff3cd)' : 'var(--bg-f0f0f0, #f0f0f0)', color: p.featured ? 'var(--tx-856404, #856404)' : 'var(--tx-555, #555)',
                     }}>
                       {p.featured ? <><Star size={12} /> On</> : 'Off'}
                     </button>
@@ -88,7 +88,7 @@ export default function AdminFeatured() {
                   <td style={{ padding: '10px 14px' }}>
                     <button onClick={() => toggle(p.id, 'top_sell', p.top_sell)} style={{
                       padding: '5px 16px', border: 'none', borderRadius: 20, cursor: 'pointer', fontWeight: 600, fontSize: 12,
-                      background: p.top_sell ? '#d1ecf1' : '#f0f0f0', color: p.top_sell ? '#0c5460' : '#555',
+                      background: p.top_sell ? 'var(--bg-d1ecf1, #d1ecf1)' : 'var(--bg-f0f0f0, #f0f0f0)', color: p.top_sell ? 'var(--tx-0c5460, #0c5460)' : 'var(--tx-555, #555)',
                     }}>
                       {p.top_sell ? <><TrendingUp size={12} /> On</> : 'Off'}
                     </button>
@@ -96,7 +96,7 @@ export default function AdminFeatured() {
                   <td style={{ padding: '10px 14px' }}>
                     <button onClick={() => toggle(p.id, 'trending', p.trending)} style={{
                       padding: '5px 16px', border: 'none', borderRadius: 20, cursor: 'pointer', fontWeight: 600, fontSize: 12,
-                      background: p.trending ? '#fde8d8' : '#f0f0f0', color: p.trending ? '#923b00' : '#555',
+                      background: p.trending ? 'var(--bg-fde8d8, #fde8d8)' : 'var(--bg-f0f0f0, #f0f0f0)', color: p.trending ? 'var(--tx-923b00, #923b00)' : 'var(--tx-555, #555)',
                     }}>
                       {p.trending ? <><Flame size={12} /> On</> : 'Off'}
                     </button>
@@ -104,7 +104,7 @@ export default function AdminFeatured() {
                 </tr>
               ))}
               {visible.length === 0 && (
-                <tr><td colSpan={6} style={{ padding: 60, textAlign: 'center', color: '#9aa5b1' }}>No products</td></tr>
+                <tr><td colSpan={6} style={{ padding: 60, textAlign: 'center', color: 'var(--tx-9aa5b1, #9aa5b1)' }}>No products</td></tr>
               )}
             </tbody>
           </table>

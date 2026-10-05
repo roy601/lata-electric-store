@@ -43,7 +43,7 @@ const ElectriciansPage  = lazy(() => import('./pages/customer/Electricians'));
 
 const PageLoader = () => (
   <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center' }}>
-    <div style={{ width:36,height:36,border:'4px solid #f0f0f0',borderTop:'4px solid #1E88E5',borderRadius:'50%',animation:'spin 0.8s linear infinite' }} />
+    <div style={{ width:36,height:36,border:'4px solid var(--bd-f0f0f0, #f0f0f0)',borderTop:'4px solid #1E88E5',borderRadius:'50%',animation:'spin 0.8s linear infinite' }} />
   </div>
 );
 

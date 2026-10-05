@@ -45,20 +45,20 @@ const CatIcon = ({ name, size = 15, color = 'currentColor' }) => {
 /* ─── Shared: Section Header ─────────────────────────────────── */
 function SectionHeader({ title, Icon, onViewAll, viewAllLabel = 'View all', extra }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px 12px 18px', borderBottom: '1px solid #F1F4F7' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px 12px 18px', borderBottom: '1px solid var(--bd-f1f4f7, #F1F4F7)' }}>
       {Icon && (
-        <span style={{ width: 34, height: 34, borderRadius: 10, background: '#EEF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <span style={{ width: 34, height: 34, borderRadius: 10, background: 'var(--bg-eef6ff, #EEF6FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <Icon size={18} color="#1E88E5" />
         </span>
       )}
       <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', columnGap: 8 }}>
-        <span style={{ fontWeight: 800, fontSize: 16.5, color: '#0F172A', letterSpacing: -.1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>{title}</span>
+        <span style={{ fontWeight: 800, fontSize: 16.5, color: 'var(--tx-0f172a, #0F172A)', letterSpacing: -.1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>{title}</span>
         {extra}
       </div>
       {onViewAll && (
         <button onClick={onViewAll}
           style={{ marginLeft: 'auto', flexShrink: 0, fontSize: 13, fontWeight: 700, color: '#1E88E5', background: 'none', border: 'none', borderRadius: 8, padding: '6px 6px 6px 10px', cursor: 'pointer', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: 2, fontFamily: 'inherit', transition: 'background .15s' }}
-          onMouseEnter={e => { e.currentTarget.style.background = '#EEF6FF'; }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-eef6ff, #EEF6FF)'; }}
           onMouseLeave={e => { e.currentTarget.style.background = 'none'; }}>
           {viewAllLabel.replace(/\s*→\s*$/, '')} <ChevronRight size={16} />
         </button>
@@ -88,7 +88,7 @@ function SideTile({ b, navigate, style }) {
   const clickable = !!bannerTarget(b);
   return (
     <div onClick={() => openBanner(b, navigate)} role={clickable ? 'link' : undefined}
-      style={{ borderRadius: 12, overflow: 'hidden', background: '#EEF2F6', cursor: clickable ? 'pointer' : 'default', position: 'relative', minHeight: 0, ...style }}
+      style={{ borderRadius: 12, overflow: 'hidden', background: 'var(--bg-eef2f6, #EEF2F6)', cursor: clickable ? 'pointer' : 'default', position: 'relative', minHeight: 0, ...style }}
       onMouseEnter={e => { const i = e.currentTarget.querySelector('img'); if (i && clickable) i.style.transform = 'scale(1.03)'; }}
       onMouseLeave={e => { const i = e.currentTarget.querySelector('img'); if (i) i.style.transform = 'none'; }}>
       <img src={b.image} alt={b.title || ''} loading="lazy" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform .35s ease' }} />
@@ -125,7 +125,7 @@ function BannerCarousel({ banners }) {
       <div style={{ flex: 1, background: 'linear-gradient(135deg,#212529,#1565C0)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: '#fff', minHeight: 260 }}>
         <div style={{ marginBottom: 4 }}><Zap size={48} fill="currentColor" /></div>
         <div style={{ fontSize: 20, fontWeight: 800, marginTop: 10 }}>লতা ইলেকট্রিক</div>
-        <div style={{ color: '#9aa5b1', fontSize: 12, marginTop: 6 }}>Add banners from Admin → Banners</div>
+        <div style={{ color: 'var(--tx-9aa5b1, #9aa5b1)', fontSize: 12, marginTop: 6 }}>Add banners from Admin → Banners</div>
       </div>
     );
   }
@@ -184,7 +184,7 @@ function FlashSaleSection({ products, flashConfig }) {
   if (!flashConfig?.flash_sale_active || products.length === 0) return null;
 
   return (
-    <div style={{ background: '#fff', borderRadius: 14, overflow: 'hidden', border: '1px solid #EDF0F3', boxShadow: '0 1px 3px rgba(15,23,42,.05)', minWidth: 0 }}>
+    <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--bd-edf0f3, #EDF0F3)', boxShadow: '0 1px 3px rgba(15,23,42,.05)', minWidth: 0 }}>
       {/* Red header */}
       <div style={{ background: 'linear-gradient(90deg, #1565C0, #1E88E5)', padding: '10px 18px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
@@ -221,7 +221,7 @@ function FlashRail({ products }) {
 
 /* ─── Shared: Block wrapper ──────────────────────────────────── */
 const Block = ({ children, style = {} }) => (
-  <div style={{ background: '#fff', borderRadius: 14, overflow: 'hidden', border: '1px solid #EDF0F3', boxShadow: '0 1px 3px rgba(15,23,42,.05)', minWidth: 0, ...style }}>
+  <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--bd-edf0f3, #EDF0F3)', boxShadow: '0 1px 3px rgba(15,23,42,.05)', minWidth: 0, ...style }}>
     {children}
   </div>
 );
@@ -378,17 +378,17 @@ export default function Home() {
         @keyframes marquee { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
       `}</style>
 
-      <div style={{ background: '#fff', paddingBottom: 32 }}>
+      <div style={{ background: 'var(--bg-fff, #fff)', paddingBottom: 32 }}>
 
         {/* ══════════════ ANNOUNCEMENT TICKER ══════════════ */}
         {shopSettings?.announcement_bar && (
           <div style={{ ...W, paddingTop: isMobile ? 8 : 12, paddingBottom: 0 }}>
-            <div style={{ background: '#fff', borderRadius: 50, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,.06)', border: '1px solid #EBEBEB', height: 38, display: 'flex', alignItems: 'center' }}>
+            <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 50, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,.06)', border: '1px solid var(--bd-ebebeb, #EBEBEB)', height: 38, display: 'flex', alignItems: 'center' }}>
               <div style={{ flexShrink: 0, background: '#1E88E5', borderRadius: 50, padding: '4px 14px', margin: '0 12px', fontSize: 11, fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', letterSpacing: .3 }}>
                 NOTICE
               </div>
               <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
-                <div style={{ whiteSpace: 'nowrap', fontSize: 13, color: '#374151', fontWeight: 500, animation: 'marquee 28s linear infinite' }}>
+                <div style={{ whiteSpace: 'nowrap', fontSize: 13, color: 'var(--tx-374151, #374151)', fontWeight: 500, animation: 'marquee 28s linear infinite' }}>
                   {shopSettings.announcement_bar}
                 </div>
               </div>
@@ -496,16 +496,16 @@ export default function Home() {
         <div id="all-products" style={{ ...W, marginTop: isMobile ? 26 : 40 }}>
           <Block>
             {/* Toolbar */}
-            <div style={{ padding: isMobile ? '10px 12px' : '12px 18px', borderBottom: '1px solid #F8F9FA' }}>
+            <div style={{ padding: isMobile ? '10px 12px' : '12px 18px', borderBottom: '1px solid var(--bd-f8f9fa, #F8F9FA)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: isMobile ? 8 : 0 }}>
                 <div style={{ width: 3, height: 20, background: '#1E88E5', borderRadius: 2, flexShrink: 0 }} />
-                <span style={{ fontWeight: 800, fontSize: isMobile ? 14 : 16, color: '#212529' }}>All Products</span>
+                <span style={{ fontWeight: 800, fontSize: isMobile ? 14 : 16, color: 'var(--tx-212529, #212529)' }}>All Products</span>
                 {catFilter !== 'all' && (
                   <span style={{ background: '#212529', color: '#fff', fontSize: 11, fontWeight: 600, padding: '2px 10px', borderRadius: 16 }}>
                     {categories.find(c => String(c.id) === catFilter)?.name}
                   </span>
                 )}
-                <span style={{ fontSize: 12, color: '#9aa5b1' }}>{gridTotal} items</span>
+                <span style={{ fontSize: 12, color: 'var(--tx-9aa5b1, #9aa5b1)' }}>{gridTotal} items</span>
                 {(search || catFilter !== 'all') && (
                   <button onClick={() => { setSearch(''); setCatFilter('all'); setPage(1); }}
                     style={{ padding: '4px 10px', fontSize: 11, color: '#1E88E5', background: 'none', border: '1px solid #1E88E5', borderRadius: 16, cursor: 'pointer' }}>
@@ -515,11 +515,11 @@ export default function Home() {
                 {!isMobile && (
                   <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
                     <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Search…"
-                      style={{ padding: '6px 12px', border: '1px solid #e0e0e0', borderRadius: 8, fontSize: 13, width: 170, outline: 'none' }}
+                      style={{ padding: '6px 12px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, fontSize: 13, width: 170, outline: 'none' }}
                       onFocus={e => e.target.style.borderColor='#1E88E5'}
-                      onBlur={e => e.target.style.borderColor='#e0e0e0'} />
+                      onBlur={e => e.target.style.borderColor='var(--bd-e0e0e0, #e0e0e0)'} />
                     <select value={sort} onChange={e => { setSort(e.target.value); setPage(1); }}
-                      style={{ padding: '6px 12px', border: '1px solid #e0e0e0', borderRadius: 8, fontSize: 13, background: '#fff', cursor: 'pointer', outline: 'none' }}>
+                      style={{ padding: '6px 12px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, fontSize: 13, background: 'var(--bg-fff, #fff)', cursor: 'pointer', outline: 'none' }}>
                       <option value="newest">Newest First</option>
                       <option value="price_asc">Price: Low → High</option>
                       <option value="price_desc">Price: High → Low</option>
@@ -531,11 +531,11 @@ export default function Home() {
               {isMobile && (
                 <div style={{ display: 'flex', gap: 6 }}>
                   <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Search products…"
-                    style={{ flex: 1, padding: '7px 10px', border: '1px solid #e0e0e0', borderRadius: 8, fontSize: 13, outline: 'none' }}
+                    style={{ flex: 1, padding: '7px 10px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, fontSize: 13, outline: 'none' }}
                     onFocus={e => e.target.style.borderColor='#1E88E5'}
-                    onBlur={e => e.target.style.borderColor='#e0e0e0'} />
+                    onBlur={e => e.target.style.borderColor='var(--bd-e0e0e0, #e0e0e0)'} />
                   <select value={sort} onChange={e => { setSort(e.target.value); setPage(1); }}
-                    style={{ padding: '7px 8px', border: '1px solid #e0e0e0', borderRadius: 8, fontSize: 12, background: '#fff', cursor: 'pointer', outline: 'none', flexShrink: 0 }}>
+                    style={{ padding: '7px 8px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, fontSize: 12, background: 'var(--bg-fff, #fff)', cursor: 'pointer', outline: 'none', flexShrink: 0 }}>
                     <option value="newest">Newest</option>
                     <option value="price_asc">↑ Price</option>
                     <option value="price_desc">↓ Price</option>
@@ -549,10 +549,10 @@ export default function Home() {
             <div style={{ padding: isMobile ? '10px 10px 14px' : '16px 18px 18px' }}>
               {gridLoading && paginated.length === 0 ? (
                 <div style={{ padding: 60, textAlign: 'center' }}>
-                  <div style={{ width: 38, height: 38, border: '4px solid #f0f0f0', borderTop: '4px solid #1E88E5', borderRadius: '50%', animation: 'spin .8s linear infinite', margin: '0 auto' }} />
+                  <div style={{ width: 38, height: 38, border: '4px solid var(--bd-f0f0f0, #f0f0f0)', borderTop: '4px solid #1E88E5', borderRadius: '50%', animation: 'spin .8s linear infinite', margin: '0 auto' }} />
                 </div>
               ) : paginated.length === 0 ? (
-                <div style={{ padding: '60px 0', textAlign: 'center', color: '#9aa5b1' }}>
+                <div style={{ padding: '60px 0', textAlign: 'center', color: 'var(--tx-9aa5b1, #9aa5b1)' }}>
                   <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'center' }}><Search size={48} color="#ccc" /></div>
                   <div style={{ fontSize: 17, fontWeight: 600, marginBottom: 8 }}>No products found</div>
                   <div style={{ fontSize: 13 }}>Try a different search or category.</div>
@@ -566,17 +566,17 @@ export default function Home() {
                   {totalPages > 1 && (
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 24, flexWrap: 'wrap' }}>
                       <button onClick={() => gotoPage(Math.max(1, page-1))} disabled={page===1}
-                        style={{ padding: '7px 13px', border: 'none', borderRadius: 8, cursor: page===1?'not-allowed':'pointer', background: '#f0f0f0', color: '#555', opacity: page===1?.4:1 }}>←</button>
+                        style={{ padding: '7px 13px', border: 'none', borderRadius: 8, cursor: page===1?'not-allowed':'pointer', background: 'var(--bg-f0f0f0, #f0f0f0)', color: 'var(--tx-555, #555)', opacity: page===1?.4:1 }}>←</button>
                       {Array.from({length:totalPages},(_,i)=>i+1)
                         .filter(n=>n===1||n===totalPages||Math.abs(n-page)<=2)
                         .reduce((acc,n,i,arr)=>{ if(i>0&&n-arr[i-1]>1)acc.push('…'); acc.push(n); return acc; },[])
                         .map((n,i)=>n==='…'
-                          ? <span key={`e${i}`} style={{padding:'7px 4px',color:'#9aa5b1'}}>…</span>
+                          ? <span key={`e${i}`} style={{padding:'7px 4px',color:'var(--tx-9aa5b1, #9aa5b1)'}}>…</span>
                           : <button key={n} onClick={()=>gotoPage(n)}
-                              style={{width:34,height:34,border:'none',borderRadius:8,cursor:'pointer',fontWeight:600,fontSize:13,background:page===n?'#1E88E5':'#f0f0f0',color:page===n?'#fff':'#555'}}>{n}</button>
+                              style={{width:34,height:34,border:'none',borderRadius:8,cursor:'pointer',fontWeight:600,fontSize:13,background:page===n?'#1E88E5':'var(--bg-f0f0f0, #f0f0f0)',color:page===n?'#fff':'var(--tx-555, #555)'}}>{n}</button>
                         )}
                       <button onClick={() => gotoPage(Math.min(totalPages, page+1))} disabled={page===totalPages}
-                        style={{ padding: '7px 13px', border: 'none', borderRadius: 8, cursor: page===totalPages?'not-allowed':'pointer', background: '#f0f0f0', color: '#555', opacity: page===totalPages?.4:1 }}>→</button>
+                        style={{ padding: '7px 13px', border: 'none', borderRadius: 8, cursor: page===totalPages?'not-allowed':'pointer', background: 'var(--bg-f0f0f0, #f0f0f0)', color: 'var(--tx-555, #555)', opacity: page===totalPages?.4:1 }}>→</button>
                     </div>
                   )}
                 </>
@@ -589,23 +589,23 @@ export default function Home() {
         {electricians.length > 0 && (
           <div style={{ ...W, marginTop: isMobile ? 10 : 14 }}>
             <Block>
-              <SectionHeader title="আমাদের টিম" Icon={HardHat} extra={<span style={{ marginLeft: 8, fontSize: 12, color: '#9aa5b1', fontWeight: 400 }}>Our Expert Electricians</span>} />
+              <SectionHeader title="আমাদের টিম" Icon={HardHat} extra={<span style={{ marginLeft: 8, fontSize: 12, color: 'var(--tx-9aa5b1, #9aa5b1)', fontWeight: 400 }}>Our Expert Electricians</span>} />
               <div style={{ padding: isMobile ? '14px 12px' : '16px 18px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(auto-fill,minmax(170px,1fr))', gap: isMobile ? 10 : 14 }}>
                   {electricians.map(el => (
-                    <div key={el.id} style={{ background: '#F8F9FA', borderRadius: 14, padding: '18px 14px 14px', textAlign: 'center', border: '1px solid #ebebeb', transition: 'box-shadow .2s, transform .15s' }}
+                    <div key={el.id} style={{ background: 'var(--bg-f8f9fa, #F8F9FA)', borderRadius: 14, padding: '18px 14px 14px', textAlign: 'center', border: '1px solid var(--bd-ebebeb, #ebebeb)', transition: 'box-shadow .2s, transform .15s' }}
                       onMouseEnter={e => { e.currentTarget.style.boxShadow='0 6px 20px rgba(30,136,229,.12)'; e.currentTarget.style.transform='translateY(-3px)'; }}
                       onMouseLeave={e => { e.currentTarget.style.boxShadow='none'; e.currentTarget.style.transform='none'; }}>
                       {/* Avatar */}
-                      <div style={{ width: isMobile ? 70 : 80, height: isMobile ? 70 : 80, borderRadius: '50%', margin: '0 auto 12px', border: '3px solid #fff', boxShadow: '0 4px 12px rgba(30,136,229,.18)', overflow: 'hidden', background: '#E3F2FD', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ width: isMobile ? 70 : 80, height: isMobile ? 70 : 80, borderRadius: '50%', margin: '0 auto 12px', border: '3px solid var(--bd-fff, #fff)', boxShadow: '0 4px 12px rgba(30,136,229,.18)', overflow: 'hidden', background: 'var(--bg-e3f2fd, #E3F2FD)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {el.image
                           ? <img src={el.image} alt={el.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           : <User size={isMobile ? 30 : 36} color="#9aa5b1" />}
                       </div>
                       {/* Name */}
-                      <div style={{ fontWeight: 800, fontSize: isMobile ? 13 : 14, color: '#212529', marginBottom: 5, lineHeight: 1.3 }}>{el.name}</div>
+                      <div style={{ fontWeight: 800, fontSize: isMobile ? 13 : 14, color: 'var(--tx-212529, #212529)', marginBottom: 5, lineHeight: 1.3 }}>{el.name}</div>
                       {/* Role badge */}
-                      <div style={{ display: 'inline-block', background: '#E3F2FD', color: '#1E88E5', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 16, marginBottom: el.phone ? 8 : 0 }}>{el.role}</div>
+                      <div style={{ display: 'inline-block', background: 'var(--bg-e3f2fd, #E3F2FD)', color: '#1E88E5', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 16, marginBottom: el.phone ? 8 : 0 }}>{el.role}</div>
                       {/* Phone */}
                       {el.phone && (
                         <a href={`tel:${el.phone.replace(/[^+\d]/g,'')}`}
@@ -616,7 +616,7 @@ export default function Home() {
                       )}
                       {/* Bio */}
                       {el.bio && !isMobile && (
-                        <div style={{ fontSize: 11, color: '#9aa5b1', marginTop: 6, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{el.bio}</div>
+                        <div style={{ fontSize: 11, color: 'var(--tx-9aa5b1, #9aa5b1)', marginTop: 6, lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{el.bio}</div>
                       )}
                     </div>
                   ))}
@@ -630,8 +630,8 @@ export default function Home() {
         {(shopSettings?.map_url || shopSettings?.map_embed_src || shopSettings?.address) && (
           <div style={{ ...W, marginTop: isMobile ? 10 : 14 }}>
             <Block>
-              <SectionHeader title="আমাদের শপ খুঁজুন" Icon={MapPin} extra={<span style={{ marginLeft: 8, fontSize: 12, color: '#9aa5b1', fontWeight: 400 }}>Visit our shop</span>} />
-              <div style={{ padding: isMobile ? '14px 12px' : '18px 18px 20px', background: '#F8FAFC' }}>
+              <SectionHeader title="আমাদের শপ খুঁজুন" Icon={MapPin} extra={<span style={{ marginLeft: 8, fontSize: 12, color: 'var(--tx-9aa5b1, #9aa5b1)', fontWeight: 400 }}>Visit our shop</span>} />
+              <div style={{ padding: isMobile ? '14px 12px' : '18px 18px 20px', background: 'var(--bg-f8fafc, #F8FAFC)' }}>
                 <ShopLocation settings={shopSettings} isMobile={isMobile} />
               </div>
             </Block>

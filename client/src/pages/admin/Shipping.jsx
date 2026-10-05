@@ -38,16 +38,16 @@ export default function AdminShipping() {
     else toast.success('Shipping settings saved');
   };
 
-  if (loading) return <AdminLayout title="Shipping"><div style={{ padding: 60, textAlign: 'center', color: '#9aa5b1' }}>Loading…</div></AdminLayout>;
+  if (loading) return <AdminLayout title="Shipping"><div style={{ padding: 60, textAlign: 'center', color: 'var(--tx-9aa5b1, #9aa5b1)' }}>Loading…</div></AdminLayout>;
 
   const Field = ({ label, field, type = 'text', prefix, note }) => (
     <div style={{ marginBottom: 18 }}>
-      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#212529', marginBottom: 4 }}>{label}</label>
-      {note && <div style={{ fontSize: 12, color: '#9aa5b1', marginBottom: 6 }}>{note}</div>}
+      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--tx-212529, #212529)', marginBottom: 4 }}>{label}</label>
+      {note && <div style={{ fontSize: 12, color: 'var(--tx-9aa5b1, #9aa5b1)', marginBottom: 6 }}>{note}</div>}
       <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
-        {prefix && <span style={{ padding: '9px 12px', background: '#F8F9FA', border: '1px solid #e0e0e0', borderRight: 'none', borderRadius: '8px 0 0 8px', fontSize: 14, color: '#555' }}>{prefix}</span>}
+        {prefix && <span style={{ padding: '9px 12px', background: 'var(--bg-f8f9fa, #F8F9FA)', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRight: 'none', borderRadius: '8px 0 0 8px', fontSize: 14, color: 'var(--tx-555, #555)' }}>{prefix}</span>}
         <input type={type} value={s[field] || ''} onChange={e => setS(prev => ({ ...prev, [field]: e.target.value }))}
-          style={{ flex: 1, padding: '9px 12px', border: '1px solid #e0e0e0', borderRadius: prefix ? '0 8px 8px 0' : 8, fontSize: 14 }} />
+          style={{ flex: 1, padding: '9px 12px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: prefix ? '0 8px 8px 0' : 8, fontSize: 14 }} />
       </div>
     </div>
   );
@@ -55,7 +55,7 @@ export default function AdminShipping() {
   return (
     <AdminLayout title="Shipping">
       <div style={{ maxWidth: 560 }}>
-        <div style={{ background: '#fff', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: 20 }}>
+        <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: 20 }}>
           <h3 style={{ margin: '0 0 20px', fontSize: 15, fontWeight: 700 }}>Delivery Rates</h3>
           <Field label="Inside Dhaka"  field="shipping_inside"  type="number" prefix="৳" />
           <Field label="Outside Dhaka" field="shipping_outside" type="number" prefix="৳" />
@@ -63,15 +63,15 @@ export default function AdminShipping() {
             note="Orders above this amount get free delivery (set 0 to disable)" />
         </div>
 
-        <div style={{ background: '#fff', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: 24 }}>
+        <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: 24 }}>
           <h3 style={{ margin: '0 0 20px', fontSize: 15, fontWeight: 700 }}>Delivery Times</h3>
           <Field label="Inside Dhaka"  field="delivery_time_inside"  note='e.g. "Same Day / Next Day"' />
           <Field label="Outside Dhaka" field="delivery_time_outside" note='e.g. "2–4 Business Days"' />
         </div>
 
         {/* Live preview */}
-        <div style={{ background: '#f8f9fa', borderRadius: 12, padding: 20, marginBottom: 24, border: '1px dashed #dee2e6' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#7f8c9a', marginBottom: 12 }}>Preview (what customer sees)</div>
+        <div style={{ background: 'var(--bg-f8f9fa, #f8f9fa)', borderRadius: 12, padding: 20, marginBottom: 24, border: '1px dashed var(--bd-dee2e6, #dee2e6)' }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--tx-7f8c9a, #7f8c9a)', marginBottom: 12 }}>Preview (what customer sees)</div>
           <div style={{ fontSize: 14 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
               <span>Inside Dhaka</span>
@@ -82,7 +82,7 @@ export default function AdminShipping() {
               <span style={{ fontWeight: 600 }}>৳{s.shipping_outside || 0}</span>
             </div>
             {+s.free_delivery_threshold > 0 && (
-              <div style={{ marginTop: 10, padding: '8px 12px', background: '#d1e7dd', borderRadius: 8, color: '#0f5132', fontSize: 13 }}>
+              <div style={{ marginTop: 10, padding: '8px 12px', background: 'var(--bg-d1e7dd, #d1e7dd)', borderRadius: 8, color: 'var(--tx-0f5132, #0f5132)', fontSize: 13 }}>
                 Free delivery on orders above ৳{s.free_delivery_threshold}
               </div>
             )}

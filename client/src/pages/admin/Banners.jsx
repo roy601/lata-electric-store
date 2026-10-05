@@ -132,32 +132,32 @@ export default function AdminBanners() {
     return null;
   };
 
-  const inp = { width: '100%', padding: '9px 12px', border: '1px solid #e0e0e0', borderRadius: 8, fontSize: 14, boxSizing: 'border-box', fontFamily: 'inherit', background: '#fff' };
-  const lb  = { display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6, color: '#212529' };
+  const inp = { width: '100%', padding: '9px 12px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, fontSize: 14, boxSizing: 'border-box', fontFamily: 'inherit', background: 'var(--bg-fff, #fff)' };
+  const lb  = { display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6, color: 'var(--tx-212529, #212529)' };
 
   return (
     <AdminLayout title="Banners">
-      <p style={{ margin: '0 0 18px', fontSize: 13, color: '#7f8c9a', maxWidth: 760, lineHeight: 1.6 }}>
+      <p style={{ margin: '0 0 18px', fontSize: 13, color: 'var(--tx-7f8c9a, #7f8c9a)', maxWidth: 760, lineHeight: 1.6 }}>
         The home page shows the <strong>main slider</strong> with a column on the right: <strong>2 wide tiles</strong> on top and <strong>2 small tiles</strong> below.
         Use the right picture size for each place. With no side tiles, the slider uses the full width.
       </p>
 
-      {loading ? <div style={{ padding: 80, textAlign: 'center', color: '#9aa5b1' }}>Loading…</div> : ORDER.map(key => {
+      {loading ? <div style={{ padding: 80, textAlign: 'center', color: 'var(--tx-9aa5b1, #9aa5b1)' }}>Loading…</div> : ORDER.map(key => {
         const P = PLACEMENTS[key];
         const list = banners.filter(b => placementOf(b) === key).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0) || a.id - b.id);
         const shown = list.filter(b => b.is_active);
         return (
           <section key={key} style={{ marginBottom: 28 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
-              <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: '#0F172A' }}>{P.label}</h2>
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#1565C0', background: '#EEF6FF', padding: '3px 10px', borderRadius: 20 }}>{P.size}</span>
-              <span style={{ fontSize: 12.5, color: '#7f8c9a' }}>{P.note}{P.slots && shown.length > P.slots ? ` (${shown.length} active — only ${P.slots} show)` : ''}</span>
+              <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: 'var(--tx-0f172a, #0F172A)' }}>{P.label}</h2>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--tx-1565c0, #1565C0)', background: 'var(--bg-eef6ff, #EEF6FF)', padding: '3px 10px', borderRadius: 20 }}>{P.size}</span>
+              <span style={{ fontSize: 12.5, color: 'var(--tx-7f8c9a, #7f8c9a)' }}>{P.note}{P.slots && shown.length > P.slots ? ` (${shown.length} active — only ${P.slots} show)` : ''}</span>
               <button onClick={() => openAdd(key)} style={{ marginLeft: 'auto', padding: '8px 16px', background: '#1E88E5', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                 <Plus size={15} /> Add
               </button>
             </div>
             {list.length === 0 ? (
-              <button onClick={() => openAdd(key)} style={{ width: '100%', padding: '26px 0', background: '#FAFBFC', border: '2px dashed #E2E8F0', borderRadius: 12, cursor: 'pointer', color: '#7f8c9a', fontSize: 13, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <button onClick={() => openAdd(key)} style={{ width: '100%', padding: '26px 0', background: 'var(--bg-fafbfc, #FAFBFC)', border: '2px dashed var(--bd-e2e8f0, #E2E8F0)', borderRadius: 12, cursor: 'pointer', color: 'var(--tx-7f8c9a, #7f8c9a)', fontSize: 13, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 <Image size={18} /> No {P.label.toLowerCase()} banners yet — add one ({P.size})
               </button>
             ) : (
@@ -165,8 +165,8 @@ export default function AdminBanners() {
                 {list.map((b, i) => {
                   const hiddenBySlots = P.slots && b.is_active && shown.indexOf(b) >= P.slots;
                   return (
-                    <div key={b.id} style={{ background: '#fff', borderRadius: 12, overflow: 'hidden', border: '1px solid #EDF0F3', opacity: b.is_active ? 1 : .55 }}>
-                      <div style={{ aspectRatio: P.ratio, background: '#F1F5F9', position: 'relative' }}>
+                    <div key={b.id} style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, overflow: 'hidden', border: '1px solid var(--bd-edf0f3, #EDF0F3)', opacity: b.is_active ? 1 : .55 }}>
+                      <div style={{ aspectRatio: P.ratio, background: 'var(--bg-f1f5f9, #F1F5F9)', position: 'relative' }}>
                         {b.image && <img src={b.image} alt={b.title || ''} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
                         <div style={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 6 }}>
                           <span style={{ background: !b.is_active ? '#7f8c9a' : hiddenBySlots ? '#D97706' : '#16A34A', color: '#fff', fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 10 }}>
@@ -176,16 +176,16 @@ export default function AdminBanners() {
                         </div>
                       </div>
                       <div style={{ padding: '10px 12px' }}>
-                        {b.title && <div style={{ fontWeight: 700, fontSize: 13.5, color: '#212529' }}>{b.title}</div>}
-                        <div style={{ fontSize: 12, color: linkText(b) ? '#1565C0' : '#9aa5b1', display: 'flex', alignItems: 'center', gap: 5, margin: '2px 0 8px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                        {b.title && <div style={{ fontWeight: 700, fontSize: 13.5, color: 'var(--tx-212529, #212529)' }}>{b.title}</div>}
+                        <div style={{ fontSize: 12, color: linkText(b) ? 'var(--tx-1565c0, #1565C0)' : 'var(--tx-9aa5b1, #9aa5b1)', display: 'flex', alignItems: 'center', gap: 5, margin: '2px 0 8px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                           <Link2 size={12} style={{ flexShrink: 0 }} /> {linkText(b) || 'Not clickable'}
                         </div>
                         <div style={{ display: 'flex', gap: 6 }}>
-                          <button onClick={() => openEdit(b)} style={{ flex: 1, padding: '7px 0', background: '#F1F3F5', border: 'none', borderRadius: 7, cursor: 'pointer', fontSize: 12.5, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}><Pencil size={13} /> Edit</button>
-                          <button onClick={() => toggleActive(b.id, b.is_active)} title={b.is_active ? 'Hide' : 'Show'} style={{ padding: '7px 10px', background: b.is_active ? '#fff3cd' : '#d4edda', border: 'none', borderRadius: 7, cursor: 'pointer', display: 'flex', alignItems: 'center', color: b.is_active ? '#856404' : '#155724' }}>
+                          <button onClick={() => openEdit(b)} style={{ flex: 1, padding: '7px 0', background: 'var(--bg-f1f3f5, #F1F3F5)', border: 'none', borderRadius: 7, cursor: 'pointer', fontSize: 12.5, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}><Pencil size={13} /> Edit</button>
+                          <button onClick={() => toggleActive(b.id, b.is_active)} title={b.is_active ? 'Hide' : 'Show'} style={{ padding: '7px 10px', background: b.is_active ? 'var(--bg-fff3cd, #fff3cd)' : 'var(--bg-d4edda, #d4edda)', border: 'none', borderRadius: 7, cursor: 'pointer', display: 'flex', alignItems: 'center', color: b.is_active ? 'var(--tx-856404, #856404)' : 'var(--tx-155724, #155724)' }}>
                             {b.is_active ? <EyeOff size={14} /> : <Eye size={14} />}
                           </button>
-                          <button onClick={() => del(b.id)} title="Delete" style={{ padding: '7px 10px', background: '#fee', border: 'none', borderRadius: 7, cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Trash2 size={14} color="#DC3545" /></button>
+                          <button onClick={() => del(b.id)} title="Delete" style={{ padding: '7px 10px', background: 'var(--bg-fee, #fee)', border: 'none', borderRadius: 7, cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Trash2 size={14} color="#DC3545" /></button>
                         </div>
                       </div>
                     </div>
@@ -201,10 +201,10 @@ export default function AdminBanners() {
       {modal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 1000, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: isMobile ? 0 : '32px 16px', overflowY: 'auto' }}
           onClick={e => e.target === e.currentTarget && close()}>
-          <div style={{ background: '#fff', borderRadius: isMobile ? 0 : 16, padding: isMobile ? 18 : 26, width: '100%', maxWidth: 560, minHeight: isMobile ? '100%' : undefined }}>
+          <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: isMobile ? 0 : 16, padding: isMobile ? 18 : 26, width: '100%', maxWidth: 560, minHeight: isMobile ? '100%' : undefined }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 18 }}>
               <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, flex: 1 }}>{editId ? 'Edit banner' : 'Add banner'}</h3>
-              <button onClick={close} aria-label="Close" style={{ background: '#F3F4F6', border: 'none', borderRadius: 8, width: 32, height: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={17} /></button>
+              <button onClick={close} aria-label="Close" style={{ background: 'var(--bg-f3f4f6, #F3F4F6)', border: 'none', borderRadius: 8, width: 32, height: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={17} /></button>
             </div>
 
             {/* Where */}
@@ -214,36 +214,36 @@ export default function AdminBanners() {
                 const P = PLACEMENTS[key]; const on = form.placement === key;
                 return (
                   <button key={key} type="button" onClick={() => upd('placement', key)}
-                    style={{ padding: 10, borderRadius: 10, border: `2px solid ${on ? '#1E88E5' : '#E2E8F0'}`, background: on ? '#EEF6FF' : '#fff', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit' }}>
+                    style={{ padding: 10, borderRadius: 10, border: `2px solid ${on ? '#1E88E5' : 'var(--bd-e2e8f0, #E2E8F0)'}`, background: on ? 'var(--bg-eef6ff, #EEF6FF)' : 'var(--bg-fff, #fff)', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit' }}>
                     {/* mini map of the hero, with this place highlighted */}
                     <div style={{ display: 'grid', gridTemplateColumns: '2.2fr 1fr', gap: 3, height: 44, marginBottom: 8 }}>
-                      <div style={{ borderRadius: 3, background: key === 'slider' ? '#1E88E5' : '#CBD5E1' }} />
+                      <div style={{ borderRadius: 3, background: key === 'slider' ? '#1E88E5' : 'var(--bg-cbd5e1, #CBD5E1)' }} />
                       <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr 1.2fr', gap: 3 }}>
-                        <div style={{ borderRadius: 2, background: key === 'side_wide' ? '#1E88E5' : '#CBD5E1' }} />
-                        <div style={{ borderRadius: 2, background: key === 'side_wide' ? '#1E88E5' : '#CBD5E1' }} />
+                        <div style={{ borderRadius: 2, background: key === 'side_wide' ? '#1E88E5' : 'var(--bg-cbd5e1, #CBD5E1)' }} />
+                        <div style={{ borderRadius: 2, background: key === 'side_wide' ? '#1E88E5' : 'var(--bg-cbd5e1, #CBD5E1)' }} />
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
-                          <div style={{ borderRadius: 2, background: key === 'side_small' ? '#1E88E5' : '#CBD5E1' }} />
-                          <div style={{ borderRadius: 2, background: key === 'side_small' ? '#1E88E5' : '#CBD5E1' }} />
+                          <div style={{ borderRadius: 2, background: key === 'side_small' ? '#1E88E5' : 'var(--bg-cbd5e1, #CBD5E1)' }} />
+                          <div style={{ borderRadius: 2, background: key === 'side_small' ? '#1E88E5' : 'var(--bg-cbd5e1, #CBD5E1)' }} />
                         </div>
                       </div>
                     </div>
-                    <div style={{ fontSize: 12.5, fontWeight: 700, color: '#0F172A' }}>{P.label}</div>
-                    <div style={{ fontSize: 11.5, color: '#64748B' }}>{P.size}</div>
+                    <div style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--tx-0f172a, #0F172A)' }}>{P.label}</div>
+                    <div style={{ fontSize: 11.5, color: 'var(--tx-64748b, #64748B)' }}>{P.size}</div>
                   </button>
                 );
               })}
             </div>
 
             {/* Picture */}
-            <label style={lb}>Picture <span style={{ fontWeight: 400, color: '#7f8c9a' }}>— best at {PLACEMENTS[form.placement].size} px</span></label>
-            <div style={{ borderRadius: 10, overflow: 'hidden', aspectRatio: PLACEMENTS[form.placement].ratio, maxHeight: 260, background: '#F1F5F9', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px dashed #CBD5E1', marginInline: form.placement === 'side_small' ? 'auto' : 0, width: form.placement === 'side_small' ? 200 : '100%' }}>
+            <label style={lb}>Picture <span style={{ fontWeight: 400, color: 'var(--tx-7f8c9a, #7f8c9a)' }}>— best at {PLACEMENTS[form.placement].size} px</span></label>
+            <div style={{ borderRadius: 10, overflow: 'hidden', aspectRatio: PLACEMENTS[form.placement].ratio, maxHeight: 260, background: 'var(--bg-f1f5f9, #F1F5F9)', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px dashed var(--bd-cbd5e1, #CBD5E1)', marginInline: form.placement === 'side_small' ? 'auto' : 0, width: form.placement === 'side_small' ? 200 : '100%' }}>
               {form.image ? <img src={form.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                : <span style={{ fontSize: 12.5, color: '#94A3B8' }}>Preview ({PLACEMENTS[form.placement].size})</span>}
+                : <span style={{ fontSize: 12.5, color: 'var(--tx-94a3b8, #94A3B8)' }}>Preview ({PLACEMENTS[form.placement].size})</span>}
             </div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 18 }}>
               <input value={form.image} onChange={e => upd('image', e.target.value)} placeholder="Paste an image link, or upload →" style={{ ...inp, flex: 1, minWidth: 0 }} />
               <button onClick={() => fileRef.current?.click()} disabled={uploading}
-                style={{ padding: '9px 14px', background: '#F1F3F5', border: 'none', borderRadius: 8, cursor: uploading ? 'wait' : 'pointer', fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
+                style={{ padding: '9px 14px', background: 'var(--bg-f1f3f5, #F1F3F5)', border: 'none', borderRadius: 8, cursor: uploading ? 'wait' : 'pointer', fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
                 {uploading ? <><Clock size={14} /> Uploading…</> : <><FolderOpen size={14} /> Upload</>}
               </button>
               <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => { uploadFile(e.target.files[0]); e.target.value = ''; }} />
@@ -254,7 +254,7 @@ export default function AdminBanners() {
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
               {[['none', 'Nothing'], ['product', 'A product'], ['category', 'A category'], ['page', 'Another page']].map(([k, label]) => (
                 <button key={k} type="button" onClick={() => upd('linkType', k)}
-                  style={{ padding: '7px 14px', borderRadius: 20, border: `1.5px solid ${form.linkType === k ? '#1E88E5' : '#E2E8F0'}`, background: form.linkType === k ? '#1E88E5' : '#fff', color: form.linkType === k ? '#fff' : '#334155', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ padding: '7px 14px', borderRadius: 20, border: `1.5px solid ${form.linkType === k ? '#1E88E5' : 'var(--bd-e2e8f0, #E2E8F0)'}`, background: form.linkType === k ? '#1E88E5' : 'var(--bg-fff, #fff)', color: form.linkType === k ? '#fff' : 'var(--tx-334155, #334155)', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
                   {label}
                 </button>
               ))}
@@ -274,7 +274,7 @@ export default function AdminBanners() {
             {form.linkType === 'page' && (
               <div style={{ marginBottom: 18 }}>
                 <input value={form.link_url} onChange={e => upd('link_url', e.target.value)} placeholder="/flash-sale   or   /products?q=walton   or   https://…" style={inp} />
-                <div style={{ fontSize: 11.5, color: '#7f8c9a', marginTop: 4 }}>A page on this site starts with “/”. Outside links start with https://</div>
+                <div style={{ fontSize: 11.5, color: 'var(--tx-7f8c9a, #7f8c9a)', marginTop: 4 }}>A page on this site starts with “/”. Outside links start with https://</div>
               </div>
             )}
             {form.linkType === 'none' && <div style={{ marginBottom: 18 }} />}
@@ -282,13 +282,13 @@ export default function AdminBanners() {
             {/* Text over the slider picture (optional) */}
             {form.placement === 'slider' && (
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 10, marginBottom: 6 }}>
-                <div><label style={lb}>Title <span style={{ fontWeight: 400, color: '#7f8c9a' }}>(optional)</span></label>
+                <div><label style={lb}>Title <span style={{ fontWeight: 400, color: 'var(--tx-7f8c9a, #7f8c9a)' }}>(optional)</span></label>
                   <input value={form.title} onChange={e => upd('title', e.target.value)} placeholder="e.g. Summer Sale" style={inp} /></div>
-                <div><label style={lb}>Subtitle <span style={{ fontWeight: 400, color: '#7f8c9a' }}>(optional)</span></label>
+                <div><label style={lb}>Subtitle <span style={{ fontWeight: 400, color: 'var(--tx-7f8c9a, #7f8c9a)' }}>(optional)</span></label>
                   <input value={form.subtitle} onChange={e => upd('subtitle', e.target.value)} placeholder="Short tagline" style={inp} /></div>
               </div>
             )}
-            {form.placement === 'slider' && <div style={{ fontSize: 11.5, color: '#7f8c9a', marginBottom: 16 }}>Shown over the picture. Leave empty when the picture already has its text.</div>}
+            {form.placement === 'slider' && <div style={{ fontSize: 11.5, color: 'var(--tx-7f8c9a, #7f8c9a)', marginBottom: 16 }}>Shown over the picture. Leave empty when the picture already has its text.</div>}
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20, flexWrap: 'wrap' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600 }}>
@@ -300,7 +300,7 @@ export default function AdminBanners() {
             </div>
 
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-              <button onClick={close} style={{ padding: '10px 20px', border: '1px solid #e0e0e0', borderRadius: 8, background: '#fff', cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
+              <button onClick={close} style={{ padding: '10px 20px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, background: 'var(--bg-fff, #fff)', cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
               <button onClick={save} disabled={saving || uploading} style={{ padding: '10px 24px', background: '#1E88E5', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit' }}>
                 {saving ? 'Saving…' : editId ? 'Save changes' : 'Add banner'}
               </button>

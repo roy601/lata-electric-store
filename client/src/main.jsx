@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './assets/css/global.css';
+import './assets/css/theme-vars.css';
 
 /* Global spinner keyframe injected once */
 const style = document.createElement('style');

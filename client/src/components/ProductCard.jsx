@@ -18,7 +18,7 @@ export default function ProductCard({ product: p }) {
   };
 
   return (
-    <div style={{ background: '#fff', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,.06)', display: 'flex', flexDirection: 'column', transition: 'box-shadow 0.2s, transform 0.2s', position: 'relative' }}
+    <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,.06)', display: 'flex', flexDirection: 'column', transition: 'box-shadow 0.2s, transform 0.2s', position: 'relative' }}
       onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,0,0,.12)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
       onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,.06)'; e.currentTarget.style.transform = 'none'; }}
     >
@@ -35,13 +35,13 @@ export default function ProductCard({ product: p }) {
 
       {/* Wishlist */}
       <button onClick={e => { e.preventDefault(); toggle(p.id); }}
-        style={{ position: 'absolute', top: 8, right: 8, zIndex: 1, background: '#fff', border: 'none', width: 30, height: 30, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 4px rgba(0,0,0,.15)' }}>
+        style={{ position: 'absolute', top: 8, right: 8, zIndex: 1, background: 'var(--bg-fff, #fff)', border: 'none', width: 30, height: 30, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 4px rgba(0,0,0,.15)' }}>
         <Heart size={15} color={wished ? '#DC3545' : '#bbb'} fill={wished ? '#DC3545' : 'none'} />
       </button>
 
       {/* Image */}
       <Link to={`/products/${p.id}`} style={{ textDecoration: 'none' }}>
-        <div style={{ aspectRatio: '1/1', background: '#fff', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 10, boxSizing: 'border-box' }}>
+        <div style={{ aspectRatio: '1/1', background: 'var(--bg-fff, #fff)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 10, boxSizing: 'border-box' }}>
           {imgOk
             ? <img src={p.image} alt={p.name} loading="lazy" onError={() => setImgOk(false)} style={{ width: '100%', height: '100%', objectFit: 'contain', transition: 'transform 0.3s' }} />
             : <Package size={48} color="#ccc" />
@@ -52,16 +52,16 @@ export default function ProductCard({ product: p }) {
       {/* Info */}
       <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <Link to={`/products/${p.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#212529', lineHeight: 1.4, marginBottom: 6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.name}</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--tx-212529, #212529)', lineHeight: 1.4, marginBottom: 6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.name}</div>
         </Link>
-        {p.brand && <div style={{ fontSize: 11, color: '#9aa5b1', marginBottom: 6 }}>{p.brand}</div>}
+        {p.brand && <div style={{ fontSize: 11, color: 'var(--tx-9aa5b1, #9aa5b1)', marginBottom: 6 }}>{p.brand}</div>}
         <div style={{ marginTop: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 8 }}>
-            <span style={{ fontSize: 16, fontWeight: 700, color: p.flash_sale ? '#DC3545' : '#212529' }}>৳{price}</span>
-            {discount && <span style={{ fontSize: 12, color: '#9aa5b1', textDecoration: 'line-through' }}>৳{original}</span>}
+            <span style={{ fontSize: 16, fontWeight: 700, color: p.flash_sale ? '#DC3545' : 'var(--tx-212529, #212529)' }}>৳{price}</span>
+            {discount && <span style={{ fontSize: 12, color: 'var(--tx-9aa5b1, #9aa5b1)', textDecoration: 'line-through' }}>৳{original}</span>}
           </div>
           <button onClick={handleAddToCart} disabled={!(p.stock > 0)}
-            style={{ width: '100%', padding: '8px', background: !(p.stock > 0) ? '#e0e0e0' : '#1E88E5', color: !(p.stock > 0) ? '#999' : '#fff', border: 'none', borderRadius: 8, cursor: !(p.stock > 0) ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            style={{ width: '100%', padding: '8px', background: !(p.stock > 0) ? 'var(--bg-e0e0e0, #e0e0e0)' : '#1E88E5', color: !(p.stock > 0) ? 'var(--tx-999, #999)' : '#fff', border: 'none', borderRadius: 8, cursor: !(p.stock > 0) ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
             {!(p.stock > 0) ? 'Out of Stock' : <><ShoppingCart size={14} /> Add to Cart</>}
           </button>
         </div>

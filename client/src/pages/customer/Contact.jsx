@@ -20,12 +20,12 @@ export default function Contact() {
   return (
     <CustomerLayout>
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '40px 16px' }}>
-        <h1 style={{ fontSize: 28, fontWeight: 800, color: '#212529', marginBottom: 32 }}>Contact Us</h1>
+        <h1 style={{ fontSize: 28, fontWeight: 800, color: 'var(--tx-212529, #212529)', marginBottom: 32 }}>Contact Us</h1>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'start' }}>
           {/* Info */}
           <div>
-            <div style={{ background: '#fff', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: 16 }}>
+            <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: 16 }}>
               <h3 style={{ margin: '0 0 20px', fontWeight: 700 }}>Get in Touch</h3>
               {[
                 { Icon: MapPin,   label: 'Address', value: 'Ka/6 Nadda, Gulshan, Dhaka-1212' },
@@ -36,7 +36,7 @@ export default function Contact() {
                 <div key={label} style={{ display: 'flex', gap: 14, marginBottom: 16, alignItems: 'flex-start' }}>
                   <span style={{ flexShrink: 0, marginTop: 2 }}><Icon size={20} color="#1E88E5" /></span>
                   <div>
-                    <div style={{ fontSize: 12, color: '#9aa5b1', marginBottom: 2 }}>{label.toUpperCase()}</div>
+                    <div style={{ fontSize: 12, color: 'var(--tx-9aa5b1, #9aa5b1)', marginBottom: 2 }}>{label.toUpperCase()}</div>
                     <div style={{ fontSize: 14, fontWeight: 500 }}>{value}</div>
                   </div>
                 </div>
@@ -56,16 +56,16 @@ export default function Contact() {
           </div>
 
           {/* Form */}
-          <div style={{ background: '#fff', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+          <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
             <h3 style={{ margin: '0 0 20px', fontWeight: 700 }}>Send a Message</h3>
 
             {sent ? (
               <div style={{ textAlign: 'center', padding: '32px 0' }}>
                 <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'center' }}><CheckCircle2 size={48} color="#28A745" /></div>
                 <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 8 }}>Message Sent!</div>
-                <div style={{ color: '#9aa5b1', fontSize: 14 }}>We'll get back to you on your phone number.</div>
+                <div style={{ color: 'var(--tx-9aa5b1, #9aa5b1)', fontSize: 14 }}>We'll get back to you on your phone number.</div>
                 <button onClick={() => { setSent(false); setForm({ name: '', phone: '', message: '' }); }}
-                  style={{ marginTop: 20, padding: '9px 20px', border: '1px solid #e0e0e0', borderRadius: 8, background: '#fff', cursor: 'pointer', fontSize: 14 }}>
+                  style={{ marginTop: 20, padding: '9px 20px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, background: 'var(--bg-fff, #fff)', cursor: 'pointer', fontSize: 14 }}>
                   Send another
                 </button>
               </div>
@@ -79,14 +79,14 @@ export default function Contact() {
                     <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{label}</label>
                     <input type={type || 'text'} value={form[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
                       placeholder={placeholder}
-                      style={{ width: '100%', padding: '10px 14px', border: '1px solid #e0e0e0', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} />
+                      style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} />
                   </div>
                 ))}
                 <div style={{ marginBottom: 20 }}>
                   <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Message *</label>
                   <textarea rows={4} value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                     placeholder="How can we help you?"
-                    style={{ width: '100%', padding: '10px 14px', border: '1px solid #e0e0e0', borderRadius: 8, fontSize: 14, resize: 'vertical', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, fontSize: 14, resize: 'vertical', boxSizing: 'border-box' }} />
                 </div>
                 <button type="submit" style={{ width: '100%', padding: '12px', background: '#1E88E5', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>
                   Send Message

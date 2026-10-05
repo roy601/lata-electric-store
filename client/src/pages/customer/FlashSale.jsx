@@ -81,13 +81,13 @@ export default function FlashSalePage() {
 
         {loading ? (
           <div style={{ padding: 80, textAlign: 'center' }}>
-            <div style={{ width: 40, height: 40, border: '4px solid #f0f0f0', borderTop: '4px solid #DC3545', borderRadius: '50%', animation: 'spin .8s linear infinite', margin: '0 auto' }} />
+            <div style={{ width: 40, height: 40, border: '4px solid var(--bd-f0f0f0, #f0f0f0)', borderTop: '4px solid #DC3545', borderRadius: '50%', animation: 'spin .8s linear infinite', margin: '0 auto' }} />
           </div>
 
         ) : !isActive ? (
-          <div style={{ padding: '80px 0', textAlign: 'center', color: '#9aa5b1' }}>
+          <div style={{ padding: '80px 0', textAlign: 'center', color: 'var(--tx-9aa5b1, #9aa5b1)' }}>
             <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center' }}><Zap size={64} color="#ccc" /></div>
-            <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, color: '#333' }}>No Active Flash Sale</div>
+            <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, color: 'var(--tx-333, #333)' }}>No Active Flash Sale</div>
             <div style={{ fontSize: 14, marginBottom: 24 }}>
               {time.ended ? 'The flash sale has ended.' : 'No flash sale is running right now. Check back soon!'}
             </div>
@@ -102,7 +102,7 @@ export default function FlashSalePage() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ background: '#DC3545', color: '#fff', padding: '4px 14px', borderRadius: 20, fontWeight: 700, fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 5 }}><Zap size={12} fill="currentColor" /> {products.length} Deals</span>
-                <span style={{ fontSize: 13, color: '#9aa5b1' }}>Hurry — limited stock!</span>
+                <span style={{ fontSize: 13, color: 'var(--tx-9aa5b1, #9aa5b1)' }}>Hurry — limited stock!</span>
               </div>
             </div>
 
@@ -116,7 +116,7 @@ export default function FlashSalePage() {
 
                 return (
                   <div key={p.id}
-                    style={{ background: '#fff', borderRadius: 12, border: '1px solid #f0d0d0', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'box-shadow .2s, transform .15s', position: 'relative' }}
+                    style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, border: '1px solid #f0d0d0', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'box-shadow .2s, transform .15s', position: 'relative' }}
                     onMouseEnter={e => { e.currentTarget.style.boxShadow='0 6px 20px rgba(192,57,43,.15)'; e.currentTarget.style.transform='translateY(-3px)'; }}
                     onMouseLeave={e => { e.currentTarget.style.boxShadow='none'; e.currentTarget.style.transform='none'; }}>
 
@@ -127,7 +127,7 @@ export default function FlashSalePage() {
 
                     {/* Image */}
                     <Link to={`/products/${p.id}`} style={{ textDecoration: 'none' }}>
-                      <div style={{ height: 180, background: '#fff8f8', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 10, position: 'relative' }}>
+                      <div style={{ height: 180, background: 'var(--bg-fff8f8, #fff8f8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 10, position: 'relative' }}>
                         {p.image
                           ? <img src={p.image} alt={p.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
                           : <Package size={52} color="#ccc" />}
@@ -142,7 +142,7 @@ export default function FlashSalePage() {
                     {/* Info */}
                     <div style={{ padding: '10px 12px 12px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                       <Link to={`/products/${p.id}`} style={{ textDecoration: 'none' }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: '#212529', lineHeight: 1.4, marginBottom: 8, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: 36 }}>{p.name}</div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--tx-212529, #212529)', lineHeight: 1.4, marginBottom: 8, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: 36 }}>{p.name}</div>
                       </Link>
 
                       {/* Price row */}
@@ -151,7 +151,7 @@ export default function FlashSalePage() {
                           <div style={{ fontSize: 20, fontWeight: 800, color: '#DC3545', lineHeight: 1 }}>৳{price.toLocaleString('en-BD')}</div>
                           {disc && (
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 3 }}>
-                              <span style={{ fontSize: 13, color: '#bbb', textDecoration: 'line-through' }}>৳{orig.toLocaleString('en-BD')}</span>
+                              <span style={{ fontSize: 13, color: 'var(--tx-bbb, #bbb)', textDecoration: 'line-through' }}>৳{orig.toLocaleString('en-BD')}</span>
                               <span style={{ fontSize: 11, fontWeight: 700, color: '#28A745' }}>Save ৳{orig - price}</span>
                             </div>
                           )}
@@ -160,11 +160,11 @@ export default function FlashSalePage() {
                         {/* Stock bar */}
                         {inStock && p.stock <= 20 && (
                           <div style={{ marginBottom: 8 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#888', marginBottom: 3 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--tx-888, #888)', marginBottom: 3 }}>
                               <span>Stock</span>
                               <span style={{ fontWeight: 600, color: p.stock <= 5 ? '#DC3545' : '#28A745' }}>{p.stock} left</span>
                             </div>
-                            <div style={{ height: 4, background: '#eee', borderRadius: 2 }}>
+                            <div style={{ height: 4, background: 'var(--bg-eee, #eee)', borderRadius: 2 }}>
                               <div style={{ height: '100%', borderRadius: 2, width: `${Math.min(100, (p.stock / 20) * 100)}%`, background: p.stock <= 5 ? '#DC3545' : '#28A745' }} />
                             </div>
                           </div>
@@ -174,11 +174,11 @@ export default function FlashSalePage() {
                           <button
                             onClick={() => { addToCart(p, { price }); }}
                             disabled={!inStock}
-                            style={{ flex: 1, padding: '8px 0', background: inStock ? '#fff' : '#eee', color: inStock ? '#1E88E5' : '#bbb', border: `1.5px solid ${inStock ? '#1E88E5' : '#eee'}`, borderRadius: 7, fontWeight: 700, fontSize: 12, cursor: inStock ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                            style={{ flex: 1, padding: '8px 0', background: inStock ? 'var(--bg-fff, #fff)' : 'var(--bg-eee, #eee)', color: inStock ? '#1E88E5' : 'var(--tx-bbb, #bbb)', border: `1.5px solid ${inStock ? '#1E88E5' : 'var(--bd-eee, #eee)'}`, borderRadius: 7, fontWeight: 700, fontSize: 12, cursor: inStock ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
                             <ShoppingCart size={13} /> Cart
                           </button>
                           <Link to={`/products/${p.id}`}
-                            style={{ flex: 1, padding: '8px 0', background: inStock ? '#1E88E5' : '#ddd', color: '#fff', borderRadius: 7, fontWeight: 700, fontSize: 12, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: inStock ? 'auto' : 'none' }}>
+                            style={{ flex: 1, padding: '8px 0', background: inStock ? '#1E88E5' : 'var(--bg-ddd, #ddd)', color: '#fff', borderRadius: 7, fontWeight: 700, fontSize: 12, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: inStock ? 'auto' : 'none' }}>
                             Buy Now
                           </Link>
                         </div>

@@ -37,43 +37,43 @@ export default function AdminCustomers() {
         <input
           placeholder="Search by name or phone…"
           value={search} onChange={e => setSearch(e.target.value)}
-          style={{ width: '100%', maxWidth: 360, padding: '9px 14px', border: '1px solid #e0e0e0', borderRadius: 8, fontSize: 14 }}
+          style={{ width: '100%', maxWidth: 360, padding: '9px 14px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, fontSize: 14 }}
         />
       </div>
 
-      <div style={{ background: '#fff', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+      <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
         {loading ? (
-          <div style={{ padding: 60, textAlign: 'center', color: '#9aa5b1' }}>Loading…</div>
+          <div style={{ padding: 60, textAlign: 'center', color: 'var(--tx-9aa5b1, #9aa5b1)' }}>Loading…</div>
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
-              <tr style={{ background: '#f8f9fa' }}>
+              <tr style={{ background: 'var(--bg-f8f9fa, #f8f9fa)' }}>
                 {['Name', 'Phone', 'City', 'Orders', 'Total Spent', 'Last Order', ''].map(h => (
-                  <th key={h} style={{ padding: '11px 14px', textAlign: 'left', color: '#7f8c9a', fontWeight: 600, borderBottom: '1px solid #eee' }}>{h}</th>
+                  <th key={h} style={{ padding: '11px 14px', textAlign: 'left', color: 'var(--tx-7f8c9a, #7f8c9a)', fontWeight: 600, borderBottom: '1px solid var(--bd-eee, #eee)' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {visible.map(c => (
-                <tr key={c.phone} style={{ borderBottom: '1px solid #F8F9FA' }}>
-                  <td style={{ padding: '11px 14px', fontWeight: 600, color: '#212529' }}>{c.name}</td>
-                  <td style={{ padding: '11px 14px', color: '#4a5568' }}>{c.phone}</td>
-                  <td style={{ padding: '11px 14px', color: '#555' }}>{c.city || '—'}</td>
+                <tr key={c.phone} style={{ borderBottom: '1px solid var(--bd-f8f9fa, #F8F9FA)' }}>
+                  <td style={{ padding: '11px 14px', fontWeight: 600, color: 'var(--tx-212529, #212529)' }}>{c.name}</td>
+                  <td style={{ padding: '11px 14px', color: 'var(--tx-4a5568, #4a5568)' }}>{c.phone}</td>
+                  <td style={{ padding: '11px 14px', color: 'var(--tx-555, #555)' }}>{c.city || '—'}</td>
                   <td style={{ padding: '11px 14px', fontWeight: 600 }}>{c.orderCount}</td>
                   <td style={{ padding: '11px 14px', fontWeight: 600, color: '#28A745' }}>{fmt(c.totalSpent)}</td>
-                  <td style={{ padding: '11px 14px', color: '#9aa5b1', whiteSpace: 'nowrap' }}>
+                  <td style={{ padding: '11px 14px', color: 'var(--tx-9aa5b1, #9aa5b1)', whiteSpace: 'nowrap' }}>
                     {new Date(c.lastOrder).toLocaleDateString('en-BD', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </td>
                   <td style={{ padding: '11px 14px' }}>
                     <button onClick={() => deleteCustomer(c.phone, c.name)}
-                      style={{ padding: '4px 12px', background: '#fce4e4', color: '#DC3545', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+                      style={{ padding: '4px 12px', background: 'var(--bg-fce4e4, #fce4e4)', color: '#DC3545', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
                       Delete
                     </button>
                   </td>
                 </tr>
               ))}
               {visible.length === 0 && (
-                <tr><td colSpan={7} style={{ padding: 60, textAlign: 'center', color: '#9aa5b1' }}>No customers yet</td></tr>
+                <tr><td colSpan={7} style={{ padding: 60, textAlign: 'center', color: 'var(--tx-9aa5b1, #9aa5b1)' }}>No customers yet</td></tr>
               )}
             </tbody>
           </table>

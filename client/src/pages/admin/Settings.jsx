@@ -65,10 +65,10 @@ export default function AdminSettings() {
 
   const f = (key, label, type = 'text', placeholder = '') => (
     <div style={{ marginBottom: 16 }}>
-      <label style={{ display: 'block', fontSize: 12, color: '#7f8c9a', marginBottom: 4 }}>{label}</label>
+      <label style={{ display: 'block', fontSize: 12, color: 'var(--tx-7f8c9a, #7f8c9a)', marginBottom: 4 }}>{label}</label>
       <input type={type} value={s?.[key] || ''} onChange={e => setS(prev => ({ ...prev, [key]: e.target.value }))}
         placeholder={placeholder}
-        style={{ width: '100%', padding: '9px 12px', border: '1px solid #e0e0e0', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} />
+        style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} />
     </div>
   );
 
@@ -95,17 +95,17 @@ export default function AdminSettings() {
     { id: 'password', Icon: Lock,        label: 'Password' },
   ];
 
-  if (loading) return <AdminLayout title="Settings"><div style={{ padding: 60, textAlign: 'center', color: '#9aa5b1' }}>Loading…</div></AdminLayout>;
+  if (loading) return <AdminLayout title="Settings"><div style={{ padding: 60, textAlign: 'center', color: 'var(--tx-9aa5b1, #9aa5b1)' }}>Loading…</div></AdminLayout>;
 
   return (
     <AdminLayout title="Settings">
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 6, marginBottom: 20, background: '#fff', padding: 6, borderRadius: 10, width: 'fit-content', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 20, background: 'var(--bg-fff, #fff)', padding: 6, borderRadius: 10, width: 'fit-content', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
         {TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)} style={{
             padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600,
             background: tab === t.id ? '#1E88E5' : 'transparent',
-            color:      tab === t.id ? '#fff'    : '#555',
+            color:      tab === t.id ? '#fff'    : 'var(--tx-555, #555)',
             display: 'flex', alignItems: 'center', gap: 6,
           }}>
             <t.Icon size={14} /> {t.label}
@@ -114,16 +114,16 @@ export default function AdminSettings() {
       </div>
 
       <div style={{ maxWidth: 560 }}>
-        <div style={{ background: '#fff', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+        <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
 
           {tab === 'brand' && <>
             <h3 style={{ margin: '0 0 6px', fontSize: 15, fontWeight: 700 }}>Brand & Logo</h3>
-            <p style={{ margin: '0 0 20px', fontSize: 13, color: '#9aa5b1' }}>Controls the logo shown in the store header.</p>
+            <p style={{ margin: '0 0 20px', fontSize: 13, color: 'var(--tx-9aa5b1, #9aa5b1)' }}>Controls the logo shown in the store header.</p>
 
             {/* Live preview */}
-            <div style={{ marginBottom: 22, padding: '14px 18px', background: '#F8F9FA', borderRadius: 10, border: '1px solid #e8ecf0' }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#9aa5b1', marginBottom: 10, textTransform: 'uppercase', letterSpacing: .5 }}>Live Preview</div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: '#fff', padding: '10px 16px', borderRadius: 10, boxShadow: '0 2px 8px rgba(0,0,0,.08)' }}>
+            <div style={{ marginBottom: 22, padding: '14px 18px', background: 'var(--bg-f8f9fa, #F8F9FA)', borderRadius: 10, border: '1px solid var(--bd-e8ecf0, #e8ecf0)' }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--tx-9aa5b1, #9aa5b1)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: .5 }}>Live Preview</div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'var(--bg-fff, #fff)', padding: '10px 16px', borderRadius: 10, boxShadow: '0 2px 8px rgba(0,0,0,.08)' }}>
                 {/* Logo box */}
                 <div style={{ width: 44, height: 44, background: s?.logo_bg_color || '#1E88E5', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
                   {s?.logo_url
@@ -131,15 +131,15 @@ export default function AdminSettings() {
                     : <Zap size={22} color="#fff" fill="#fff" />}
                 </div>
                 <div>
-                  <div style={{ fontWeight: 800, fontSize: 15, color: '#212529', lineHeight: 1.1 }}>{s?.store_name_bn || 'লতা ইলেকট্রিক'}</div>
-                  <div style={{ fontSize: 11, color: '#9aa5b1' }}>{s?.store_tagline || 'Lata Electric'}</div>
+                  <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--tx-212529, #212529)', lineHeight: 1.1 }}>{s?.store_name_bn || 'লতা ইলেকট্রিক'}</div>
+                  <div style={{ fontSize: 11, color: 'var(--tx-9aa5b1, #9aa5b1)' }}>{s?.store_tagline || 'Lata Electric'}</div>
                 </div>
               </div>
             </div>
 
             {/* Logo upload */}
             <div style={{ marginBottom: 18 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#555', marginBottom: 8 }}>LOGO IMAGE</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--tx-555, #555)', marginBottom: 8 }}>LOGO IMAGE</label>
 
               {s?.logo_url && (
                 <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -157,42 +157,42 @@ export default function AdminSettings() {
               )}
 
               {/* File upload */}
-              <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '2px dashed #e0e0e0', borderRadius: 10, padding: '20px', cursor: 'pointer', background: '#fafafa', transition: 'border-color .2s' }}
+              <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '2px dashed var(--bd-e0e0e0, #e0e0e0)', borderRadius: 10, padding: '20px', cursor: 'pointer', background: 'var(--bg-fafafa, #fafafa)', transition: 'border-color .2s' }}
                 onMouseEnter={e => e.currentTarget.style.borderColor='#1E88E5'}
-                onMouseLeave={e => e.currentTarget.style.borderColor='#e0e0e0'}>
+                onMouseLeave={e => e.currentTarget.style.borderColor='var(--bd-e0e0e0, #e0e0e0)'}>
                 <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => uploadLogo(e.target.files[0])} />
                 {logoUploading
-                  ? <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#9aa5b1', fontSize: 13 }}><span>Uploading…</span></div>
+                  ? <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--tx-9aa5b1, #9aa5b1)', fontSize: 13 }}><span>Uploading…</span></div>
                   : <>
                     <FolderOpen size={28} color="#9aa5b1" style={{ marginBottom: 6 }} />
-                    <span style={{ fontSize: 13, color: '#555', fontWeight: 600 }}>Click to upload logo</span>
-                    <span style={{ fontSize: 11, color: '#aaa', marginTop: 3 }}>PNG, JPG, SVG — max 2MB. Transparent PNG works best.</span>
+                    <span style={{ fontSize: 13, color: 'var(--tx-555, #555)', fontWeight: 600 }}>Click to upload logo</span>
+                    <span style={{ fontSize: 11, color: 'var(--tx-aaa, #aaa)', marginTop: 3 }}>PNG, JPG, SVG — max 2MB. Transparent PNG works best.</span>
                   </>}
               </label>
 
               {/* Or URL input */}
               <div style={{ marginTop: 10 }}>
-                <div style={{ fontSize: 11, color: '#aaa', textAlign: 'center', marginBottom: 6 }}>— or paste image URL —</div>
+                <div style={{ fontSize: 11, color: 'var(--tx-aaa, #aaa)', textAlign: 'center', marginBottom: 6 }}>— or paste image URL —</div>
                 <input value={s?.logo_url || ''} onChange={e => setS(p => ({ ...p, logo_url: e.target.value }))}
                   placeholder="https://example.com/logo.png"
-                  style={{ width: '100%', padding: '8px 12px', border: '1px solid #e0e0e0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }}
+                  style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }}
                   onFocus={e => e.target.style.borderColor='#1E88E5'}
-                  onBlur={e => e.target.style.borderColor='#e0e0e0'}
+                  onBlur={e => e.target.style.borderColor='var(--bd-e0e0e0, #e0e0e0)'}
                 />
               </div>
             </div>
 
             {/* Logo background color */}
             <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#555', marginBottom: 8 }}>LOGO BACKGROUND COLOR</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--tx-555, #555)', marginBottom: 8 }}>LOGO BACKGROUND COLOR</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <input type="color" value={s?.logo_bg_color || '#1E88E5'} onChange={e => setS(p => ({ ...p, logo_bg_color: e.target.value }))}
                   style={{ width: 44, height: 44, border: 'none', borderRadius: 8, cursor: 'pointer', padding: 2 }} />
                 <input value={s?.logo_bg_color || '#1E88E5'} onChange={e => setS(p => ({ ...p, logo_bg_color: e.target.value }))}
                   placeholder="#1E88E5"
-                  style={{ flex: 1, padding: '9px 12px', border: '1px solid #e0e0e0', borderRadius: 8, fontSize: 14, outline: 'none' }} />
+                  style={{ flex: 1, padding: '9px 12px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, fontSize: 14, outline: 'none' }} />
                 <button onClick={() => setS(p => ({ ...p, logo_bg_color: '#1E88E5' }))}
-                  style={{ padding: '8px 12px', background: '#F8F9FA', border: '1px solid #e0e0e0', borderRadius: 8, fontSize: 12, cursor: 'pointer', color: '#555' }}>
+                  style={{ padding: '8px 12px', background: 'var(--bg-f8f9fa, #F8F9FA)', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, fontSize: 12, cursor: 'pointer', color: 'var(--tx-555, #555)' }}>
                   Reset
                 </button>
               </div>
@@ -200,22 +200,22 @@ export default function AdminSettings() {
 
             {/* Store name */}
             <div style={{ marginBottom: 14 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#555', marginBottom: 6 }}>STORE NAME (BENGALI)</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--tx-555, #555)', marginBottom: 6 }}>STORE NAME (BENGALI)</label>
               <input value={s?.store_name_bn || ''} onChange={e => setS(p => ({ ...p, store_name_bn: e.target.value }))}
                 placeholder="লতা ইলেকট্রিক"
-                style={{ width: '100%', padding: '9px 12px', border: '1px solid #e0e0e0', borderRadius: 8, fontSize: 15, boxSizing: 'border-box', outline: 'none' }}
+                style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, fontSize: 15, boxSizing: 'border-box', outline: 'none' }}
                 onFocus={e => e.target.style.borderColor='#1E88E5'}
-                onBlur={e => e.target.style.borderColor='#e0e0e0'}
+                onBlur={e => e.target.style.borderColor='var(--bd-e0e0e0, #e0e0e0)'}
               />
             </div>
 
             <div style={{ marginBottom: 14 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#555', marginBottom: 6 }}>STORE TAGLINE (ENGLISH)</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--tx-555, #555)', marginBottom: 6 }}>STORE TAGLINE (ENGLISH)</label>
               <input value={s?.store_tagline || ''} onChange={e => setS(p => ({ ...p, store_tagline: e.target.value }))}
                 placeholder="Lata Electric"
-                style={{ width: '100%', padding: '9px 12px', border: '1px solid #e0e0e0', borderRadius: 8, fontSize: 14, boxSizing: 'border-box', outline: 'none' }}
+                style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, fontSize: 14, boxSizing: 'border-box', outline: 'none' }}
                 onFocus={e => e.target.style.borderColor='#1E88E5'}
-                onBlur={e => e.target.style.borderColor='#e0e0e0'}
+                onBlur={e => e.target.style.borderColor='var(--bd-e0e0e0, #e0e0e0)'}
               />
             </div>
           </>}
@@ -226,9 +226,9 @@ export default function AdminSettings() {
             {f('phone', 'Phone Number', 'tel', '01700-000000')}
             {f('email', 'Email', 'email', 'info@lataelectric.com')}
             <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: 12, color: '#7f8c9a', marginBottom: 4 }}>Address</label>
+              <label style={{ display: 'block', fontSize: 12, color: 'var(--tx-7f8c9a, #7f8c9a)', marginBottom: 4 }}>Address</label>
               <textarea rows={2} value={s.address || ''} onChange={e => setS(p => ({ ...p, address: e.target.value }))}
-                style={{ width: '100%', padding: '9px 12px', border: '1px solid #e0e0e0', borderRadius: 8, fontSize: 14, resize: 'vertical', boxSizing: 'border-box' }} />
+                style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, fontSize: 14, resize: 'vertical', boxSizing: 'border-box' }} />
             </div>
             {f('hours', 'Business Hours', 'text', 'Sat–Thu: 9am – 8pm')}
           </>}
@@ -242,41 +242,41 @@ export default function AdminSettings() {
 
           {tab === 'location' && <>
             <h3 style={{ margin: '0 0 6px', fontSize: 15, fontWeight: 700 }}>Shop Location</h3>
-            <p style={{ margin: '0 0 20px', fontSize: 13, color: '#9aa5b1' }}>Shown on the homepage so customers can find your shop.</p>
+            <p style={{ margin: '0 0 20px', fontSize: 13, color: 'var(--tx-9aa5b1, #9aa5b1)' }}>Shown on the homepage so customers can find your shop.</p>
 
             <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#555', marginBottom: 6 }}>GOOGLE MAPS LINK</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--tx-555, #555)', marginBottom: 6 }}>GOOGLE MAPS LINK</label>
               <input value={s?.map_url || ''} onChange={e => setS(p => ({ ...p, map_url: e.target.value }))}
                 placeholder="https://maps.app.goo.gl/... or https://www.google.com/maps/place/..."
-                style={{ width: '100%', padding: '9px 12px', border: '1px solid #e0e0e0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }}
+                style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }}
                 onFocus={e => e.target.style.borderColor='#1E88E5'}
-                onBlur={e => e.target.style.borderColor='#e0e0e0'}
+                onBlur={e => e.target.style.borderColor='var(--bd-e0e0e0, #e0e0e0)'}
               />
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#555', marginBottom: 6 }}>GOOGLE MAPS EMBED URL (optional — for live map preview)</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--tx-555, #555)', marginBottom: 6 }}>GOOGLE MAPS EMBED URL (optional — for live map preview)</label>
               <input value={s?.map_embed_src || ''} onChange={e => setS(p => ({ ...p, map_embed_src: e.target.value }))}
                 placeholder="https://www.google.com/maps/embed?pb=..."
-                style={{ width: '100%', padding: '9px 12px', border: '1px solid #e0e0e0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }}
+                style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }}
                 onFocus={e => e.target.style.borderColor='#1E88E5'}
-                onBlur={e => e.target.style.borderColor='#e0e0e0'}
+                onBlur={e => e.target.style.borderColor='var(--bd-e0e0e0, #e0e0e0)'}
               />
             </div>
 
             {s?.map_embed_src && (
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#555', marginBottom: 8 }}>MAP PREVIEW</div>
-                <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #e0e0e0', height: 200 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--tx-555, #555)', marginBottom: 8 }}>MAP PREVIEW</div>
+                <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', height: 200 }}>
                   <iframe src={s.map_embed_src} width="100%" height="200" style={{ border: 0, display: 'block' }} allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
                 </div>
               </div>
             )}
 
             {!s?.map_url && !s?.map_embed_src && (
-              <div style={{ padding: '16px', background: '#fff3cd', borderRadius: 10, border: '1px solid #ffc107', marginBottom: 16 }}>
-                <div style={{ fontSize: 13, color: '#856404', fontWeight: 600, marginBottom: 4 }}>How to get the links</div>
-                <ol style={{ fontSize: 12, color: '#856404', margin: 0, paddingLeft: 16, lineHeight: 1.8 }}>
+              <div style={{ padding: '16px', background: 'var(--bg-fff3cd, #fff3cd)', borderRadius: 10, border: '1px solid #ffc107', marginBottom: 16 }}>
+                <div style={{ fontSize: 13, color: 'var(--tx-856404, #856404)', fontWeight: 600, marginBottom: 4 }}>How to get the links</div>
+                <ol style={{ fontSize: 12, color: 'var(--tx-856404, #856404)', margin: 0, paddingLeft: 16, lineHeight: 1.8 }}>
                   <li>Open <strong>Google Maps</strong> on your phone or computer</li>
                   <li>Search for your shop name or address</li>
                   <li>Tap <strong>Share</strong> → copy the short link for "Google Maps Link"</li>
@@ -295,22 +295,22 @@ export default function AdminSettings() {
 
           {tab === 'password' && <>
             <h3 style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 700 }}>Change Password</h3>
-            <div style={{ fontSize: 13, color: '#7f8c9a', marginBottom: 20 }}>Logged in as: {admin?.email}</div>
+            <div style={{ fontSize: 13, color: 'var(--tx-7f8c9a, #7f8c9a)', marginBottom: 20 }}>Logged in as: {admin?.email}</div>
             {[
               { key: 'currentPassword', label: 'Current Password' },
               { key: 'newPassword',     label: 'New Password (min 8 chars)' },
               { key: 'confirm',         label: 'Confirm New Password' },
             ].map(({ key, label }) => (
               <div key={key} style={{ marginBottom: 14 }}>
-                <label style={{ display: 'block', fontSize: 12, color: '#7f8c9a', marginBottom: 4 }}>{label}</label>
+                <label style={{ display: 'block', fontSize: 12, color: 'var(--tx-7f8c9a, #7f8c9a)', marginBottom: 4 }}>{label}</label>
                 <input type="password" value={pwForm[key]} onChange={e => setPwForm(p => ({ ...p, [key]: e.target.value }))}
-                  style={{ width: '100%', padding: '9px 12px', border: '1px solid #e0e0e0', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} />
               </div>
             ))}
             <button onClick={changePw} disabled={pwSaving} style={{ padding: '9px 24px', background: '#1E88E5', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>
               {pwSaving ? 'Changing…' : 'Change Password'}
             </button>
-            <p style={{ fontSize: 12, color: '#9aa5b1', marginTop: 8 }}>You will be logged out after changing the password.</p>
+            <p style={{ fontSize: 12, color: 'var(--tx-9aa5b1, #9aa5b1)', marginTop: 8 }}>You will be logged out after changing the password.</p>
           </>}
 
           {tab !== 'password' && (

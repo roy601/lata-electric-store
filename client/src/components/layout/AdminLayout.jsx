@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import toast from 'react-hot-toast';
 import { useSeo } from '../../lib/seo';
+import ThemeToggle from '../common/ThemeToggle';
 
 const NAV = [
   { to: '/admin/dashboard',    Icon: LayoutDashboard, label: 'Dashboard' },
@@ -50,7 +51,7 @@ const preloadAdminPages = () => Promise.allSettled([
 
 const ContentSpinner = () => (
   <div style={{ padding: '80px 0', display: 'flex', justifyContent: 'center' }}>
-    <div style={{ width: 30, height: 30, border: '3px solid #E2E8F0', borderTop: '3px solid #1E88E5', borderRadius: '50%', animation: 'spin .8s linear infinite' }} />
+    <div style={{ width: 30, height: 30, border: '3px solid var(--bd-e2e8f0, #E2E8F0)', borderTop: '3px solid #1E88E5', borderRadius: '50%', animation: 'spin .8s linear infinite' }} />
   </div>
 );
 
@@ -77,7 +78,7 @@ export function AdminShell() {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#F8F9FA', fontFamily: "'Hind Siliguri', 'Segoe UI', sans-serif" }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-f8f9fa, #F8F9FA)', fontFamily: "'Hind Siliguri', 'Segoe UI', sans-serif" }}>
 
       {isMobile && sidebarOpen && (
         <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 99 }} />
@@ -100,7 +101,7 @@ export function AdminShell() {
             </div>
             <div>
               <div style={{ color: '#fff', fontWeight: 700, fontSize: 14, lineHeight: 1.2 }}>লতা ইলেকট্রিক</div>
-              <div style={{ color: '#7f8c9a', fontSize: 11 }}>Admin Panel</div>
+              <div style={{ color: 'var(--tx-7f8c9a, #7f8c9a)', fontSize: 11 }}>Admin Panel</div>
             </div>
           </div>
         </div>
@@ -112,7 +113,7 @@ export function AdminShell() {
               onClick={() => isMobile && setSidebarOpen(false)}
               style={({ isActive }) => ({
                 display: 'flex', alignItems: 'center', gap: 10, padding: '10px 20px',
-                color: isActive ? '#fff' : '#9aa5b1',
+                color: isActive ? '#fff' : 'var(--tx-9aa5b1, #9aa5b1)',
                 background: isActive ? '#1E88E5' : 'transparent',
                 textDecoration: 'none', fontSize: 14,
                 fontWeight: isActive ? 600 : 400,
@@ -127,7 +128,7 @@ export function AdminShell() {
 
         {/* Admin info */}
         <div style={{ padding: '16px 20px', borderTop: '1px solid #343A40' }}>
-          <div style={{ color: '#9aa5b1', fontSize: 12, marginBottom: 4 }}>Logged in as</div>
+          <div style={{ color: 'var(--tx-9aa5b1, #9aa5b1)', fontSize: 12, marginBottom: 4 }}>Logged in as</div>
           <div style={{ color: '#fff', fontSize: 13, fontWeight: 600, marginBottom: 10 }}>{admin?.name || 'Admin'}</div>
           <button onClick={handleLogout}
             style={{ width: '100%', padding: '8px', background: 'transparent', border: '1px solid #1E88E5', color: '#1E88E5', borderRadius: 6, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
@@ -138,23 +139,24 @@ export function AdminShell() {
 
       {/* Main area */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        <header style={{ background: '#fff', padding: isMobile ? '0 14px' : '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e8ecf0', position: 'sticky', top: 0, zIndex: 10 }}>
+        <header style={{ background: 'var(--bg-fff, #fff)', padding: isMobile ? '0 14px' : '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--bd-e8ecf0, #e8ecf0)', position: 'sticky', top: 0, zIndex: 10 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {isMobile && (
               <button onClick={() => setSidebarOpen(v => !v)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#333', padding: 4, flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--tx-333, #333)', padding: 4, flexShrink: 0, display: 'flex', alignItems: 'center' }}>
                 <List size={24} />
               </button>
             )}
-            <h1 style={{ margin: 0, fontSize: isMobile ? 15 : 18, fontWeight: 700, color: '#212529' }}>{title}</h1>
+            <h1 style={{ margin: 0, fontSize: isMobile ? 15 : 18, fontWeight: 700, color: 'var(--tx-212529, #212529)' }}>{title}</h1>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <ThemeToggle />
             <div style={{ width: 34, height: 34, background: '#1E88E5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 14 }}>
               {admin?.name?.[0]?.toUpperCase() || 'A'}
             </div>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#212529' }}>{admin?.name}</div>
-              <div style={{ fontSize: 11, color: '#7f8c9a', textTransform: 'capitalize' }}>{admin?.role?.replace('_', ' ')}</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--tx-212529, #212529)' }}>{admin?.name}</div>
+              <div style={{ fontSize: 11, color: 'var(--tx-7f8c9a, #7f8c9a)', textTransform: 'capitalize' }}>{admin?.role?.replace('_', ' ')}</div>
             </div>
           </div>
         </header>

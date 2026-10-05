@@ -453,13 +453,13 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
     if (tab === 'history') loadHistory();
   };
 
-  const card = { background: '#fff', border: '1px solid #e8ecf1', borderRadius: 12, padding: isMobile ? 14 : 18, marginBottom: 12 };
+  const card = { background: 'var(--bg-fff, #fff)', border: '1px solid var(--bd-e8ecf1, #e8ecf1)', borderRadius: 12, padding: isMobile ? 14 : 18, marginBottom: 12 };
   const stepNo = (n) => <span style={{ width: 24, height: 24, borderRadius: '50%', background: '#1E88E5', color: '#fff', fontSize: 12, fontWeight: 800, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{n}</span>;
-  const btn = (primary) => ({ padding: '9px 14px', background: primary ? '#1E88E5' : '#F1F3F5', color: primary ? '#fff' : '#374151', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 });
+  const btn = (primary) => ({ padding: '9px 14px', background: primary ? '#1E88E5' : 'var(--bg-f1f3f5, #F1F3F5)', color: primary ? '#fff' : 'var(--tx-374151, #374151)', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 });
   const chip = (bg, fg, text) => <span style={{ background: bg, color: fg, padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700 }}>{text}</span>;
   const tabBtn = (key, label, Icon) => (
     <button onClick={() => setTab(key)}
-      style={{ padding: '9px 14px', border: 'none', borderBottom: `2px solid ${tab === key ? '#1E88E5' : 'transparent'}`, background: 'none', color: tab === key ? '#1565C0' : '#6B7280', fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+      style={{ padding: '9px 14px', border: 'none', borderBottom: `2px solid ${tab === key ? '#1E88E5' : 'transparent'}`, background: 'none', color: tab === key ? 'var(--tx-1565c0, #1565C0)' : 'var(--tx-6b7280, #6B7280)', fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
       <Icon size={15} /> {label}
     </button>
   );
@@ -468,18 +468,18 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 110, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: isMobile ? 0 : '28px 16px', overflowY: 'auto' }}>
       <style>{'@keyframes spin { to { transform: rotate(360deg); } }'}</style>
-      <div style={{ background: '#F6F8FA', borderRadius: isMobile ? 0 : 14, width: '100%', maxWidth: 860, minHeight: isMobile ? '100%' : undefined }}>
+      <div style={{ background: 'var(--bg-f6f8fa, #F6F8FA)', borderRadius: isMobile ? 0 : 14, width: '100%', maxWidth: 860, minHeight: isMobile ? '100%' : undefined }}>
 
         {/* Header */}
-        <div style={{ background: '#fff', borderRadius: isMobile ? 0 : '14px 14px 0 0', padding: isMobile ? '14px 16px 0' : '18px 22px 0', borderBottom: '1px solid #eef1f4' }}>
+        <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: isMobile ? 0 : '14px 14px 0 0', padding: isMobile ? '14px 16px 0' : '18px 22px 0', borderBottom: '1px solid var(--bd-eef1f4, #eef1f4)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <FileSpreadsheet size={22} color="#1D6F42" />
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 800, fontSize: 17 }}>Import products from Excel</div>
-              <div style={{ fontSize: 12, color: '#7f8c9a' }}>Add many products, or change prices and stock of many products, in one go.</div>
+              <div style={{ fontSize: 12, color: 'var(--tx-7f8c9a, #7f8c9a)' }}>Add many products, or change prices and stock of many products, in one go.</div>
             </div>
             <button onClick={onClose} disabled={busy} aria-label="Close" title={jobRunning ? 'You can close — the import continues on the server' : 'Close'}
-              style={{ background: '#F3F4F6', border: 'none', borderRadius: 8, width: 34, height: 34, cursor: busy ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={18} /></button>
+              style={{ background: 'var(--bg-f3f4f6, #F3F4F6)', border: 'none', borderRadius: 8, width: 34, height: 34, cursor: busy ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={18} /></button>
           </div>
           <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
             {tabBtn('import', 'Import', Upload)}
@@ -492,17 +492,17 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
         {tab === 'history' ? (
           <div style={card}>
             <div style={{ fontWeight: 800, marginBottom: 4 }}>Recent imports</div>
-            <div style={{ fontSize: 12, color: '#7f8c9a', marginBottom: 12 }}>Undo removes the products an import added and puts back the old values of products it changed.</div>
-            {history === null ? <div style={{ color: '#9aa5b1', fontSize: 13 }}>Loading…</div>
-              : history.length === 0 ? <div style={{ color: '#9aa5b1', fontSize: 13 }}>No imports yet.</div>
+            <div style={{ fontSize: 12, color: 'var(--tx-7f8c9a, #7f8c9a)', marginBottom: 12 }}>Undo removes the products an import added and puts back the old values of products it changed.</div>
+            {history === null ? <div style={{ color: 'var(--tx-9aa5b1, #9aa5b1)', fontSize: 13 }}>Loading…</div>
+              : history.length === 0 ? <div style={{ color: 'var(--tx-9aa5b1, #9aa5b1)', fontSize: 13 }}>No imports yet.</div>
               : history.map(h => {
                 const st = STATUS_STYLE[h.status] || STATUS_STYLE.done;
                 const canUndo = h.status !== 'running' && h.status !== 'undone' && (h.added || h.updated);
                 return (
-                  <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderTop: '1px solid #f0f2f5', flexWrap: 'wrap' }}>
+                  <div key={h.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderTop: '1px solid var(--bd-f0f2f5, #f0f2f5)', flexWrap: 'wrap' }}>
                     <div style={{ flex: 1, minWidth: 200 }}>
                       <div style={{ fontWeight: 600, fontSize: 13 }}>#{h.id} · {h.file_name || 'Excel import'}</div>
-                      <div style={{ fontSize: 12, color: '#7f8c9a' }}>
+                      <div style={{ fontSize: 12, color: 'var(--tx-7f8c9a, #7f8c9a)' }}>
                         {when(h.created_at)} · {h.added} added · {h.updated} updated{h.failed ? ` · ${h.failed} failed` : ''}
                         {h.status === 'running' && ` · ${h.processed} of ${h.total} done`}
                         {h.status === 'undone' && h.undone_at && ` · undone ${when(h.undone_at)}`}
@@ -511,7 +511,7 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
                     {chip(st.bg, st.fg, st.label)}
                     {canUndo ? (
                       <button onClick={() => undo(h)} disabled={undoing === h.id}
-                        style={{ ...btn(false), padding: '6px 10px', fontSize: 12, color: '#B71C1C' }}>
+                        style={{ ...btn(false), padding: '6px 10px', fontSize: 12, color: 'var(--tx-b71c1c, #B71C1C)' }}>
                         <Undo2 size={13} /> {undoing === h.id ? 'Undoing…' : 'Undo'}
                       </button>
                     ) : null}
@@ -532,7 +532,7 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
                 <Download size={15} /> {downloading === 'products' ? 'Preparing…' : 'Download my products'}
               </button>
             </div>
-            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: '#4B5563', lineHeight: 1.75 }}>
+            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: 'var(--tx-4b5563, #4B5563)', lineHeight: 1.75 }}>
               <li><strong>New products:</strong> use the empty template. One product per row in the <em>Products</em> sheet. <strong>Name</strong> and <strong>Price</strong> are required.</li>
               <li><strong>Change prices / stock:</strong> download your products, edit the cells, keep the <em>ID</em> column as it is, then import. Empty cells keep the current value.</li>
               <li><strong>One row per product</strong> — as many different products as you like in one file.</li>
@@ -546,7 +546,7 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
 
           {/* Step 2 — photos */}
           <div style={card}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>{stepNo(2)}<span style={{ fontWeight: 800 }}>Choose photos</span><span style={{ fontSize: 12, color: '#9aa5b1' }}>optional — only if the sheet has photo file names</span></div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>{stepNo(2)}<span style={{ fontWeight: 800 }}>Choose photos</span><span style={{ fontSize: 12, color: 'var(--tx-9aa5b1, #9aa5b1)' }}>optional — only if the sheet has photo file names</span></div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
               <label style={{ ...btn(false), cursor: busy ? 'not-allowed' : 'pointer' }}>
                 <Images size={15} /> {photos.length ? 'Add more photos' : 'Choose photos'}
@@ -554,12 +554,12 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
                   onChange={e => { const fs = Array.from(e.target.files); e.target.value = ''; setPhotos(p => [...p, ...fs.filter(f => !p.some(x => fileKey(x.name) === fileKey(f.name)))]); }} />
               </label>
               {photos.length > 0 && <>
-                <span style={{ fontSize: 13, color: '#374151' }}><strong>{photos.length}</strong> photo{photos.length !== 1 ? 's' : ''} chosen</span>
+                <span style={{ fontSize: 13, color: 'var(--tx-374151, #374151)' }}><strong>{photos.length}</strong> photo{photos.length !== 1 ? 's' : ''} chosen</span>
                 <button onClick={() => setPhotos([])} disabled={busy} style={{ background: 'none', border: 'none', color: '#DC3545', fontSize: 12, cursor: 'pointer', fontWeight: 600 }}>Clear</button>
               </>}
             </div>
             {photos.length > 0 && (
-              <div style={{ fontSize: 11, color: '#7f8c9a', marginTop: 8, lineHeight: 1.6 }}>
+              <div style={{ fontSize: 11, color: 'var(--tx-7f8c9a, #7f8c9a)', marginTop: 8, lineHeight: 1.6 }}>
                 {photos.slice(0, 12).map(f => f.name).join(', ')}{photos.length > 12 ? ` and ${photos.length - 12} more` : ''}
               </div>
             )}
@@ -572,10 +572,10 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
               <Upload size={15} /> {reading ? 'Reading…' : sheet ? 'Choose a different file' : 'Choose .xlsx file'}
               <input type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style={{ display: 'none' }} onChange={chooseSheet} disabled={busy || reading || jobRunning} />
             </label>
-            {sheet && <span style={{ marginLeft: 10, fontSize: 13, color: '#374151' }}>{sheet.fileName} — {sheet.rows.length} rows</span>}
-            {readErr && <div style={{ marginTop: 10, background: '#FDECEA', color: '#B71C1C', padding: '10px 12px', borderRadius: 8, fontSize: 13 }}>{readErr}</div>}
+            {sheet && <span style={{ marginLeft: 10, fontSize: 13, color: 'var(--tx-374151, #374151)' }}>{sheet.fileName} — {sheet.rows.length} rows</span>}
+            {readErr && <div style={{ marginTop: 10, background: 'var(--bg-fdecea, #FDECEA)', color: 'var(--tx-b71c1c, #B71C1C)', padding: '10px 12px', borderRadius: 8, fontSize: 13 }}>{readErr}</div>}
             {sheet?.ignoredColumns.length > 0 && (
-              <div style={{ marginTop: 10, fontSize: 12, color: '#856404', background: '#FFF8E1', padding: '8px 12px', borderRadius: 8 }}>
+              <div style={{ marginTop: 10, fontSize: 12, color: 'var(--tx-856404, #856404)', background: 'var(--bg-fff8e1, #FFF8E1)', padding: '8px 12px', borderRadius: 8 }}>
                 These columns were not recognised and are ignored: <strong>{sheet.ignoredColumns.join(', ')}</strong>. (Spec columns start with "Spec: ", option columns with "Option: ".)
               </div>
             )}
@@ -607,24 +607,24 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
                 </label>
               </div>
 
-              <div style={{ border: '1px solid #eef1f4', borderRadius: 8, maxHeight: 380, overflow: 'auto' }}>
+              <div style={{ border: '1px solid var(--bd-eef1f4, #eef1f4)', borderRadius: 8, maxHeight: 380, overflow: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
-                  <thead style={{ position: 'sticky', top: 0, background: '#F8F9FA', zIndex: 1 }}>
+                  <thead style={{ position: 'sticky', top: 0, background: 'var(--bg-f8f9fa, #F8F9FA)', zIndex: 1 }}>
                     <tr>{['Row', 'Product', !isMobile && 'Price', !isMobile && 'Stock', 'Result'].filter(Boolean).map(h => (
-                      <th key={h} style={{ textAlign: 'left', padding: '8px 10px', color: '#7f8c9a', fontWeight: 700, borderBottom: '1px solid #eef1f4' }}>{h}</th>
+                      <th key={h} style={{ textAlign: 'left', padding: '8px 10px', color: 'var(--tx-7f8c9a, #7f8c9a)', fontWeight: 700, borderBottom: '1px solid var(--bd-eef1f4, #eef1f4)' }}>{h}</th>
                     ))}</tr>
                   </thead>
                   <tbody>
                     {shown.slice(0, 500).map(r => {
                       const st = ACTION_STYLE[r.action];
                       return (
-                        <tr key={r.rowNumber} style={{ borderBottom: '1px solid #f4f6f8', verticalAlign: 'top', opacity: r.action === 'skip' ? .6 : 1 }}>
-                          <td style={{ padding: '7px 10px', color: '#9aa5b1' }}>{r.rowNumber}</td>
-                          <td style={{ padding: '7px 10px', fontWeight: 600, color: '#212529' }}>
+                        <tr key={r.rowNumber} style={{ borderBottom: '1px solid var(--bd-f4f6f8, #f4f6f8)', verticalAlign: 'top', opacity: r.action === 'skip' ? .6 : 1 }}>
+                          <td style={{ padding: '7px 10px', color: 'var(--tx-9aa5b1, #9aa5b1)' }}>{r.rowNumber}</td>
+                          <td style={{ padding: '7px 10px', fontWeight: 600, color: 'var(--tx-212529, #212529)' }}>
                             {r.name || '—'}
-                            {r.errors.map((e, i) => <div key={'e' + i} style={{ color: '#B71C1C', fontWeight: 500, fontSize: 12, display: 'flex', gap: 4, marginTop: 2 }}><XCircle size={13} style={{ flexShrink: 0, marginTop: 1 }} />{e}</div>)}
-                            {r.action !== 'skip' && r.warnings.map((w, i) => <div key={'w' + i} style={{ color: '#8a6d00', fontWeight: 500, fontSize: 12, display: 'flex', gap: 4, marginTop: 2 }}><AlertTriangle size={13} style={{ flexShrink: 0, marginTop: 1 }} />{w}</div>)}
-                            {r.action === 'skip' && <div style={{ color: '#6B7280', fontWeight: 400, fontSize: 12 }}>{r.warnings[0]}</div>}
+                            {r.errors.map((e, i) => <div key={'e' + i} style={{ color: 'var(--tx-b71c1c, #B71C1C)', fontWeight: 500, fontSize: 12, display: 'flex', gap: 4, marginTop: 2 }}><XCircle size={13} style={{ flexShrink: 0, marginTop: 1 }} />{e}</div>)}
+                            {r.action !== 'skip' && r.warnings.map((w, i) => <div key={'w' + i} style={{ color: 'var(--tx-8a6d00, #8a6d00)', fontWeight: 500, fontSize: 12, display: 'flex', gap: 4, marginTop: 2 }}><AlertTriangle size={13} style={{ flexShrink: 0, marginTop: 1 }} />{w}</div>)}
+                            {r.action === 'skip' && <div style={{ color: 'var(--tx-6b7280, #6B7280)', fontWeight: 400, fontSize: 12 }}>{r.warnings[0]}</div>}
                           </td>
                           {!isMobile && <td style={{ padding: '7px 10px' }}>{r.price != null ? `৳${r.price}` : '—'}</td>}
                           {!isMobile && <td style={{ padding: '7px 10px' }}>{r.stock ?? '—'}</td>}
@@ -632,14 +632,14 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
                         </tr>
                       );
                     })}
-                    {shown.length === 0 && <tr><td colSpan={5} style={{ padding: 30, textAlign: 'center', color: '#9aa5b1' }}>No problems found.</td></tr>}
+                    {shown.length === 0 && <tr><td colSpan={5} style={{ padding: 30, textAlign: 'center', color: 'var(--tx-9aa5b1, #9aa5b1)' }}>No problems found.</td></tr>}
                   </tbody>
                 </table>
-                {shown.length > 500 && <div style={{ padding: 10, fontSize: 12, color: '#7f8c9a', textAlign: 'center' }}>Showing the first 500 rows. All rows will be imported.</div>}
+                {shown.length > 500 && <div style={{ padding: 10, fontSize: 12, color: 'var(--tx-7f8c9a, #7f8c9a)', textAlign: 'center' }}>Showing the first 500 rows. All rows will be imported.</div>}
               </div>
 
               {count('error') > 0 && (
-                <div style={{ fontSize: 12, color: '#6B7280', marginTop: 10, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                <div style={{ fontSize: 12, color: 'var(--tx-6b7280, #6B7280)', marginTop: 10, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                   <span>Rows with errors are skipped. Import the rest now, then fix those rows and import them.</span>
                   <button onClick={downloadProblems} disabled={!!downloading} style={{ ...btn(false), padding: '6px 10px', fontSize: 12 }}>
                     <Download size={13} /> {downloading === 'problems' ? 'Preparing…' : `Download rows with problems (${count('error')})`}
@@ -652,7 +652,7 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
                   style={{ ...btn(true), padding: '11px 22px', fontSize: 14, opacity: busy || !toImport.length ? .6 : 1, cursor: busy ? 'wait' : toImport.length ? 'pointer' : 'not-allowed' }}>
                   {busy ? 'Working…' : `Import ${toImport.length} product${toImport.length !== 1 ? 's' : ''}`}
                 </button>
-                {progress && <span style={{ fontSize: 13, color: '#374151' }}>{progress}</span>}
+                {progress && <span style={{ fontSize: 13, color: 'var(--tx-374151, #374151)' }}>{progress}</span>}
               </div>
             </div>
           )}
@@ -666,21 +666,21 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
                 <span style={{ fontWeight: 800, fontSize: 16 }}>
                   {jobRunning ? 'Saving products…' : job.status === 'undone' ? 'Import undone' : job.status === 'done' ? 'Import finished' : 'Import stopped'}
                 </span>
-                <span style={{ fontSize: 12, color: '#9aa5b1' }}>#{job.id}</span>
+                <span style={{ fontSize: 12, color: 'var(--tx-9aa5b1, #9aa5b1)' }}>#{job.id}</span>
               </div>
-              <div style={{ height: 8, background: '#EEF2F6', borderRadius: 4, overflow: 'hidden', marginBottom: 10 }}>
+              <div style={{ height: 8, background: 'var(--bg-eef2f6, #EEF2F6)', borderRadius: 4, overflow: 'hidden', marginBottom: 10 }}>
                 <div style={{ height: '100%', width: `${job.total ? Math.round(job.processed / job.total * 100) : 0}%`, background: jobRunning ? '#1E88E5' : '#43A047', transition: 'width .4s' }} />
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10, alignItems: 'center' }}>
-                <span style={{ fontSize: 13, color: '#374151', marginRight: 4 }}>{job.processed} of {job.total} rows</span>
+                <span style={{ fontSize: 13, color: 'var(--tx-374151, #374151)', marginRight: 4 }}>{job.processed} of {job.total} rows</span>
                 {chip('#E8F5E9', '#1B5E20', `${job.added} added`)}
                 {chip('#E3F2FD', '#0D47A1', `${job.updated} updated`)}
                 {job.failed > 0 && chip('#FDECEA', '#B71C1C', `${job.failed} failed`)}
               </div>
-              {jobRunning && <div style={{ fontSize: 12, color: '#7f8c9a', marginBottom: 10 }}>This runs on the server — you can close this window and check progress later under History.</div>}
-              {job.status === 'interrupted' && <div style={{ fontSize: 13, color: '#856404', marginBottom: 10 }}>The server restarted during the import. Rows saved so far are kept — import the file again (already-added rows are skipped by name or SKU).</div>}
+              {jobRunning && <div style={{ fontSize: 12, color: 'var(--tx-7f8c9a, #7f8c9a)', marginBottom: 10 }}>This runs on the server — you can close this window and check progress later under History.</div>}
+              {job.status === 'interrupted' && <div style={{ fontSize: 13, color: 'var(--tx-856404, #856404)', marginBottom: 10 }}>The server restarted during the import. Rows saved so far are kept — import the file again (already-added rows are skipped by name or SKU).</div>}
               {job.errors?.length > 0 && (
-                <div style={{ fontSize: 13, background: '#FDECEA', borderRadius: 8, padding: '10px 12px', marginBottom: 10, maxHeight: 200, overflowY: 'auto' }}>
+                <div style={{ fontSize: 13, background: 'var(--bg-fdecea, #FDECEA)', borderRadius: 8, padding: '10px 12px', marginBottom: 10, maxHeight: 200, overflowY: 'auto' }}>
                   {job.errors.slice(0, 100).map((e, i) => <div key={i}>{e.row ? `Row ${e.row}` : ''}{e.name ? ` — ${e.name}` : ''}: {e.error}</div>)}
                 </div>
               )}
@@ -694,7 +694,7 @@ export default function ProductImport({ categories, onClose, onDone, onCategorie
                   )}
                   <button onClick={() => { setJob(null); setSheet(null); }} style={btn(false)}>Import another file</button>
                   {job.status !== 'undone' && (job.added > 0 || job.updated > 0) && (
-                    <button onClick={() => undo(job)} disabled={undoing === job.id} style={{ ...btn(false), color: '#B71C1C' }}>
+                    <button onClick={() => undo(job)} disabled={undoing === job.id} style={{ ...btn(false), color: 'var(--tx-b71c1c, #B71C1C)' }}>
                       <Undo2 size={14} /> {undoing === job.id ? 'Undoing…' : 'Undo this import'}
                     </button>
                   )}

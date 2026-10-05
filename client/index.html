@@ -20,7 +20,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    // Light / dark before the first paint (no white flash): the visitor's choice, else the device setting
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('lata-theme'); } catch (e) {}
+      if (t !== 'light' && t !== 'dark') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', t);
+      if (t === 'dark') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#161b22');
+    })();
+  </script>
   <style>
+    html[data-theme="dark"], html[data-theme="dark"] body { background: #0d1117; }
     #lata-intro {
       position: fixed; inset: 0; z-index: 99999;
       display: flex; align-items: center; justify-content: center;
@@ -50,12 +61,15 @@
     (function () {
       var intro = document.getElementById('lata-intro');
       var path = location.pathname;
-      var seen = false;
-      try { seen = sessionStorage.getItem('lata-intro-seen') === '1'; } catch (e) {}
+      // Shown on the first visit only: a cookie remembers it for 30 days,
+      // so returning visitors go straight to the shop.
+      var seen = /(?:^|;\s*)lata_intro=1/.test(document.cookie);
+      try { seen = seen || sessionStorage.getItem('lata-intro-seen') === '1'; } catch (e) {}
 
-      // Only on first entry per visit, never on the admin panel, never for search-engine robots
+      // Never on the admin panel, never for search-engine robots
       var bot = /bot|crawler|spider|facebookexternalhit|whatsapp|lighthouse|inspectiontool/i.test(navigator.userAgent);
       if (seen || bot || path.indexOf('/admin') === 0) { intro.remove(); return; }
+      document.cookie = 'lata_intro=1; max-age=' + 60 * 60 * 24 * 30 + '; path=/; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : '');
       try { sessionStorage.setItem('lata-intro-seen', '1'); } catch (e) {}
 
       var video = intro.querySelector('video');

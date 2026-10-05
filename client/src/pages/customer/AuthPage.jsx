@@ -26,15 +26,15 @@ const AH  = '#1565C0';   // hover (matches site nav hover)
 
 /* ─── Shared micro-styles ─── */
 const inputBase = {
-  width: '100%', padding: '12px 14px', border: '1.5px solid #E2E8F0',
-  borderRadius: 10, fontSize: 14, color: '#1A202C', outline: 'none',
-  background: '#FAFBFC', boxSizing: 'border-box', transition: 'border-color .2s, box-shadow .2s',
+  width: '100%', padding: '12px 14px', border: '1.5px solid var(--bd-e2e8f0, #E2E8F0)',
+  borderRadius: 10, fontSize: 14, color: 'var(--tx-1a202c, #1A202C)', outline: 'none',
+  background: 'var(--bg-fafbfc, #FAFBFC)', boxSizing: 'border-box', transition: 'border-color .2s, box-shadow .2s',
   fontFamily: 'inherit',
 };
 const focusIn  = e => { e.target.style.borderColor = A; e.target.style.boxShadow = '0 0 0 3px rgba(30,136,229,.12)'; };
-const focusOut = e => { e.target.style.borderColor = '#E2E8F0'; e.target.style.boxShadow = 'none'; };
+const focusOut = e => { e.target.style.borderColor = 'var(--bd-e2e8f0, #E2E8F0)'; e.target.style.boxShadow = 'none'; };
 
-const labelSt = { display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 };
+const labelSt = { display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--tx-374151, #374151)', marginBottom: 6 };
 const fieldSt = { marginBottom: 16 };
 const primaryBtn = {
   width: '100%', padding: '13px', background: A, color: '#fff', border: 'none',
@@ -150,7 +150,7 @@ export default function AuthPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(160deg,#EBF5FF 0%,#F8FAFF 55%,#EBF5FF 100%)',
+      background: 'linear-gradient(160deg,var(--bg-ebf5ff, #EBF5FF) 0%,var(--bg-f8faff, #F8FAFF) 55%,var(--bg-ebf5ff, #EBF5FF) 100%)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: '40px 16px',
       fontFamily: "'Hind Siliguri', sans-serif",
@@ -170,14 +170,14 @@ export default function AuthPage() {
             </div>
             <div style={{ textAlign: 'left' }}>
               <div style={{ fontSize: 18, fontWeight: 800, color: A, lineHeight: 1.15 }}>লতা ইলেকট্রিক</div>
-              <div style={{ fontSize: 11, color: '#8FA3BB', fontWeight: 600, letterSpacing: .8, textTransform: 'uppercase' }}>Lata Electric</div>
+              <div style={{ fontSize: 11, color: 'var(--tx-8fa3bb, #8FA3BB)', fontWeight: 600, letterSpacing: .8, textTransform: 'uppercase' }}>Lata Electric</div>
             </div>
           </Link>
         </div>
 
         {/* ── Card ── */}
         <div style={{
-          background: '#fff',
+          background: 'var(--bg-fff, #fff)',
           borderRadius: 20,
           borderTop: `3px solid ${A}`,
           boxShadow: '0 24px 56px rgba(30,136,229,.11), 0 4px 16px rgba(30,136,229,.07)',
@@ -185,7 +185,7 @@ export default function AuthPage() {
         }}>
 
           {/* Tab switcher */}
-          <div style={{ display: 'flex', borderBottom: '1px solid #EEF2F7' }}>
+          <div style={{ display: 'flex', borderBottom: '1px solid var(--bd-eef2f7, #EEF2F7)' }}>
             {[
               { key: 'signin', label: 'Sign In' },
               { key: 'signup', label: 'Create Account' },
@@ -193,7 +193,7 @@ export default function AuthPage() {
               <button key={t.key} onClick={() => switchTab(t.key)} style={{
                 flex: 1, padding: '17px 0', border: 'none', background: 'none',
                 fontSize: 14, fontWeight: tab === t.key ? 700 : 500,
-                color: tab === t.key ? A : '#9AA5B4', cursor: 'pointer',
+                color: tab === t.key ? A : 'var(--tx-9aa5b4, #9AA5B4)', cursor: 'pointer',
                 borderBottom: `2.5px solid ${tab === t.key ? A : 'transparent'}`,
                 marginBottom: -1, transition: 'all .2s', fontFamily: 'inherit',
               }}>
@@ -208,9 +208,9 @@ export default function AuthPage() {
             {error && (
               <div style={{
                 display: 'flex', alignItems: 'center', gap: 8,
-                background: '#FFF5F5', border: '1px solid #FECACA',
+                background: 'var(--bg-fff5f5, #FFF5F5)', border: '1px solid #FECACA',
                 borderRadius: 10, padding: '10px 14px',
-                marginBottom: 22, fontSize: 13, color: '#B91C1C',
+                marginBottom: 22, fontSize: 13, color: 'var(--tx-b91c1c, #B91C1C)',
               }}>
                 <AlertCircle size={15} style={{ flexShrink: 0 }} />
                 {error}
@@ -220,8 +220,8 @@ export default function AuthPage() {
             {/* ══════════════ SIGN IN ══════════════ */}
             {tab === 'signin' && view === 'main' && (
               <>
-                <h2 style={{ margin: '0 0 3px', fontSize: 22, fontWeight: 800, color: '#0F172A' }}>Welcome back</h2>
-                <p  style={{ margin: '0 0 24px', fontSize: 13, color: '#8FA3BB' }}>Sign in to your account to continue</p>
+                <h2 style={{ margin: '0 0 3px', fontSize: 22, fontWeight: 800, color: 'var(--tx-0f172a, #0F172A)' }}>Welcome back</h2>
+                <p  style={{ margin: '0 0 24px', fontSize: 13, color: 'var(--tx-8fa3bb, #8FA3BB)' }}>Sign in to your account to continue</p>
 
                 <SocialBlock onGoogle={handleGoogle} onFacebook={handleFacebook} />
 
@@ -255,7 +255,7 @@ export default function AuthPage() {
                       />
                       <button type="button" onClick={() => setSiShowPw(v => !v)} style={{
                         position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-                        background: 'none', border: 'none', cursor: 'pointer', color: '#9AA5B4',
+                        background: 'none', border: 'none', cursor: 'pointer', color: 'var(--tx-9aa5b4, #9AA5B4)',
                         padding: 2, display: 'flex', alignItems: 'center',
                       }}>
                         {siShowPw ? <EyeOff size={17} /> : <Eye size={17} />}
@@ -270,7 +270,7 @@ export default function AuthPage() {
                       onChange={e => setRememberMe(e.target.checked)}
                       style={{ width: 15, height: 15, accentColor: A, cursor: 'pointer' }}
                     />
-                    <label htmlFor="rememberMe" style={{ fontSize: 13, color: '#4A5568', cursor: 'pointer', fontWeight: 500 }}>
+                    <label htmlFor="rememberMe" style={{ fontSize: 13, color: 'var(--tx-4a5568, #4A5568)', cursor: 'pointer', fontWeight: 500 }}>
                       Remember me
                     </label>
                   </div>
@@ -286,7 +286,7 @@ export default function AuthPage() {
                 </form>
 
 
-                <p style={{ textAlign: 'center', marginTop: 24, fontSize: 13, color: '#8FA3BB' }}>
+                <p style={{ textAlign: 'center', marginTop: 24, fontSize: 13, color: 'var(--tx-8fa3bb, #8FA3BB)' }}>
                   Don't have an account?{' '}
                   <button onClick={() => switchTab('signup')} style={{ color: A, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 13, fontFamily: 'inherit', padding: 0 }}>
                     Create one
@@ -300,15 +300,15 @@ export default function AuthPage() {
               <>
                 <button
                   onClick={() => { setView('main'); setFpSent(false); setFpEmail(''); clear(); }}
-                  style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', color: '#8FA3BB', fontSize: 13, fontWeight: 600, fontFamily: 'inherit', marginBottom: 20, padding: 0 }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--tx-8fa3bb, #8FA3BB)', fontSize: 13, fontWeight: 600, fontFamily: 'inherit', marginBottom: 20, padding: 0 }}
                 >
                   <ArrowLeft size={15} /> Back to Sign In
                 </button>
 
                 {!fpSent ? (
                   <>
-                    <h2 style={{ margin: '0 0 3px', fontSize: 22, fontWeight: 800, color: '#0F172A' }}>Reset password</h2>
-                    <p  style={{ margin: '0 0 24px', fontSize: 13, color: '#8FA3BB' }}>We'll email you a secure link to reset your password.</p>
+                    <h2 style={{ margin: '0 0 3px', fontSize: 22, fontWeight: 800, color: 'var(--tx-0f172a, #0F172A)' }}>Reset password</h2>
+                    <p  style={{ margin: '0 0 24px', fontSize: 13, color: 'var(--tx-8fa3bb, #8FA3BB)' }}>We'll email you a secure link to reset your password.</p>
 
                     <form onSubmit={handleForgotPassword} noValidate>
                       <div style={fieldSt}>
@@ -331,13 +331,13 @@ export default function AuthPage() {
                   </>
                 ) : (
                   <div style={{ textAlign: 'center', padding: '12px 0 4px' }}>
-                    <div style={{ width: 60, height: 60, background: '#EEF5FF', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
+                    <div style={{ width: 60, height: 60, background: 'var(--bg-eef5ff, #EEF5FF)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
                       <CheckCircle2 size={30} color={A} />
                     </div>
-                    <h3 style={{ margin: '0 0 8px', fontSize: 18, fontWeight: 800, color: '#0F172A' }}>Check your inbox</h3>
-                    <p  style={{ margin: 0, fontSize: 13, color: '#8FA3BB', lineHeight: 1.7 }}>
+                    <h3 style={{ margin: '0 0 8px', fontSize: 18, fontWeight: 800, color: 'var(--tx-0f172a, #0F172A)' }}>Check your inbox</h3>
+                    <p  style={{ margin: 0, fontSize: 13, color: 'var(--tx-8fa3bb, #8FA3BB)', lineHeight: 1.7 }}>
                       We sent a reset link to<br />
-                      <strong style={{ color: '#374151' }}>{fpEmail}</strong>
+                      <strong style={{ color: 'var(--tx-374151, #374151)' }}>{fpEmail}</strong>
                     </p>
                     <button
                       onClick={() => { setView('main'); setFpSent(false); setFpEmail(''); clear(); }}
@@ -355,8 +355,8 @@ export default function AuthPage() {
               <>
                 {!signedUp ? (
                   <>
-                    <h2 style={{ margin: '0 0 3px', fontSize: 22, fontWeight: 800, color: '#0F172A' }}>Create your account</h2>
-                    <p  style={{ margin: '0 0 24px', fontSize: 13, color: '#8FA3BB' }}>Join Lata Electric — shop smarter today</p>
+                    <h2 style={{ margin: '0 0 3px', fontSize: 22, fontWeight: 800, color: 'var(--tx-0f172a, #0F172A)' }}>Create your account</h2>
+                    <p  style={{ margin: '0 0 24px', fontSize: 13, color: 'var(--tx-8fa3bb, #8FA3BB)' }}>Join Lata Electric — shop smarter today</p>
 
                     <SocialBlock onGoogle={handleGoogle} onFacebook={handleFacebook} />
 
@@ -403,7 +403,7 @@ export default function AuthPage() {
                           />
                           <button type="button" onClick={() => setSuShowPw(v => !v)} style={{
                             position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-                            background: 'none', border: 'none', cursor: 'pointer', color: '#9AA5B4',
+                            background: 'none', border: 'none', cursor: 'pointer', color: 'var(--tx-9aa5b4, #9AA5B4)',
                             padding: 2, display: 'flex', alignItems: 'center',
                           }}>
                             {suShowPw ? <EyeOff size={17} /> : <Eye size={17} />}
@@ -417,7 +417,7 @@ export default function AuthPage() {
                               {[1, 2, 3].map(i => (
                                 <div key={i} style={{
                                   flex: 1, height: 3, borderRadius: 99,
-                                  background: pw_strength >= i ? STRENGTH_COLORS[pw_strength] : '#E2E8F0',
+                                  background: pw_strength >= i ? STRENGTH_COLORS[pw_strength] : 'var(--bg-e2e8f0, #E2E8F0)',
                                   transition: 'background .25s',
                                 }} />
                               ))}
@@ -436,7 +436,7 @@ export default function AuthPage() {
                           onChange={e => setTerms(e.target.checked)}
                           style={{ width: 15, height: 15, accentColor: A, cursor: 'pointer', marginTop: 2, flexShrink: 0 }}
                         />
-                        <label htmlFor="terms" style={{ fontSize: 13, color: '#4A5568', cursor: 'pointer', lineHeight: 1.55 }}>
+                        <label htmlFor="terms" style={{ fontSize: 13, color: 'var(--tx-4a5568, #4A5568)', cursor: 'pointer', lineHeight: 1.55 }}>
                           I agree to the{' '}
                           <Link to="/terms"   style={{ color: A, fontWeight: 700, textDecoration: 'none' }}>Terms of Service</Link>
                           {' '}and{' '}
@@ -455,7 +455,7 @@ export default function AuthPage() {
                     </form>
 
 
-                    <p style={{ textAlign: 'center', marginTop: 22, fontSize: 13, color: '#8FA3BB' }}>
+                    <p style={{ textAlign: 'center', marginTop: 22, fontSize: 13, color: 'var(--tx-8fa3bb, #8FA3BB)' }}>
                       Already have an account?{' '}
                       <button onClick={() => switchTab('signin')} style={{ color: A, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 13, fontFamily: 'inherit', padding: 0 }}>
                         Sign in
@@ -474,14 +474,14 @@ export default function AuthPage() {
                     }}>
                       <CheckCircle2 size={32} color="#fff" />
                     </div>
-                    <h3 style={{ margin: '0 0 10px', fontSize: 20, fontWeight: 800, color: '#0F172A' }}>Almost there!</h3>
-                    <p  style={{ margin: '0 0 6px', fontSize: 13, color: '#8FA3BB', lineHeight: 1.7 }}>
+                    <h3 style={{ margin: '0 0 10px', fontSize: 20, fontWeight: 800, color: 'var(--tx-0f172a, #0F172A)' }}>Almost there!</h3>
+                    <p  style={{ margin: '0 0 6px', fontSize: 13, color: 'var(--tx-8fa3bb, #8FA3BB)', lineHeight: 1.7 }}>
                       We sent a confirmation email to
                     </p>
-                    <p  style={{ margin: '0 0 24px', fontSize: 14, fontWeight: 700, color: '#374151' }}>
+                    <p  style={{ margin: '0 0 24px', fontSize: 14, fontWeight: 700, color: 'var(--tx-374151, #374151)' }}>
                       {suEmail}
                     </p>
-                    <p  style={{ margin: '0 0 24px', fontSize: 13, color: '#8FA3BB', lineHeight: 1.7 }}>
+                    <p  style={{ margin: '0 0 24px', fontSize: 13, color: 'var(--tx-8fa3bb, #8FA3BB)', lineHeight: 1.7 }}>
                       Click the link in that email to activate your account. (Tip: next time, “Continue with Google” skips this step.)
                     </p>
                     <button
@@ -500,10 +500,10 @@ export default function AuthPage() {
         </div>
 
         {/* Footer */}
-        <p style={{ textAlign: 'center', marginTop: 22, fontSize: 12, color: '#A8B4C0', lineHeight: 1.8 }}>
+        <p style={{ textAlign: 'center', marginTop: 22, fontSize: 12, color: 'var(--tx-a8b4c0, #A8B4C0)', lineHeight: 1.8 }}>
           Your data is protected with industry-standard encryption.
           <br />
-          <Link to="/" style={{ color: '#8FA3BB', textDecoration: 'none', fontWeight: 600 }}>← Back to store</Link>
+          <Link to="/" style={{ color: 'var(--tx-8fa3bb, #8FA3BB)', textDecoration: 'none', fontWeight: 600 }}>← Back to store</Link>
         </p>
       </div>
     </div>
@@ -521,9 +521,9 @@ function SocialBlock({ onGoogle, onFacebook }) {
         onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
         style={{
           width: '100%', padding: '12px 14px', borderRadius: 10, cursor: 'pointer',
-          border: `1.5px solid ${hov ? '#4285F4' : '#DADCE0'}`, background: hov ? '#F8FAFF' : '#fff',
+          border: `1.5px solid ${hov ? '#4285F4' : 'var(--bd-dadce0, #DADCE0)'}`, background: hov ? 'var(--bg-f8faff, #F8FAFF)' : 'var(--bg-fff, #fff)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-          fontSize: 15, fontWeight: 700, color: '#1F2937', fontFamily: 'inherit',
+          fontSize: 15, fontWeight: 700, color: 'var(--tx-1f2937, #1F2937)', fontFamily: 'inherit',
           boxShadow: '0 1px 2px rgba(0,0,0,.06)', transition: 'border-color .2s, background .2s',
         }}>
         <GoogleIcon /> Continue with Google
@@ -533,13 +533,13 @@ function SocialBlock({ onGoogle, onFacebook }) {
           <SocialBtn onClick={onFacebook} brandColor="#1877F2" icon={<FacebookIcon />} label="Continue with Facebook" />
         </div>
       )}
-      <div style={{ fontSize: 11.5, color: '#94A3B8', textAlign: 'center', marginTop: 8 }}>One tap — no password to remember</div>
+      <div style={{ fontSize: 11.5, color: 'var(--tx-94a3b8, #94A3B8)', textAlign: 'center', marginTop: 8 }}>One tap — no password to remember</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '20px 0' }}>
-        <div style={{ flex: 1, height: 1, background: '#EEF2F7' }} />
-        <span style={{ fontSize: 11, color: '#A8B4C0', fontWeight: 600, letterSpacing: .4, whiteSpace: 'nowrap', textTransform: 'uppercase' }}>
+        <div style={{ flex: 1, height: 1, background: 'var(--bg-eef2f7, #EEF2F7)' }} />
+        <span style={{ fontSize: 11, color: 'var(--tx-a8b4c0, #A8B4C0)', fontWeight: 600, letterSpacing: .4, whiteSpace: 'nowrap', textTransform: 'uppercase' }}>
           or use your email
         </span>
-        <div style={{ flex: 1, height: 1, background: '#EEF2F7' }} />
+        <div style={{ flex: 1, height: 1, background: 'var(--bg-eef2f7, #EEF2F7)' }} />
       </div>
     </>
   );
@@ -555,12 +555,12 @@ function SocialBtn({ onClick, brandColor, icon, label }) {
       onMouseLeave={() => setHov(false)}
       style={{
         width: '100%', padding: '11px 8px',
-        border: `1.5px solid ${hov ? brandColor : '#E2E8F0'}`,
+        border: `1.5px solid ${hov ? brandColor : 'var(--bd-e2e8f0, #E2E8F0)'}`,
         borderRadius: 10,
-        background: hov ? '#F7FAFF' : '#FAFBFC',
+        background: hov ? 'var(--bg-f7faff, #F7FAFF)' : 'var(--bg-fafbfc, #FAFBFC)',
         cursor: 'pointer',
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-        fontSize: 13, fontWeight: 600, color: '#374151', fontFamily: 'inherit',
+        fontSize: 13, fontWeight: 600, color: 'var(--tx-374151, #374151)', fontFamily: 'inherit',
         transition: 'border-color .2s, background .2s',
       }}
     >

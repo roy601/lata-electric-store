@@ -42,13 +42,13 @@ function openStatus(hours) {
 
 function InfoRow({ Icon, label, children, action }) {
   return (
-    <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '12px 0', borderTop: '1px solid #EEF1F4' }}>
-      <div style={{ width: 34, height: 34, borderRadius: 9, background: '#EEF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+    <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '12px 0', borderTop: '1px solid var(--bd-eef1f4, #EEF1F4)' }}>
+      <div style={{ width: 34, height: 34, borderRadius: 9, background: 'var(--bg-eef6ff, #EEF6FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         <Icon size={16} color={BLUE} />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: .6, marginBottom: 2 }}>{label}</div>
-        <div style={{ fontSize: 14, color: '#1F2937', lineHeight: 1.5 }}>{children}</div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--tx-94a3b8, #94A3B8)', textTransform: 'uppercase', letterSpacing: .6, marginBottom: 2 }}>{label}</div>
+        <div style={{ fontSize: 14, color: 'var(--tx-1f2937, #1F2937)', lineHeight: 1.5 }}>{children}</div>
       </div>
       {action}
     </div>
@@ -78,20 +78,20 @@ export default function ShopLocation({ settings: s, isMobile }) {
     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'minmax(300px, 360px) 1fr', gap: isMobile ? 14 : 20, alignItems: 'stretch' }}>
 
       {/* ── Shop card ── */}
-      <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #E8ECF1', padding: isMobile ? 16 : 20, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 14, border: '1px solid var(--bd-e8ecf1, #E8ECF1)', padding: isMobile ? 16 : 20, display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
           {s?.logo_url
-            ? <img src={s.logo_url} alt={name} style={{ width: 48, height: 48, objectFit: 'contain', borderRadius: 10, background: s.logo_bg_color || '#F8FAFC', border: '1px solid #EEF1F4', padding: 4, boxSizing: 'border-box' }} />
+            ? <img src={s.logo_url} alt={name} style={{ width: 48, height: 48, objectFit: 'contain', borderRadius: 10, background: s.logo_bg_color || 'var(--bg-f8fafc, #F8FAFC)', border: '1px solid var(--bd-eef1f4, #EEF1F4)', padding: 4, boxSizing: 'border-box' }} />
             : <div style={{ width: 48, height: 48, borderRadius: 10, background: BLUE, color: '#fff', fontWeight: 800, fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{name[0]}</div>}
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontWeight: 800, fontSize: 17, color: '#0F172A', lineHeight: 1.2 }}>{name}</div>
-            <div style={{ fontSize: 12.5, color: '#64748B', marginTop: 2 }}>Electrical & hardware shop</div>
+            <div style={{ fontWeight: 800, fontSize: 17, color: 'var(--tx-0f172a, #0F172A)', lineHeight: 1.2 }}>{name}</div>
+            <div style={{ fontSize: 12.5, color: 'var(--tx-64748b, #64748B)', marginTop: 2 }}>Electrical & hardware shop</div>
           </div>
         </div>
 
         {status && (
           <div style={{ display: 'inline-flex', alignSelf: 'flex-start', alignItems: 'center', gap: 7, padding: '5px 11px', borderRadius: 20, marginBottom: 6,
-            background: status.open ? '#ECFDF3' : '#FEF2F2', color: status.open ? '#067647' : '#B42318', fontSize: 12.5, fontWeight: 700 }}>
+            background: status.open ? 'var(--bg-ecfdf3, #ECFDF3)' : 'var(--bg-fef2f2, #FEF2F2)', color: status.open ? 'var(--tx-067647, #067647)' : 'var(--tx-b42318, #B42318)', fontSize: 12.5, fontWeight: 700 }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: status.open ? '#12B76A' : '#F04438', boxShadow: status.open ? '0 0 0 3px rgba(18,183,106,.18)' : 'none' }} />
             {status.text}
           </div>
@@ -101,7 +101,7 @@ export default function ShopLocation({ settings: s, isMobile }) {
           <InfoRow Icon={MapPin} label="Address"
             action={navigator.clipboard && (
               <button onClick={copyAddress} title="Copy address" aria-label="Copy address"
-                style={{ background: 'none', border: '1px solid #E2E8F0', borderRadius: 8, width: 32, height: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: copied ? '#16A34A' : '#64748B', flexShrink: 0 }}>
+                style={{ background: 'none', border: '1px solid var(--bd-e2e8f0, #E2E8F0)', borderRadius: 8, width: 32, height: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: copied ? '#16A34A' : 'var(--tx-64748b, #64748B)', flexShrink: 0 }}>
                 {copied ? <Check size={15} /> : <Copy size={14} />}
               </button>
             )}>
@@ -110,7 +110,7 @@ export default function ShopLocation({ settings: s, isMobile }) {
         )}
         {phone && (
           <InfoRow Icon={Phone} label="Phone">
-            <a href={`tel:${phone}`} style={{ color: '#1F2937', fontWeight: 600, textDecoration: 'none' }}>{s.phone}</a>
+            <a href={`tel:${phone}`} style={{ color: 'var(--tx-1f2937, #1F2937)', fontWeight: 600, textDecoration: 'none' }}>{s.phone}</a>
           </InfoRow>
         )}
         {s?.hours && (
@@ -136,7 +136,7 @@ export default function ShopLocation({ settings: s, isMobile }) {
 
       {/* ── Map ── */}
       {s?.map_embed_src ? (
-        <div style={{ position: 'relative', borderRadius: 14, overflow: 'hidden', border: '1px solid #E8ECF1', minHeight: isMobile ? 260 : 380, background: '#EEF2F6' }}>
+        <div style={{ position: 'relative', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--bd-e8ecf1, #E8ECF1)', minHeight: isMobile ? 260 : 380, background: 'var(--bg-eef2f6, #EEF2F6)' }}>
           <iframe
             title={`${name} on Google Maps`}
             src={s.map_embed_src}
@@ -146,10 +146,10 @@ export default function ShopLocation({ settings: s, isMobile }) {
         </div>
       ) : directions ? (
         <a href={directions} target="_blank" rel="noopener noreferrer"
-          style={{ minHeight: isMobile ? 200 : 380, borderRadius: 14, border: '1px solid #E8ECF1', background: 'linear-gradient(135deg,#EEF6FF,#DCEBFB)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, textDecoration: 'none' }}>
+          style={{ minHeight: isMobile ? 200 : 380, borderRadius: 14, border: '1px solid var(--bd-e8ecf1, #E8ECF1)', background: 'linear-gradient(135deg,var(--bg-eef6ff, #EEF6FF),var(--bg-dcebfb, #DCEBFB))', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, textDecoration: 'none' }}>
           <MapPin size={44} color={BLUE} />
-          <span style={{ fontSize: 15, fontWeight: 800, color: '#0F172A' }}>See us on Google Maps</span>
-          <span style={{ fontSize: 12.5, color: '#475569', display: 'inline-flex', alignItems: 'center', gap: 5 }}>Opens in a new tab <ExternalLink size={12} /></span>
+          <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--tx-0f172a, #0F172A)' }}>See us on Google Maps</span>
+          <span style={{ fontSize: 12.5, color: 'var(--tx-475569, #475569)', display: 'inline-flex', alignItems: 'center', gap: 5 }}>Opens in a new tab <ExternalLink size={12} /></span>
         </a>
       ) : null}
     </div>
