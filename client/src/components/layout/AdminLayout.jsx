@@ -2,7 +2,7 @@ import { useState, useEffect, createContext, useContext, Suspense } from 'react'
 import { NavLink, useNavigate, Outlet, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, ShoppingCart, Package, List,
-  Users, Image, Star, Zap, CreditCard, Truck, HardHat, Settings, LogOut, Tag, Sparkles,
+  Users, Image, Star, Zap, CreditCard, Truck, HardHat, Settings, LogOut, Tag, Sparkles, Boxes,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
@@ -15,6 +15,7 @@ const NAV = [
   { to: '/admin/assistant',    Icon: Sparkles,        label: 'AI Assistant' },
   { to: '/admin/orders',       Icon: ShoppingCart,    label: 'Orders' },
   { to: '/admin/products',     Icon: Package,         label: 'Products & Categories' },
+  { to: '/admin/inventory',    Icon: Boxes,           label: 'Inventory' },
 
   { to: '/admin/customers',    Icon: Users,           label: 'Customers' },
   { to: '/admin/banners',      Icon: Image,           label: 'Banners' },
@@ -43,7 +44,7 @@ export default function AdminLayout({ children, title }) {
 // so clicking a menu item afterwards shows the page instantly.
 const preloadAdminPages = () => Promise.allSettled([
   import('../../pages/admin/Dashboard'), import('../../pages/admin/Assistant'), import('../../pages/admin/Orders'),
-  import('../../pages/admin/Products'), import('../../pages/admin/Customers'), import('../../pages/admin/Banners'),
+  import('../../pages/admin/Products'), import('../../pages/admin/Inventory'), import('../../pages/admin/Customers'), import('../../pages/admin/Banners'),
   import('../../pages/admin/Featured'), import('../../pages/admin/FlashSale'), import('../../pages/admin/Payments'),
   import('../../pages/admin/Shipping'), import('../../pages/admin/Coupons'), import('../../pages/admin/Electricians'),
   import('../../pages/admin/Settings'),

@@ -39,6 +39,14 @@ const fmt = (n) => '৳' + Number(n || 0).toLocaleString('en-BD');
 const isCOD = (o) => /cash|cod/i.test(o.payment_method || '');
 const phoneDigits = (p) => String(p || '').replace(/\D/g, '');
 const waNumber = (p) => { const d = phoneDigits(p); return d.startsWith('880') ? d : d.startsWith('0') ? '88' + d : d; };
+const custKey = (p) => phoneDigits(p).slice(-10);
+
+/* A short note about the customer's other orders: warns about past cancels/returns
+   (fake or risky COD orders) and points out repeat buyers. */
+function CustomerNote({ note, block }) {
+  if (!note) return null;
+  return <div style={{ fontSize: 12.5, fontWeight: 600, color: note.color, marginTop: block ? 8 : 2, whiteSpace: block ? 'normal' : 'nowrap' }}>{note.text}</div>;
+}
 
 function ago(date) {
   const s = (Date.now() - new Date(date)) / 1000;
@@ -100,7 +108,7 @@ function printSlip(o) {
 }
 
 /* ── Order details: slide-over panel ── */
-function OrderDrawer({ order: o, stockOf, onClose, onStatus, onPaid, onReturn, busy, isMobile }) {
+function OrderDrawer({ order: o, stockOf, note, onClose, onStatus, onPaid, onReturn, busy, isMobile }) {
   const [history, setHistory] = useState([]);
   const [moreOpen, setMoreOpen] = useState(false);
   useEffect(() => {
@@ -188,6 +196,7 @@ function OrderDrawer({ order: o, stockOf, onClose, onStatus, onPaid, onReturn, b
               <a href={`https://wa.me/${waNumber(o.customer_phone)}?text=${encodeURIComponent(`Hello ${o.customer_name}, this is Lata Electric about your order #${o.order_id}.`)}`} target="_blank" rel="noopener noreferrer" style={smallBtn}><MessageCircle size={14} /> WhatsApp</a>
               <button onClick={() => copy(`${o.customer_name}\n${o.customer_phone}\n${address}`)} style={smallBtn}><Copy size={14} /> Copy address</button>
             </div>
+            <CustomerNote note={note} block />
             {o.notes && <div style={{ marginTop: 12, fontSize: 13.5, background: 'var(--bg-f8fafc, #F8FAFC)', padding: '8px 10px', borderRadius: 'var(--r-sm)', color: ink }}><b>Note:</b> {o.notes}</div>}
           </div>
 
@@ -365,6 +374,22 @@ export default function AdminOrders() {
   };
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Other orders from the same phone number
+  const byCustomer = useMemo(() => {
+    const m = {};
+    orders.forEach(o => { const k = custKey(o.customer_phone); if (k) (m[k] = m[k] || []).push(o); });
+    return m;
+  }, [orders]);
+  const noteFor = (o) => {
+    const others = (byCustomer[custKey(o.customer_phone)] || []).filter(x => x.id !== o.id);
+    if (!others.length) return null;
+    const bad = others.filter(x => x.status === 'cancelled').length, ret = others.filter(x => x.status === 'returned' || x.status === 'return_requested').length;
+    const done = others.filter(x => x.status === 'delivered').length;
+    if (bad || ret) return { color: '#B42318', text: `⚠ ${[bad && `${bad} cancelled`, ret && `${ret} returned`].filter(Boolean).join(', ')} before · ${others.length} other order${others.length !== 1 ? 's' : ''}` };
+    if (done) return { color: '#15803D', text: `Repeat customer · ${done} delivered before` };
+    return { color: muted, text: `${others.length} other order${others.length !== 1 ? 's' : ''} in progress` };
+  };
+
   const stockById = useMemo(() => Object.fromEntries(products.map(p => [p.id, p.stock ?? 0])), [products]);
   const stockOf = (id) => (id in stockById ? stockById[id] : null);
   const patch = (id, change) => setOrders(prev => prev.map(o => o.id === id ? { ...o, ...change } : o));
@@ -523,6 +548,7 @@ export default function AdminOrders() {
                     <div style={{ minWidth: 0 }}>
                       <div style={{ fontSize: 14.5, fontWeight: 600, color: ink }}>{o.customer_name}</div>
                       <div style={{ fontSize: 13, color: muted }}>{o.customer_phone}{o.customer_city ? ` · ${o.customer_city}` : ''}</div>
+                      <CustomerNote note={noteFor(o)} />
                     </div>
                     <div className="num" style={{ textAlign: 'right' }}>
                       <div style={{ fontSize: 15.5, fontWeight: 700, color: ink }}>{fmt(o.total)}</div>
@@ -560,6 +586,7 @@ export default function AdminOrders() {
                           <div style={{ fontWeight: 600, color: ink, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 200 }}>{o.customer_name}</div>
                           <div className="num" style={{ fontSize: 12.5, color: muted, whiteSpace: 'nowrap' }}>{o.customer_phone}</div>
                           {o.customer_city && <div style={{ fontSize: 12.5, color: muted, whiteSpace: 'nowrap' }}>{o.customer_city}</div>}
+                          <CustomerNote note={noteFor(o)} />
                         </td>
                         <td style={td}>
                           <Thumbs items={o.items} />
@@ -584,7 +611,7 @@ export default function AdminOrders() {
       </div>
 
       {opened && (
-        <OrderDrawer order={opened} stockOf={stockOf} isMobile={isMobile} busy={busyId === opened.id}
+        <OrderDrawer order={opened} stockOf={stockOf} note={noteFor(opened)} isMobile={isMobile} busy={busyId === opened.id}
           onClose={() => setOpenId(null)}
           onStatus={(s) => setStatus(opened, s)}
           onPaid={() => setPaid(opened)}

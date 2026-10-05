@@ -13,6 +13,7 @@ export const deleteProduct  = (id)     => api.delete(`/products/${id}`);
 // Paged list: getProducts({ page, limit, q, category, stock, sort }) → { products, total, pages, stats }
 // Without page → every product (used by Featured, Flash Sale, Banners, Excel export)
 export const getProductMeta  = ()       => api.get('/products/meta');
+export const getStockMovements = (productId) => api.get('/products/movements', { params: productId ? { product_id: productId } : {} });
 export const getProductRefs  = (categoryId) => api.get('/products', { params: { fields: 'refs', category: categoryId } });
 // Up to 100 rows, answered right away; rows with an id are updated, the rest are added
 export const bulkProducts    = (products) => api.post('/products/bulk', { products }, { timeout: 120_000 });

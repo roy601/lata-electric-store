@@ -11,6 +11,7 @@ import { lazy, Suspense } from 'react';
 const AdminLogin     = lazy(() => import('./pages/admin/AdminLogin'));
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
 const AdminProducts  = lazy(() => import('./pages/admin/Products'));
+const AdminInventory = lazy(() => import('./pages/admin/Inventory'));
 const AdminOrders    = lazy(() => import('./pages/admin/Orders'));
 const AdminCustomers = lazy(() => import('./pages/admin/Customers'));
 const AdminSettings  = lazy(() => import('./pages/admin/Settings'));
@@ -91,6 +92,7 @@ export default function App() {
               <Route path="/admin"            element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="/admin/dashboard"  element={<AdminDashboard />} />
               <Route path="/admin/products"   element={<AdminProducts />} />
+              <Route path="/admin/inventory"  element={<AdminInventory />} />
               <Route path="/admin/categories" element={<Navigate to="/admin/products" replace />} />
               <Route path="/admin/orders"     element={<AdminOrders />} />
               <Route path="/admin/customers"  element={<AdminCustomers />} />

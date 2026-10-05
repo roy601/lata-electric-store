@@ -146,3 +146,7 @@ body.has-buybar .toasts { bottom: calc(var(--buybar-h, 64px) + 16px) !important;
 :root { --page: #F3F5F8; --tint-top: #E7F0FB; --panel-edge: rgba(15, 23, 42, .07); }
 :root[data-theme="dark"] { --page: #0d1117; --tint-top: #0f1b2b; --panel-edge: rgba(255, 255, 255, .07); }
 body { background: var(--page); }
+
+/* Chart colour (validated: light #1E88E5, dark #3D95E8) */
+:root { --chart: #1E88E5; }
+:root[data-theme="dark"] { --chart: #3D95E8; }

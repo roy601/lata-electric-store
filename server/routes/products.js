@@ -75,6 +75,18 @@ async function listProducts(req, res) {
 // Admin-only. The storefront reads products directly (public read via RLS).
 const router = crudRouter({ table: 'products', select: SELECT, order: [['id', false]], fields: FIELDS, list: listProducts });
 
+/* ── GET /api/products/movements — stock history (inventory_movements, migration 03) ──
+   ?product_id=… for one product, otherwise the latest changes across the shop. */
+router.get('/movements', async (req, res) => {
+  const limit = toInt(req.query.limit, 200, 1, 500);
+  let q = supabase.from('inventory_movements').select('id, product_id, change, stock_after, reason, created_at, products(name, image)')
+    .order('created_at', { ascending: false }).order('id', { ascending: false }).limit(limit);
+  if (/^\d+$/.test(String(req.query.product_id || ''))) q = q.eq('product_id', +req.query.product_id);
+  const { data, error } = await q;
+  if (error) return res.status(400).json({ success: false, message: error.message });
+  res.json({ success: true, movements: data || [] });
+});
+
 /* ── GET /api/products/meta — numbers and suggestions for the admin page ──
    { total, uncategorised, counts: {categoryId: n}, brands: [...], specKeys: {categoryId: [...]}, allSpecKeys: [...] } */
 router.get('/meta', async (req, res) => {
