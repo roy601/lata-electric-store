@@ -74,6 +74,28 @@ function ProductStrip({ products, cardWidth = 176 }) {
 }
 
 /* ─── Banner Carousel ─────────────────────────────────────────── */
+/* Where a banner goes when clicked: its link (page or https), else its product */
+const bannerTarget = (b) => b.link_url || (b.product_id ? `/products/${b.product_id}` : null);
+const openBanner = (b, navigate) => {
+  const t = bannerTarget(b);
+  if (!t) return;
+  if (t.startsWith('/')) navigate(t);
+  else if (/^https?:\/\//.test(t)) window.open(t, '_blank', 'noopener');
+};
+
+/* A side tile beside the slider */
+function SideTile({ b, navigate, style }) {
+  const clickable = !!bannerTarget(b);
+  return (
+    <div onClick={() => openBanner(b, navigate)} role={clickable ? 'link' : undefined}
+      style={{ borderRadius: 12, overflow: 'hidden', background: '#EEF2F6', cursor: clickable ? 'pointer' : 'default', position: 'relative', minHeight: 0, ...style }}
+      onMouseEnter={e => { const i = e.currentTarget.querySelector('img'); if (i && clickable) i.style.transform = 'scale(1.03)'; }}
+      onMouseLeave={e => { const i = e.currentTarget.querySelector('img'); if (i) i.style.transform = 'none'; }}>
+      <img src={b.image} alt={b.title || ''} loading="lazy" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform .35s ease' }} />
+    </div>
+  );
+}
+
 function BannerCarousel({ banners }) {
   const navigate = useNavigate();
   const [cur, setCur]         = useState(0);
@@ -111,7 +133,7 @@ function BannerCarousel({ banners }) {
   const b = banners[cur];
   return (
     <div style={{ flex: 1, position: 'relative', overflow: 'hidden', borderRadius: 10, cursor: b.product_id ? 'pointer' : 'default', userSelect: 'none' }}
-      onClick={() => { if (!dragging && b.product_id) navigate(`/products/${b.product_id}`); }}
+      onClick={() => { if (!dragging) openBanner(b, navigate); }}
       onMouseDown={onMouseDown} onMouseMove={onMouseMove}
       onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
 
@@ -374,54 +396,55 @@ export default function Home() {
           </div>
         )}
 
-        {/* ══════════════ SHOP BY CATEGORY (round pictures) ══════════════ */}
-        {categories.length > 0 && (
-          <div style={{ ...W, marginTop: isMobile ? 14 : 22 }}>
-            <CategoryCircles categories={categories} counts={sections.counts}
-              previewImages={Object.fromEntries(Object.entries(sections.byCat).map(([id, ps]) => [id, ps.find(p => p.image)?.image]))} />
-          </div>
-        )}
-
-        {/* ══════════════ HERO: Sidebar + Banner + Side Banners ══════════════ */}
+        {/* ══════════════ HERO: slider + side tiles (2 wide, 2 small) ══════════════ */}
         {(() => {
-          // Side boxes only take square/tall images; wide banners always stay in the slider
-          // (a wide banner squeezed into a side box gets its middle cut out).
-          const isSide       = (b) => (bannerRatio[b.id] || 99) < 1.3;
-          const sideBanners  = banners.filter(isSide).slice(0, 2);
-          const mainBanners  = banners.filter(b => !sideBanners.includes(b));
-          const cols = (!isMobile && sideBanners.length) ? '1fr 200px' : '1fr';
+          // Placement comes from Admin → Banners. Banners saved before placements existed:
+          // square-ish pictures count as small side tiles, the rest stay in the slider.
+          const place = (b) => b.placement || ((bannerRatio[b.id] || 99) < 1.3 ? 'side_small' : 'slider');
+          const sliderBanners = banners.filter(b => place(b) === 'slider');
+          const sideWide      = banners.filter(b => place(b) === 'side_wide').slice(0, 2);
+          const sideSmall     = banners.filter(b => place(b) === 'side_small').slice(0, 2);
+          const hasSide       = sideWide.length + sideSmall.length > 0;
+          // Right column width chosen so the tiles keep their own shape (13:6 wide, 32:37 small)
+          // and the column is as tall as the 16:7 slider — no cropping.
+          const full = sideWide.length === 2 && sideSmall.length > 0;
+          const sideCol = full ? 'calc(22.6% - 11px)' : sideWide.length === 2 ? 'calc(32.2% - 13px)' : '26%';
 
           return (
-            <div style={{ ...W, paddingTop: isMobile ? 14 : 22, paddingBottom: 0 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: cols, gap: 12, alignItems: 'start' }}>
+            <div style={{ ...W, paddingTop: isMobile ? 10 : 18, paddingBottom: 0 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: (!isMobile && hasSide) ? `minmax(0, 1fr) ${sideCol}` : 'minmax(0, 1fr)', gap: isMobile ? 8 : 12, alignItems: full || sideWide.length === 2 ? 'start' : 'stretch' }}>
+                <BannerCarousel banners={sliderBanners.length ? sliderBanners : banners.filter(b => !sideWide.includes(b) && !sideSmall.includes(b))} />
 
-                {/* Main carousel */}
-                <BannerCarousel banners={mainBanners} />
-
-                {/* Right side banners — desktop only, when 3+ banners uploaded */}
-                {!isMobile && sideBanners.length > 0 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignSelf: 'stretch' }}>
-                    {sideBanners.map(b => (
-                      <div key={b.id}
-                        onClick={() => b.product_id && navigate(`/products/${b.product_id}`)}
-                        style={{ flex: 1, borderRadius: 10, overflow: 'hidden', cursor: b.product_id ? 'pointer' : 'default', position: 'relative', background: '#212529', minHeight: 130 }}
-                        onMouseEnter={e => { if (b.product_id) e.currentTarget.style.opacity = '.88'; }}
-                        onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}>
-                        <img src={b.image} alt={b.title || ''} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                        {(b.title || b.subtitle) && (
-                          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent,rgba(0,0,0,.65))', padding: '24px 12px 10px' }}>
-                            {b.title && <div style={{ color: '#fff', fontWeight: 700, fontSize: 12, lineHeight: 1.3 }}>{b.title}</div>}
-                            {b.subtitle && <div style={{ color: 'rgba(255,255,255,.8)', fontSize: 10, marginTop: 2 }}>{b.subtitle}</div>}
-                          </div>
-                        )}
+                {hasSide && !isMobile && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, minHeight: 0 }}>
+                    {sideWide.map(b => <SideTile key={b.id} b={b} navigate={navigate} style={sideWide.length === 2 ? { aspectRatio: '13 / 6' } : { flex: '1 1 0' }} />)}
+                    {sideSmall.length > 0 && (
+                      <div style={{ flex: full ? 'none' : '1 1 0', display: 'grid', gridTemplateColumns: sideSmall.length > 1 ? '1fr 1fr' : '1fr', gap: 12, minHeight: 0 }}>
+                        {sideSmall.map(b => <SideTile key={b.id} b={b} navigate={navigate} style={full ? { aspectRatio: '32 / 37' } : {}} />)}
                       </div>
-                    ))}
+                    )}
+                  </div>
+                )}
+
+                {/* Phones: side tiles under the slider */}
+                {hasSide && isMobile && (
+                  <div className="hide-scrollbar" style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', scrollSnapType: 'x mandatory', scrollPaddingLeft: 8, margin: '0 -8px', padding: '0 8px' }}>
+                    {sideWide.map(b => <SideTile key={b.id} b={b} navigate={navigate} style={{ flex: '0 0 auto', height: 140, aspectRatio: '13 / 6', scrollSnapAlign: 'start' }} />)}
+                    {sideSmall.map(b => <SideTile key={b.id} b={b} navigate={navigate} style={{ flex: '0 0 auto', height: 140, aspectRatio: '32 / 37', scrollSnapAlign: 'start' }} />)}
                   </div>
                 )}
               </div>
             </div>
           );
         })()}
+
+        {/* ══════════════ SHOP BY CATEGORY (round pictures) ══════════════ */}
+        {categories.length > 0 && (
+          <div style={{ ...W, marginTop: isMobile ? 22 : 34 }}>
+            <CategoryCircles categories={categories} counts={sections.counts}
+              previewImages={Object.fromEntries(Object.entries(sections.byCat).map(([id, ps]) => [id, ps.find(p => p.image)?.image]))} />
+          </div>
+        )}
 
         {/* ══════════════ TRUST STRIP ══════════════ */}
         <div style={{ ...W, marginTop: isMobile ? 14 : 20 }}>

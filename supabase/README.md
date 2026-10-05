@@ -85,3 +85,12 @@ The migration adds:
 - **Guest orders placed with the same email** show automatically only for people who sign in with **Google or Facebook**, because those services have verified the email.
 - **Any other earlier order** can be added from My Orders with **"Add a past order"**, using the order ID and phone number. This is the same proof the tracking page asks for. It's limited to 10 tries per 15 minutes.
 - **Before you deploy:** orders placed by signed-in customers *before this migration* were linked by email only. They show again once those customers sign in with Google or use "Add a past order".
+
+## Migration 06: banner placements
+
+Run `migrations/20261006_06_banner_placements.sql` **before** deploying the server. It adds `banners.placement` and `banners.link_url`. Existing banners stay in the main slider.
+
+**Placements:**
+- **Main slider:** 1600×700.
+- **Side, wide:** 2 tiles, 650×300.
+- **Side, small:** 2 tiles side by side, 320×370.
