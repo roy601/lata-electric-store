@@ -59,7 +59,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <CustomerAuthProvider>
-        <Toaster position="bottom-right" toastOptions={{ duration: 3000 }} />
+        <Toaster position="bottom-center" containerClassName="toasts" toastOptions={{ duration: 3000, style: { borderRadius: 10, fontSize: 14, padding: '10px 14px' } }} />
         <Suspense fallback={<PageLoader />}>
           <Routes>
 

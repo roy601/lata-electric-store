@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Heart, Package, Zap, Link as LinkIcon, Share2, MessageCircle, Star, Minus, Plus, Check } from 'lucide-react';
+import { Heart, Package, Zap, Link as LinkIcon, Share2, MessageCircle, Star, Minus, Plus, Check, X } from 'lucide-react';
 import CustomerLayout from '../../components/layout/CustomerLayout';
 import ProductRail from '../../components/ProductRail';
 import { addToCart, useWishlistStore } from '../../store/cartStore';
+import { addWithFlair, pop, haptic } from '../../lib/cartFx';
+import Reveal from '../../components/common/Reveal';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { supabase } from '../../lib/supabase';
@@ -117,7 +119,7 @@ function ReviewSection({ productId, onStats }) {
               style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', background: 'none', border: 'none', padding: '3px 0', cursor: 'pointer', fontFamily: 'inherit' }}>
               <span className="num" style={{ fontSize: 13, color: filter === String(star) ? BLUE : 'var(--ink)', width: 44, textAlign: 'left' }}>{star} star</span>
               <span style={{ flex: 1, height: 8, background: 'var(--bg-f1f5f9, #F1F5F9)', borderRadius: 'var(--r-sm)', overflow: 'hidden' }}>
-                <span style={{ display: 'block', width: `${pct}%`, height: '100%', background: '#F59E0B' }} />
+                <span className="bar-fill" style={{ display: 'block', width: `${pct}%`, height: '100%', background: '#F59E0B' }} />
               </span>
               <span className="num" style={{ fontSize: 12.5, color: muted, width: 34, textAlign: 'right' }}>{pct}%</span>
             </button>
@@ -191,32 +193,144 @@ function ReviewSection({ productId, onStats }) {
   );
 }
 
-/* ── Photo gallery with zoom that follows the mouse ── */
-function Gallery({ images, name, isMobile }) {
-  const [idx, setIdx] = useState(0);
-  const [zoom, setZoom] = useState(null); // {x, y} in % while hovering
-  useEffect(() => { setIdx(0); }, [images.join('|')]); // eslint-disable-line react-hooks/exhaustive-deps
-  const current = images[idx];
-  const thumbs = images.length > 1 && (
-    <div className="hide-scrollbar" style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: 8, overflow: 'auto', scrollbarWidth: 'none', maxHeight: isMobile ? undefined : 480 }}>
-      {images.map((img, i) => (
-        <button key={i} onClick={() => setIdx(i)} onMouseEnter={() => !isMobile && setIdx(i)} aria-label={`Photo ${i + 1}`}
-          style={{ width: 62, height: 62, flexShrink: 0, padding: 4, borderRadius: 'var(--r-sm)', border: `1.5px solid ${idx === i ? 'var(--ink)' : 'var(--hairline)'}`, background: 'var(--bg-fff, #fff)', cursor: 'pointer' }}>
-          <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-        </button>
-      ))}
+/* ── Full-screen photo viewer (phones): swipe between photos, pinch to zoom ── */
+function PhotoViewer({ images, start, name, onClose }) {
+  const ref = useRef(null);
+  const [idx, setIdx] = useState(start);
+  useEffect(() => {
+    const el = ref.current;
+    if (el) el.scrollLeft = start * el.clientWidth;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', onKey);
+    return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', onKey); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <div role="dialog" aria-modal="true" aria-label="Photos" style={{ position: 'fixed', inset: 0, zIndex: 2500, background: '#fff', display: 'flex', flexDirection: 'column', animation: 'photoFade .2s ease' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px' }}>
+        <span className="num" style={{ fontSize: 14, color: '#475569' }}>{idx + 1} / {images.length}</span>
+        <button onClick={onClose} aria-label="Close photos" style={{ width: 40, height: 40, border: 'none', background: '#F1F5F9', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#0F172A' }}><X size={20} /></button>
+      </div>
+      <div ref={ref} className="hide-scrollbar" onScroll={e => setIdx(Math.round(e.currentTarget.scrollLeft / e.currentTarget.clientWidth))}
+        style={{ flex: 1, display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', scrollbarWidth: 'none' }}>
+        {images.map((img, i) => (
+          <div key={i} style={{ flex: '0 0 100%', scrollSnapAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 12, touchAction: 'pan-x pinch-zoom' }}>
+            <img src={img} alt={`${name} — photo ${i + 1}`} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', filter: 'none' }} />
+          </div>
+        ))}
+      </div>
     </div>
   );
+}
+
+/* ── Photo gallery: hover zoom on desktop, swipe + full screen on phones ── */
+function Gallery({ images, name, isMobile, galleryRef }) {
+  const [idx, setIdx] = useState(0);
+  const [zoom, setZoom] = useState(null); // {x, y} in % while hovering
+  const [viewer, setViewer] = useState(false);
+  const slider = useRef(null);
+  useEffect(() => { setIdx(0); if (slider.current) slider.current.scrollLeft = 0; }, [images.join('|')]); // eslint-disable-line react-hooks/exhaustive-deps
+  const current = images[idx];
+
+  if (isMobile) {
+    return (
+      <div ref={galleryRef} style={{ position: 'relative', margin: '0 -10px' }}>
+        <div ref={slider} className="hide-scrollbar"
+          onScroll={e => setIdx(Math.round(e.currentTarget.scrollLeft / e.currentTarget.clientWidth))}
+          style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', scrollbarWidth: 'none', background: 'var(--bg-fff, #fff)' }}>
+          {(images.length ? images : [null]).map((img, i) => (
+            <button key={i} onClick={() => img && setViewer(true)} aria-label={img ? 'Open photo full screen' : undefined}
+              style={{ flex: '0 0 100%', aspectRatio: '1 / 1', scrollSnapAlign: 'center', border: 'none', background: 'none', padding: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: img ? 'zoom-in' : 'default' }}>
+              {img ? <img src={img} alt={i === 0 ? name : `${name} — photo ${i + 1}`} data-active-photo={i === idx ? '' : undefined} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                   : <Package size={80} color="#CBD5E1" />}
+            </button>
+          ))}
+        </div>
+        {images.length > 1 && (
+          <>
+            <span className="num" style={{ position: 'absolute', right: 12, top: 12, background: 'rgba(15,23,42,.7)', color: '#fff', fontSize: 12, fontWeight: 600, padding: '3px 9px', borderRadius: 'var(--pill)' }}>{idx + 1}/{images.length}</span>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 6, padding: '8px 0 0' }}>
+              {images.map((_, i) => (
+                <span key={i} style={{ width: i === idx ? 18 : 6, height: 6, borderRadius: 3, background: i === idx ? 'var(--ink)' : 'rgba(15,23,42,.2)', transition: 'width .25s ease, background .25s' }} />
+              ))}
+            </div>
+          </>
+        )}
+        {viewer && <PhotoViewer images={images} start={idx} name={name} onClose={() => setViewer(false)} />}
+      </div>
+    );
+  }
+
   return (
-    <div style={{ display: 'flex', flexDirection: isMobile ? 'column-reverse' : 'row', gap: 10, position: isMobile ? 'static' : 'sticky', top: 90 }}>
-      {thumbs}
+    <div ref={galleryRef} style={{ display: 'flex', gap: 10, position: 'sticky', top: 90 }}>
+      {images.length > 1 && (
+        <div className="hide-scrollbar" style={{ display: 'flex', flexDirection: 'column', gap: 8, overflow: 'auto', scrollbarWidth: 'none', maxHeight: 480 }}>
+          {images.map((img, i) => (
+            <button key={i} onClick={() => setIdx(i)} onMouseEnter={() => setIdx(i)} aria-label={`Photo ${i + 1}`}
+              style={{ width: 62, height: 62, flexShrink: 0, padding: 4, borderRadius: 'var(--r-sm)', border: `1.5px solid ${idx === i ? 'var(--ink)' : 'var(--hairline)'}`, background: 'var(--bg-fff, #fff)', cursor: 'pointer', transition: 'border-color .2s' }}>
+              <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            </button>
+          ))}
+        </div>
+      )}
       <div
-        onMouseMove={e => { if (isMobile || !current) return; const r = e.currentTarget.getBoundingClientRect(); setZoom({ x: (e.clientX - r.left) / r.width * 100, y: (e.clientY - r.top) / r.height * 100 }); }}
+        onMouseMove={e => { if (!current) return; const r = e.currentTarget.getBoundingClientRect(); setZoom({ x: (e.clientX - r.left) / r.width * 100, y: (e.clientY - r.top) / r.height * 100 }); }}
         onMouseLeave={() => setZoom(null)}
-        style={{ flex: 1, minWidth: 0, aspectRatio: '1 / 1', background: 'var(--bg-fff, #fff)', border: '1px solid var(--hairline)', borderRadius: 'var(--r-md)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: current && !isMobile ? 'crosshair' : 'default' }}>
+        style={{ flex: 1, minWidth: 0, aspectRatio: '1 / 1', background: 'var(--bg-fff, #fff)', border: '1px solid var(--hairline)', borderRadius: 'var(--r-md)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: current ? 'crosshair' : 'default' }}>
         {current
-          ? <img src={current} alt={name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: isMobile ? 16 : 28, transformOrigin: zoom ? `${zoom.x}% ${zoom.y}%` : 'center', transform: zoom ? 'scale(1.9)' : 'none', transition: zoom ? 'none' : 'transform .25s ease' }} />
+          ? <img key={current} className="photo-fade" data-active-photo src={current} alt={name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 28, transformOrigin: zoom ? `${zoom.x}% ${zoom.y}%` : 'center', transform: zoom ? 'scale(1.9)' : 'none', transition: zoom ? 'none' : 'transform .25s ease' }} />
           : <Package size={80} color="#CBD5E1" />}
+      </div>
+    </div>
+  );
+}
+
+/* ── Slim bar with price and buttons, shown once the buy box has scrolled away ── */
+function StickyBuyBar({ watch, product, price, original, discount, inStock, added, onAdd, onBuy, isMobile }) {
+  const [show, setShow] = useState(false);
+  const [navH, setNavH] = useState(0);
+  const barRef = useRef(null);
+
+  useEffect(() => {
+    const el = watch.current;
+    if (!el || !('IntersectionObserver' in window)) return;
+    const io = new IntersectionObserver(([e]) => setShow(!e.isIntersecting && e.boundingClientRect.bottom < 0));
+    io.observe(el);
+    return () => io.disconnect();
+  }, [watch]);
+
+  useEffect(() => { setNavH(document.querySelector('[data-bottom-nav]')?.offsetHeight || 0); }, [isMobile]);
+
+  // Tell the page (chat button, messages) to make room
+  useEffect(() => {
+    document.body.style.setProperty('--buybar-h', `${barRef.current?.offsetHeight || 64}px`);
+    document.body.classList.toggle('has-buybar', show);
+    return () => document.body.classList.remove('has-buybar');
+  }, [show]);
+
+  const btn = (primary) => ({ padding: isMobile ? '11px 16px' : '10px 22px', borderRadius: 'var(--pill)', border: 'none', fontWeight: 600, fontSize: isMobile ? 14 : 14.5, fontFamily: 'inherit', cursor: 'pointer', whiteSpace: 'nowrap',
+    background: primary ? (added ? '#15803D' : BLUE) : 'var(--ink)', color: primary ? '#fff' : 'var(--bg-fff, #fff)', transition: 'background .25s' });
+
+  return (
+    <div ref={barRef} aria-hidden={!show}
+      style={{ position: 'fixed', left: 0, right: 0, bottom: navH, zIndex: 390, background: 'var(--bg-fff, #fff)', borderTop: '1px solid var(--hairline)', boxShadow: '0 -8px 24px -12px rgba(15,23,42,.25)',
+        transform: show ? 'translateY(0)' : 'translateY(110%)', visibility: show ? 'visible' : 'hidden', transition: 'transform .32s cubic-bezier(.2,.8,.2,1), visibility .32s' }}>
+      <div style={{ maxWidth: 1260, margin: '0 auto', padding: isMobile ? '9px 12px' : '10px 14px', display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 14 }}>
+        {!isMobile && product.image && <img src={product.image} alt="" style={{ width: 44, height: 44, objectFit: 'contain', border: '1px solid var(--hairline)', borderRadius: 'var(--r-sm)', padding: 3, background: '#fff' }} />}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {!isMobile && <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</div>}
+          <div className="num" style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: isMobile ? 19 : 16, fontWeight: 700, color: 'var(--ink)' }}>{taka(price)}</span>
+            {discount && <span style={{ fontSize: 12.5, color: muted, textDecoration: 'line-through' }}>{taka(original)}</span>}
+          </div>
+        </div>
+        {inStock ? (
+          <>
+            <button onClick={onAdd} style={btn(true)}>{added ? '✓ Added' : 'Add to cart'}</button>
+            <button onClick={onBuy} style={btn(false)}>Buy now</button>
+          </>
+        ) : <span style={{ fontWeight: 600, color: '#B42318', fontSize: 14 }}>Out of stock</span>}
       </div>
     </div>
   );
@@ -246,6 +360,10 @@ export default function ProductDetail() {
   const [loading,  setLoading]  = useState(true);
   const [revStats, setRevStats] = useState({ total: 0, avg: 0 });
   const [selectedVariants, setSelectedVariants] = useState({});
+  const [added,    setAdded]    = useState(false);
+  const galleryRef = useRef(null);
+  const buyBoxRef  = useRef(null);
+  const optionsRef = useRef(null);
   const { toggle, has } = useWishlistStore();
 
   useEffect(() => {
@@ -328,9 +446,19 @@ export default function ProductDetail() {
   const variantLabel = variantGroups.map(v => `${v.label || v.key}: ${selectedVariants[v.key]}`).join(', ');
 
   const handleAdd = (thenCheckout = false) => {
-    if (missingVariant) { toast.error(`Choose ${String(missingVariant.label || missingVariant.key).toLowerCase()} first`); return; }
-    addToCart(product, { price, qty, variant: variantLabel });
-    if (thenCheckout) navigate('/checkout');
+    if (missingVariant) {
+      toast.error(`Choose ${String(missingVariant.label || missingVariant.key).toLowerCase()} first`);
+      optionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    if (thenCheckout) {
+      if (addToCart(product, { price, qty, variant: variantLabel, open: false }) > 0) { haptic(12); navigate('/checkout'); }
+      return;
+    }
+    if (addWithFlair(product, { price, qty, variant: variantLabel }, galleryRef.current?.querySelector('[data-active-photo]')) > 0) {
+      setAdded(true);
+      setTimeout(() => setAdded(false), 1800);
+    }
   };
 
   // Delivery facts from Admin → Shipping (with the shop's usual values as fallback)
@@ -365,7 +493,7 @@ export default function ProductDetail() {
           {/* ═══ Top: photos · details · buy box ═══ */}
           <div style={{ display: 'grid', gridTemplateColumns: wide ? 'minmax(0, 5fr) minmax(0, 4.2fr) minmax(0, 3fr)' : isMobile ? '1fr' : 'minmax(0, 1fr) minmax(0, 1fr)', gap: isMobile ? 18 : 32, alignItems: 'start' }}>
 
-            <Gallery images={images} name={product.name} isMobile={isMobile} />
+            <Gallery images={images} name={product.name} isMobile={isMobile} galleryRef={galleryRef} />
 
             {/* Details */}
             <div style={{ minWidth: 0 }}>
@@ -401,6 +529,7 @@ export default function ProductDetail() {
               </div>
 
               {/* Options */}
+              <div ref={optionsRef} style={{ scrollMarginTop: 120 }}>
               {variantGroups.map(v => (
                 <div key={v.key} style={{ marginTop: 18 }}>
                   <div style={{ fontSize: 14, color: 'var(--ink)', marginBottom: 8 }}>
@@ -419,6 +548,7 @@ export default function ProductDetail() {
                   </div>
                 </div>
               ))}
+              </div>
 
               {/* Highlights from the description */}
               {highlights.length > 0 && (
@@ -435,7 +565,7 @@ export default function ProductDetail() {
             </div>
 
             {/* Buy box */}
-            <aside style={{ gridColumn: !wide && !isMobile ? '1 / -1' : 'auto', border: '1px solid rgba(15,23,42,.14)', borderRadius: 'var(--r-md)', padding: isMobile ? 16 : 18, position: wide ? 'sticky' : 'static', top: 90 }}>
+            <aside ref={buyBoxRef} style={{ gridColumn: !wide && !isMobile ? '1 / -1' : 'auto', border: '1px solid rgba(15,23,42,.14)', borderRadius: 'var(--r-md)', padding: isMobile ? 16 : 18, position: wide ? 'sticky' : 'static', top: 90 }}>
               <div className="num" style={{ fontSize: 24, fontWeight: 700, color: 'var(--ink)', letterSpacing: '-0.02em' }}>{taka(price)}</div>
               <div style={{ fontSize: 14, fontWeight: 600, margin: '6px 0 14px', color: inStock ? '#15803D' : '#B42318' }}>
                 {!inStock ? 'Out of stock' : product.stock <= 5 ? `Only ${product.stock} left — order soon` : 'In stock'}
@@ -456,8 +586,8 @@ export default function ProductDetail() {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <button onClick={() => handleAdd(false)} disabled={!inStock}
-                  style={{ padding: '12px', background: inStock ? BLUE : 'var(--bg-f1f5f9, #F1F5F9)', color: inStock ? '#fff' : '#94A3B8', border: 'none', borderRadius: 'var(--pill)', cursor: inStock ? 'pointer' : 'not-allowed', fontSize: 15, fontWeight: 600, fontFamily: 'inherit' }}>
-                  Add to cart
+                  style={{ padding: '12px', background: inStock ? (added ? '#15803D' : BLUE) : 'var(--bg-f1f5f9, #F1F5F9)', color: inStock ? '#fff' : '#94A3B8', border: 'none', borderRadius: 'var(--pill)', cursor: inStock ? 'pointer' : 'not-allowed', fontSize: 15, fontWeight: 600, fontFamily: 'inherit', transition: 'background .25s' }}>
+                  {added ? '✓ Added to cart' : 'Add to cart'}
                 </button>
                 {inStock && (
                   <button onClick={() => handleAdd(true)}
@@ -465,7 +595,7 @@ export default function ProductDetail() {
                     Buy now
                   </button>
                 )}
-                <button onClick={() => toggle(product.id)}
+                <button onClick={e => { toggle(product.id); pop(e.currentTarget.querySelector('svg'), 1.4); haptic(8); }}
                   style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7, padding: '8px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 500, color: 'var(--ink)', fontFamily: 'inherit' }}>
                   <Heart size={16} color={wished ? '#E5383B' : 'currentColor'} fill={wished ? '#E5383B' : 'none'} /> {wished ? 'Saved to wishlist' : 'Save to wishlist'}
                 </button>
@@ -513,7 +643,7 @@ export default function ProductDetail() {
 
           {/* ═══ Details: description + specifications side by side ═══ */}
           {(features.length > 0 || specs.length > 0) && (
-            <section id="details" style={{ marginTop: isMobile ? 32 : 52, paddingTop: isMobile ? 24 : 36, borderTop: '1px solid var(--hairline)', scrollMarginTop: 90 }}>
+            <Reveal as="section" id="details" style={{ marginTop: isMobile ? 32 : 52, paddingTop: isMobile ? 24 : 36, borderTop: '1px solid var(--hairline)', scrollMarginTop: 90 }}>
               <div style={{ display: 'grid', gridTemplateColumns: wide && features.length && specs.length ? 'minmax(0, 1.1fr) minmax(0, 1fr)' : '1fr', gap: isMobile ? 28 : 56, alignItems: 'start' }}>
                 {features.length > 0 && (
                   <div>
@@ -537,17 +667,17 @@ export default function ProductDetail() {
                   </div>
                 )}
               </div>
-            </section>
+            </Reveal>
           )}
 
           {/* ═══ Reviews ═══ */}
-          <div style={{ marginTop: isMobile ? 32 : 52, paddingTop: isMobile ? 24 : 36, borderTop: '1px solid var(--hairline)' }}>
+          <Reveal style={{ marginTop: isMobile ? 32 : 52, paddingTop: isMobile ? 24 : 36, borderTop: '1px solid var(--hairline)' }}>
             <ReviewSection productId={product.id} onStats={setRevStats} />
-          </div>
+          </Reveal>
 
           {/* ═══ Related ═══ */}
           {related.length > 0 && (
-            <section style={{ marginTop: isMobile ? 32 : 52, paddingTop: isMobile ? 24 : 36, borderTop: '1px solid var(--hairline)' }}>
+            <Reveal as="section" style={{ marginTop: isMobile ? 32 : 52, paddingTop: isMobile ? 24 : 36, borderTop: '1px solid var(--hairline)' }}>
               <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12 }}>
                 <h2 style={sectionTitle(isMobile)}>More in {product.categories?.name || 'this category'}</h2>
                 {product.categories && <Link to={`/products?cat=${product.categories.id}`} className="more-link" style={{ fontSize: 14, fontWeight: 600, marginBottom: 14, whiteSpace: 'nowrap' }}>See all</Link>}
@@ -555,10 +685,13 @@ export default function ProductDetail() {
               <div style={{ margin: isMobile ? '0 -10px' : '0 -18px' }}>
                 <ProductRail products={related} cardWidth={isMobile ? 160 : 200} compact={isMobile} autoPlay={false} />
               </div>
-            </section>
+            </Reveal>
           )}
         </div>
       </div>
+
+      <StickyBuyBar watch={buyBoxRef} product={product} price={price} original={original} discount={discount} inStock={inStock} added={added}
+        onAdd={() => handleAdd(false)} onBuy={() => handleAdd(true)} isMobile={isMobile} />
     </CustomerLayout>
   );
 }

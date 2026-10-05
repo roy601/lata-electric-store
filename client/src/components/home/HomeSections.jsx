@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, ArrowRight, Package } from 'lucide-react';
 import ProductRail, { RailCard } from '../ProductRail';
 import { cardStyle, cornerTag, discountTag } from '../ProductCard';
-import { addToCart } from '../../store/cartStore';
+import { addWithFlair, photoIn } from '../../lib/cartFx';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 
 const BLUE = '#1E88E5';
@@ -149,7 +149,7 @@ function DealCard({ product: p, width, big = false }) {
   const { price, orig, disc } = dealPrices(p);
   const inStock = p.stock > 0;
   return (
-    <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+    <div data-card onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
       style={{ ...cardStyle(hover), ...(width ? { flex: `0 0 ${width}px`, width, scrollSnapAlign: 'start' } : { minWidth: 0 }),
         flexDirection: big ? 'column' : 'row', gap: big ? 0 : 14, padding: big ? 0 : 12, height: '100%', boxSizing: 'border-box' }}>
       <Link to={`/products/${p.id}`} style={{ flex: big ? '1 1 auto' : '0 0 40%', aspectRatio: big ? undefined : '1/1', minHeight: big ? 260 : undefined, background: 'var(--bg-fff, #fff)', position: big ? 'relative' : 'static', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: big ? 28 : 6, overflow: 'hidden' }}>
@@ -168,7 +168,7 @@ function DealCard({ product: p, width, big = false }) {
             </div>
             {disc > 0 && <div className="num" style={{ fontSize: 13, fontWeight: 600, color: '#15803D', marginTop: 2 }}>You save ৳{(orig - price).toLocaleString('en-BD')}</div>}
           </div>
-          <button className="cart-btn" onClick={() => addToCart(p, { price })} disabled={!inStock}
+          <button className="cart-btn" onClick={e => addWithFlair(p, { price }, photoIn(e.currentTarget))} disabled={!inStock}
             style={big ? { width: 'auto', padding: '11px 26px', fontSize: 14, background: inStock ? '#1E88E5' : undefined, color: inStock ? '#fff' : undefined, borderColor: inStock ? '#1E88E5' : undefined } : { marginTop: 10 }}>
             {inStock ? 'Add to cart' : 'Out of stock'}
           </button>

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Package, Zap } from 'lucide-react';
-import { addToCart, useWishlistStore } from '../store/cartStore';
+import { useWishlistStore } from '../store/cartStore';
+import { addWithFlair, photoIn, pop, haptic } from '../lib/cartFx';
 
 /* Shared look of a product card (also used by RailCard):
    flat with a hairline edge, square discount tag in the corner,
@@ -20,6 +21,7 @@ export default function ProductCard({ product: p }) {
   const wished = has(p.id);
   const [imgOk, setImgOk] = useState(!!p.image);  // broken picture → tidy placeholder, not alt text
   const [hover, setHover] = useState(false);
+  const [added, setAdded] = useState(false);
 
   const price    = p.flash_sale && p.flash_price ? p.flash_price : p.price;
   const original = p.flash_sale && p.flash_price ? p.price : p.original_price;
@@ -28,11 +30,11 @@ export default function ProductCard({ product: p }) {
 
   const handleAddToCart = (e) => {
     e.preventDefault();
-    addToCart(p, { price });
+    if (addWithFlair(p, { price }, photoIn(e.currentTarget)) > 0) { setAdded(true); setTimeout(() => setAdded(false), 1600); }
   };
 
   return (
-    <div style={cardStyle(hover)} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+    <div data-card style={cardStyle(hover)} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
       {/* Corner tags */}
       <div style={cornerTag}>
         {discount && <span style={discountTag}>−{discount}%</span>}
@@ -40,7 +42,7 @@ export default function ProductCard({ product: p }) {
       </div>
 
       {/* Wishlist */}
-      <button onClick={e => { e.preventDefault(); toggle(p.id); }} aria-label={wished ? 'Remove from wishlist' : 'Add to wishlist'}
+      <button onClick={e => { e.preventDefault(); toggle(p.id); pop(e.currentTarget, 1.3); haptic(8); }} aria-label={wished ? 'Remove from wishlist' : 'Add to wishlist'}
         style={{ position: 'absolute', top: 6, right: 6, zIndex: 1, background: 'transparent', border: 'none', width: 32, height: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Heart size={18} color={wished ? '#E5383B' : '#94A3B8'} fill={wished ? '#E5383B' : 'none'} />
       </button>
@@ -68,7 +70,7 @@ export default function ProductCard({ product: p }) {
             {discount && <span style={{ fontSize: 12.5, color: 'var(--tx-94a3b8, #94A3B8)', textDecoration: 'line-through' }}>৳{Number(original).toLocaleString('en-BD')}</span>}
           </div>
           <button onClick={handleAddToCart} disabled={!inStock} className="cart-btn">
-            {inStock ? 'Add to cart' : 'Out of stock'}
+            {!inStock ? 'Out of stock' : added ? '✓ Added' : 'Add to cart'}
           </button>
         </div>
       </div>

@@ -1,9 +1,9 @@
 ﻿import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Zap, Package, ShoppingCart, Clock } from 'lucide-react';
+import { addWithFlair, photoIn } from '../../lib/cartFx';
 import CustomerLayout from '../../components/layout/CustomerLayout';
 import { supabase } from '../../lib/supabase';
-import { addToCart } from '../../store/cartStore';
 import { useSeo } from '../../lib/seo';
 
 export default function FlashSalePage() {
@@ -172,7 +172,7 @@ export default function FlashSalePage() {
 
                         <div style={{ display: 'flex', gap: 7 }}>
                           <button
-                            onClick={() => { addToCart(p, { price }); }}
+                            onClick={e => { addWithFlair(p, { price }, photoIn(e.currentTarget)); }}
                             disabled={!inStock}
                             style={{ flex: 1, padding: '8px 0', background: inStock ? 'var(--bg-fff, #fff)' : 'var(--bg-eee, #eee)', color: inStock ? '#1E88E5' : 'var(--tx-bbb, #bbb)', border: `1.5px solid ${inStock ? '#1E88E5' : 'var(--bd-eee, #eee)'}`, borderRadius: 'var(--r-sm)', fontWeight: 700, fontSize: 12, cursor: inStock ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
                             <ShoppingCart size={13} /> Cart

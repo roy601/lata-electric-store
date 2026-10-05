@@ -657,7 +657,7 @@ export default function CustomerLayout({ children }) {
                 )}
               </button>
             )}
-            <button onClick={() => setCartOpen(true)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: 'var(--tx-666, #666)', fontSize: 12, padding: isMobile ? '4px 6px' : '4px 10px', position: 'relative', background: 'none', border: 'none', cursor: 'pointer', gap: 2 }}>
+            <button data-cart-target onClick={() => setCartOpen(true)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: 'var(--tx-666, #666)', fontSize: 12, padding: isMobile ? '4px 6px' : '4px 10px', position: 'relative', background: 'none', border: 'none', cursor: 'pointer', gap: 2 }}>
               <ShoppingCart size={isMobile ? 22 : 20} />
               {!isMobile && 'Cart'}
               {cartCount > 0 && (
@@ -798,7 +798,7 @@ export default function CustomerLayout({ children }) {
 
       {/* Mobile bottom tab bar */}
       {isMobile && (
-        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'var(--bg-fff, #fff)', borderTop: '1px solid var(--bd-e0e0e0, #e0e0e0)', display: 'flex', zIndex: 400, boxShadow: '0 -4px 16px rgba(0,0,0,.1)' }}>
+        <div data-bottom-nav style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'var(--bg-fff, #fff)', borderTop: '1px solid var(--hairline)', display: 'flex', zIndex: 400, paddingBottom: 'env(safe-area-inset-bottom)' }}>
           {[
             { to: '/',          Icon: HomeIcon,     label: 'Home',     onClick: null },
             { to: '/products',  Icon: Package,      label: 'Products', onClick: null },
@@ -806,7 +806,7 @@ export default function CustomerLayout({ children }) {
             { to: user ? '/account' : '/login', Icon: User, label: user ? displayName.split(' ')[0] : 'Sign In', onClick: null },
             { to: null,         Icon: ShoppingCart, label: 'Cart',     onClick: () => setCartOpen(true), badge: cartCount },
           ].map(({ to, Icon, label, onClick, badge }) => (
-            <button key={label}
+            <button key={label} data-cart-target={label === 'Cart' ? '' : undefined}
               onClick={onClick || (() => navigate(to))}
               style={{ flex: 1, padding: '8px 0', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, fontSize: 11.5, color: 'var(--tx-666, #666)', position: 'relative' }}>
               <Icon size={20} />
@@ -824,7 +824,7 @@ export default function CustomerLayout({ children }) {
       <style>{`.hide-scrollbar::-webkit-scrollbar{display:none}`}</style>
 
       {/* ── Floating buttons ── */}
-      <div style={{ position: 'fixed', bottom: isMobile ? 76 : 24, right: 16, zIndex: 500, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+      <div className="float-stack" style={{ position: 'fixed', bottom: isMobile ? 76 : 24, right: 16, zIndex: 500, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
 
         {/* Contact popup */}
         {contactOpen && (

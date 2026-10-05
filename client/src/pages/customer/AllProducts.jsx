@@ -1,11 +1,11 @@
 ﻿import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Search, Package, Zap, ShoppingCart, LayoutGrid, List } from 'lucide-react';
+import { addWithFlair, photoIn } from '../../lib/cartFx';
 import CustomerLayout from '../../components/layout/CustomerLayout';
 import ProductCard from '../../components/ProductCard';
 import { supabase } from '../../lib/supabase';
 import { fetchProductPage, fetchBrands } from '../../lib/catalog';
-import { addToCart } from '../../store/cartStore';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { useSeo } from '../../lib/seo';
 
@@ -354,9 +354,9 @@ function ListCard({ product: p }) {
   const inStock  = p.stock > 0;
 
   return (
-    <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', border: '1px solid var(--bd-ebebeb, #ebebeb)', display: 'flex', gap: 16, padding: 14, transition: 'box-shadow .2s' }}
-      onMouseEnter={e => e.currentTarget.style.boxShadow='0 4px 16px rgba(0,0,0,.08)'}
-      onMouseLeave={e => e.currentTarget.style.boxShadow='none'}>
+    <div data-card style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', border: '1px solid var(--hairline)', display: 'flex', gap: 16, padding: 14, transition: 'border-color .2s' }}
+      onMouseEnter={e => e.currentTarget.style.borderColor='rgba(15,23,42,.22)'}
+      onMouseLeave={e => e.currentTarget.style.borderColor='var(--hairline)'}>
 
       <div onClick={() => navigate(`/products/${p.id}`)}
         style={{ width: 120, height: 120, background: 'var(--bg-f8f9fa, #f8f9fa)', borderRadius: 'var(--r-md)', overflow: 'hidden', flexShrink: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -387,7 +387,7 @@ function ListCard({ product: p }) {
           {disc && <div style={{ fontSize: 11, fontWeight: 700, color: '#28A745' }}>Save {disc}%</div>}
         </div>
         <button
-          onClick={() => { addToCart(p, { price }); }}
+          onClick={e => { addWithFlair(p, { price }, photoIn(e.currentTarget)); }}
           disabled={!inStock}
           style={{ padding: '9px 20px', background: inStock ? '#1E88E5' : 'var(--bg-e0e0e0, #e0e0e0)', color: '#fff', border: 'none', borderRadius: 'var(--r-md)', fontWeight: 700, fontSize: 13, cursor: inStock ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6 }}>
           {inStock ? <><ShoppingCart size={14} /> Add to Cart</> : 'Out of Stock'}

@@ -108,3 +108,34 @@ button:not(:disabled):active { transform: translateY(1px); }
   font: 600 14px/1.3 var(--font); color: var(--tx-64748b, #64748B); white-space: nowrap; transition: color .15s, border-color .15s; }
 .u-tab:hover { color: var(--ink); }
 .u-tab[aria-selected="true"] { color: var(--ink); border-bottom-color: #1E88E5; }
+
+/* ── Motion & touch ──
+   Taps feel immediate on phones (no grey flash, no double-tap delay). */
+a, button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+
+/* Sections ease in as they scroll into view (see components/common/Reveal.jsx) */
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity .55s ease, transform .55s cubic-bezier(.2,.7,.2,1); }
+.reveal.is-in { opacity: 1; transform: none; }
+
+/* Photo change: soft cross-fade */
+.photo-fade { animation: photoFade .3s ease; }
+@keyframes photoFade { from { opacity: 0; } to { opacity: 1; } }
+
+/* Rating bars fill when the reviews come into view */
+.bar-fill { transition: width .9s cubic-bezier(.2,.7,.2,1); }
+
+/* Messages sit above the phone's bottom menu */
+@media (max-width: 767px) { .toasts { bottom: calc(68px + env(safe-area-inset-bottom)) !important; } }
+
+/* While the sticky buy bar is showing, lift the chat button and messages above it */
+.float-stack { transition: transform .3s ease; }
+body.has-buybar .float-stack { transform: translateY(calc(-1 * var(--buybar-h, 64px))); }
+body.has-buybar .toasts { bottom: calc(var(--buybar-h, 64px) + 16px) !important; }
+@media (max-width: 767px) { body.has-buybar .toasts { bottom: calc(68px + var(--buybar-h, 64px) + env(safe-area-inset-bottom)) !important; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .photo-fade { animation: none; }
+  .bar-fill, .float-stack { transition: none; }
+}
+.reveal:not(.is-in) .bar-fill { width: 0 !important; }

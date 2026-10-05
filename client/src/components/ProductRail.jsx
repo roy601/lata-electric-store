@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Package, Zap } from 'lucide-react';
-import { addToCart } from '../store/cartStore';
+import { addWithFlair, photoIn } from '../lib/cartFx';
 import { cardStyle, cornerTag, discountTag, flashTag } from './ProductCard';
 const GAP = 12;
 const AUTO_MS = 3800;        // time between automatic slides
@@ -11,13 +11,14 @@ const RESUME_AFTER_MS = 6000; // after a swipe/click, wait this long before slid
 export function RailCard({ product: p, width }) {
   const [imgOk, setImgOk] = useState(!!p.image);
   const [hover, setHover] = useState(false);
+  const [added, setAdded] = useState(false);
   const price   = p.flash_sale && p.flash_price ? +p.flash_price : +p.price;
   const orig    = p.flash_sale && p.flash_price ? +p.price : +p.original_price;
   const disc    = orig && orig > price ? Math.round((1 - price / orig) * 100) : null;
   const inStock = p.stock > 0;
 
   return (
-    <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+    <div data-card onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
       style={{ ...cardStyle(hover), ...(width ? { width, flex: `0 0 ${width}px` } : { width: '100%', minWidth: 0 }), scrollSnapAlign: 'start' }}>
       <Link to={`/products/${p.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', flex: 1 }} draggable={false}>
         {/* Image */}
@@ -45,9 +46,9 @@ export function RailCard({ product: p, width }) {
       </Link>
 
       <div style={{ padding: '10px 12px 12px' }}>
-        <button className="cart-btn" onClick={() => addToCart(p, { price })} disabled={!inStock}
+        <button className="cart-btn" onClick={e => { if (addWithFlair(p, { price }, photoIn(e.currentTarget)) > 0) { setAdded(true); setTimeout(() => setAdded(false), 1600); } }} disabled={!inStock}
           aria-label={inStock ? `Add ${p.name} to cart` : `${p.name} is out of stock`}>
-          {inStock ? 'Add to cart' : 'Out of stock'}
+          {!inStock ? 'Out of stock' : added ? '✓ Added' : 'Add to cart'}
         </button>
       </div>
     </div>
