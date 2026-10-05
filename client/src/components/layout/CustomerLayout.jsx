@@ -15,6 +15,7 @@ import { supabase } from '../../lib/supabase';
 import { fetchCategoryCounts, fetchSuggestions } from '../../lib/catalog';
 import { POLICY_LINKS } from '../../content/policies';
 import CartSidebar from '../CartSidebar';
+import PromoPopup from '../PromoPopup';
 import ThemeToggle from '../common/ThemeToggle';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 
@@ -734,6 +735,7 @@ export default function CustomerLayout({ children }) {
 
       <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} categories={categories} subcategories={subcategories} counts={counts} navigate={navigate} />
       <CartSidebar open={cartOpen} onClose={() => setCartOpen(false)} />
+      <PromoPopup />
       <main style={{ flex: 1 }}>{children}</main>
 
       {/* Footer */}

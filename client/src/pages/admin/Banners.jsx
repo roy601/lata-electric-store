@@ -14,8 +14,10 @@ export const PLACEMENTS = {
                 note: 'Right of the slider, stacked. The first 2 are shown.' },
   side_small: { label: 'Side — small',     size: '320 × 370',  ratio: '32 / 37',  max: [560, 650],  slots: 2,
                 note: 'Under the wide tiles, side by side. The first 2 are shown.' },
+  popup:      { label: 'Pop-up offer',     size: '1000 × 600', ratio: '5 / 3',    max: [1200, 1000], slots: 1,
+                note: 'Shown once to each visitor when they open the site. Any shape works; landscape looks best.' },
 };
-const ORDER = ['slider', 'side_wide', 'side_small'];
+const ORDER = ['slider', 'side_wide', 'side_small', 'popup'];
 const placementOf = (b) => (PLACEMENTS[b.placement] ? b.placement : 'slider');
 
 const EMPTY = { image: '', title: '', subtitle: '', placement: 'slider', linkType: 'none', product_id: '', category_id: '', link_url: '', sort_order: 0, is_active: true };
@@ -75,7 +77,7 @@ export default function AdminBanners() {
       im.onload = () => {
         const want = { slider: 16 / 7, side_wide: 13 / 6, side_small: 32 / 37 }[form.placement];
         const got = im.naturalWidth / im.naturalHeight;
-        if (Math.abs(got - want) / want > 0.25) toast(`This picture is ${im.naturalWidth}×${im.naturalHeight}. "${PLACEMENTS[form.placement].label}" looks best at ${PLACEMENTS[form.placement].size} — edges may be cropped.`, { duration: 7000 });
+        if (want && Math.abs(got - want) / want > 0.25) toast(`This picture is ${im.naturalWidth}×${im.naturalHeight}. "${PLACEMENTS[form.placement].label}" looks best at ${PLACEMENTS[form.placement].size} — edges may be cropped.`, { duration: 7000 });
       };
       im.src = data.url;
     } catch { toast.error('Upload failed'); }
@@ -106,7 +108,7 @@ export default function AdminBanners() {
     try { editId ? await updateBanner(editId, payload) : await createBanner(payload); }
     catch (err) {
       setSaving(false);
-      toast.error(/placement|link_url|column/i.test(errMsg(err)) ? 'The database needs migration 06 (banner placements) first.' : errMsg(err));
+      toast.error(/placement|link_url|column|check/i.test(errMsg(err)) ? 'The database needs migration 07 (banner placements and pop-up) first.' : errMsg(err));
       return;
     }
     setSaving(false);
@@ -140,6 +142,7 @@ export default function AdminBanners() {
       <p style={{ margin: '0 0 18px', fontSize: 13, color: 'var(--tx-7f8c9a, #7f8c9a)', maxWidth: 760, lineHeight: 1.6 }}>
         The home page shows the <strong>main slider</strong> with a column on the right: <strong>2 wide tiles</strong> on top and <strong>2 small tiles</strong> below.
         Use the right picture size for each place. With no side tiles, the slider uses the full width.
+        The <strong>pop-up offer</strong> appears once to each visitor; a new pop-up is shown again once.
       </p>
 
       {loading ? <div style={{ padding: 80, textAlign: 'center', color: 'var(--tx-9aa5b1, #9aa5b1)' }}>Loading…</div> : ORDER.map(key => {
@@ -167,7 +170,7 @@ export default function AdminBanners() {
                   return (
                     <div key={b.id} style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, overflow: 'hidden', border: '1px solid var(--bd-edf0f3, #EDF0F3)', opacity: b.is_active ? 1 : .55 }}>
                       <div style={{ aspectRatio: P.ratio, background: 'var(--bg-f1f5f9, #F1F5F9)', position: 'relative' }}>
-                        {b.image && <img src={b.image} alt={b.title || ''} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
+                        {b.image && <img src={b.image} alt={b.title || ''} style={{ width: '100%', height: '100%', objectFit: key === 'popup' ? 'contain' : 'cover', display: 'block' }} />}
                         <div style={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 6 }}>
                           <span style={{ background: !b.is_active ? '#7f8c9a' : hiddenBySlots ? '#D97706' : '#16A34A', color: '#fff', fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 10 }}>
                             {!b.is_active ? 'Hidden' : hiddenBySlots ? 'Not shown (slots full)' : 'Live'}
@@ -209,14 +212,18 @@ export default function AdminBanners() {
 
             {/* Where */}
             <label style={lb}>Where on the home page</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 18 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: 8, marginBottom: 18 }}>
               {ORDER.map(key => {
                 const P = PLACEMENTS[key]; const on = form.placement === key;
                 return (
                   <button key={key} type="button" onClick={() => upd('placement', key)}
                     style={{ padding: 10, borderRadius: 10, border: `2px solid ${on ? '#1E88E5' : 'var(--bd-e2e8f0, #E2E8F0)'}`, background: on ? 'var(--bg-eef6ff, #EEF6FF)' : 'var(--bg-fff, #fff)', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit' }}>
                     {/* mini map of the hero, with this place highlighted */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '2.2fr 1fr', gap: 3, height: 44, marginBottom: 8 }}>
+                    {key === 'popup' ? (
+                      <div style={{ height: 44, marginBottom: 8, borderRadius: 3, background: 'var(--bg-cbd5e1, #CBD5E1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ width: '46%', height: '62%', borderRadius: 3, background: '#1E88E5', boxShadow: '0 2px 6px rgba(0,0,0,.25)' }} />
+                      </div>
+                    ) : <div style={{ display: 'grid', gridTemplateColumns: '2.2fr 1fr', gap: 3, height: 44, marginBottom: 8 }}>
                       <div style={{ borderRadius: 3, background: key === 'slider' ? '#1E88E5' : 'var(--bg-cbd5e1, #CBD5E1)' }} />
                       <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr 1.2fr', gap: 3 }}>
                         <div style={{ borderRadius: 2, background: key === 'side_wide' ? '#1E88E5' : 'var(--bg-cbd5e1, #CBD5E1)' }} />
@@ -226,7 +233,7 @@ export default function AdminBanners() {
                           <div style={{ borderRadius: 2, background: key === 'side_small' ? '#1E88E5' : 'var(--bg-cbd5e1, #CBD5E1)' }} />
                         </div>
                       </div>
-                    </div>
+                    </div>}
                     <div style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--tx-0f172a, #0F172A)' }}>{P.label}</div>
                     <div style={{ fontSize: 11.5, color: 'var(--tx-64748b, #64748B)' }}>{P.size}</div>
                   </button>
@@ -237,7 +244,7 @@ export default function AdminBanners() {
             {/* Picture */}
             <label style={lb}>Picture <span style={{ fontWeight: 400, color: 'var(--tx-7f8c9a, #7f8c9a)' }}>— best at {PLACEMENTS[form.placement].size} px</span></label>
             <div style={{ borderRadius: 10, overflow: 'hidden', aspectRatio: PLACEMENTS[form.placement].ratio, maxHeight: 260, background: 'var(--bg-f1f5f9, #F1F5F9)', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px dashed var(--bd-cbd5e1, #CBD5E1)', marginInline: form.placement === 'side_small' ? 'auto' : 0, width: form.placement === 'side_small' ? 200 : '100%' }}>
-              {form.image ? <img src={form.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              {form.image ? <img src={form.image} alt="" style={{ width: '100%', height: '100%', objectFit: form.placement === 'popup' ? 'contain' : 'cover' }} />
                 : <span style={{ fontSize: 12.5, color: 'var(--tx-94a3b8, #94A3B8)' }}>Preview ({PLACEMENTS[form.placement].size})</span>}
             </div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 18 }}>

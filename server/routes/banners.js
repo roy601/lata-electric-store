@@ -1,6 +1,6 @@
 const { crudRouter } = require('../utils/crudRouter');
 
-// placement: 'slider' | 'side_wide' | 'side_small' (checked by the database, migration 06)
+// placement: 'slider' | 'side_wide' | 'side_small' | 'popup' (checked by the database, migrations 06/07)
 // link_url:  optional page path (/products?cat=13) or https:// link
 module.exports = crudRouter({
   table:  'banners',

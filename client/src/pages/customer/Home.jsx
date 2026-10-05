@@ -299,7 +299,7 @@ export default function Home() {
       const next = { flash: flashRes.data || [], featured: featRes.data || [], topSell: topRes.data || [], trending: trendRes.data || [], newest: newRes.data || [], deals, brands, counts, byCat };
       setSections(next);
       setCategories(cRes.data || []);
-      setBanners(bRes.data || []);
+      setBanners((bRes.data || []).filter(b => b.placement !== 'popup'));  // the pop-up is shown by PromoPopup
       setElectricians(eRes.data || []);
       setShopSettings(sRes.data || null);
       if (sRes.data?.flash_sale_active) setFlashConfig(sRes.data);
