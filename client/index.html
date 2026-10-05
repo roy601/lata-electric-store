@@ -36,25 +36,34 @@
       display: flex; align-items: center; justify-content: center;
       /* Continues the video's own neutral light-grey vignette across the screen */
       background: radial-gradient(circle at center, #f8f8f8 0px, #f1f1f1 80px, #e9e9e9 150px, #e3e3e3 38vmax, #dadada 75vmax);
-      transition: opacity .5s ease, visibility .5s ease;
+      transition: opacity .6s cubic-bezier(.4, 0, .2, 1), visibility .6s;
+      will-change: opacity;
     }
     #lata-intro.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-    #lata-intro video {
-      width: 280px; max-width: 60vw; height: auto;
-      display: block; outline: none; pointer-events: none;
+    #lata-intro .intro-media { position: relative; width: 280px; max-width: 60vw; aspect-ratio: 16 / 9; }
+    #lata-intro video, #lata-intro .intro-still {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+      display: block; outline: none; pointer-events: none; opacity: 0;
       /* Feather the edges so the video melts into the background (no visible box) */
       -webkit-mask-image: radial-gradient(ellipse 50% 50% at center, #000 55%, transparent 100%);
               mask-image: radial-gradient(ellipse 50% 50% at center, #000 55%, transparent 100%);
+      transform: translateZ(0);
+      transition: opacity .35s ease, transform .6s cubic-bezier(.4, 0, .2, 1);
     }
+    #lata-intro.is-playing video, #lata-intro.is-still .intro-still { opacity: 1; }
+    #lata-intro.is-hidden video, #lata-intro.is-hidden .intro-still { transform: scale(1.06); }
     @media (max-width: 600px) {
-      #lata-intro video { width: 200px; max-width: 62vw; }
+      #lata-intro .intro-media { width: 200px; max-width: 62vw; }
     }
   </style>
 </head>
 <body>
   <!-- Intro animation: plays while the homepage pictures load behind it -->
   <div id="lata-intro" aria-hidden="true">
-    <video src="/intro/lata-intro-v2.mp4" autoplay muted playsinline preload="auto"></video>
+    <div class="intro-media">
+      <video muted playsinline preload="auto" src="/intro/lata-intro-v3.mp4"></video>
+      <img class="intro-still" src="/intro/lata-intro-end.jpg" alt="" decoding="async" />
+    </div>
   </div>
   <script>
     (function () {
@@ -72,21 +81,45 @@
       try { sessionStorage.setItem('lata-intro-seen', '1'); } catch (e) {}
 
       var video = intro.querySelector('video');
-      var videoDone = false, pageReady = false, closed = false;
+      var videoDone = false, pageReady = false, closed = false, started = false, still = false;
 
       function close() {
         if (closed) return;
         closed = true;
         intro.classList.add('is-hidden');
-        setTimeout(function () { intro.remove(); }, 600);
+        setTimeout(function () { intro.remove(); }, 650);
       }
       function check() { if (videoDone && pageReady) close(); }
 
-      video.addEventListener('ended', function () { videoDone = true; check(); });
-      video.addEventListener('error', function () { videoDone = true; check(); });
-      // If autoplay is blocked, don't hold the visitor on the intro
-      var p = video.play && video.play();
-      if (p && p.catch) p.catch(function () { videoDone = true; check(); });
+      // Static logo instead of the animation (slow connection, data saver,
+      // reduced motion, or autoplay blocked) — never a stuttering video.
+      function showStill() {
+        if (still || started) return;
+        still = true;
+        try { video.pause(); video.removeAttribute('src'); video.load(); } catch (e) {}
+        intro.classList.add('is-still');
+        setTimeout(function () { videoDone = true; check(); }, 900);
+      }
+
+      var conn = navigator.connection || {};
+      var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (calm || conn.saveData || /(^|-)2g$/.test(conn.effectiveType || '')) {
+        showStill();
+      } else {
+        // Start only when enough is buffered to play straight through
+        var go = function () {
+          if (started || still) return;
+          var p = video.play();
+          if (p && p.catch) p.catch(showStill);
+        };
+        video.addEventListener('canplaythrough', go);
+        if (video.readyState >= 4) go();
+        video.addEventListener('playing', function () { started = true; intro.classList.add('is-playing'); });
+        // hold the finished logo a moment before the page appears
+        video.addEventListener('ended', function () { setTimeout(function () { videoDone = true; check(); }, 350); });
+        video.addEventListener('error', showStill);
+        setTimeout(function () { if (!started) showStill(); }, 2500);
+      }
 
       if (path === '/') {
         if (window.__lataHomeReady) pageReady = true;
