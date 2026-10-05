@@ -178,9 +178,29 @@ router.get('/', async (req, res) => {
 router.patch('/:id/status', validId, async (req, res) => {
   const { status } = req.body;
   if (!STATUSES.includes(status)) return res.status(400).json({ success: false, message: 'Invalid status.' });
-  const { error } = await supabase.from('orders').update({ status }).eq('id', req.params.id);
-  if (error) return res.status(400).json({ success: false, message: error.message });
-  res.json({ success: true });
+  // set_order_status (migration 08) also puts items back in stock on cancel and takes them out on reopen
+  const { error } = await supabase.rpc('set_order_status', { p_id: +req.params.id, p_status: status });
+  if (error) {
+    if (error.code === 'PGRST202' || /set_order_status/.test(error.message || '')) {
+      // Migration 08 not run yet: change the status only
+      const r = await supabase.from('orders').update({ status }).eq('id', req.params.id);
+      if (r.error) return res.status(400).json({ success: false, message: r.error.message });
+      return res.json({ success: true, stockAdjusted: false });
+    }
+    const short = error.message?.match(/INSUFFICIENT_STOCK:(.*)/);
+    if (short) return res.status(409).json({ success: false, message: `Not enough stock to reopen this order: ${short[1].trim()}` });
+    if (error.message?.includes('ORDER_NOT_FOUND')) return res.status(404).json({ success: false, message: 'Order not found' });
+    return res.status(400).json({ success: false, message: error.message });
+  }
+  res.json({ success: true, stockAdjusted: true });
+});
+
+// Status timeline for one order (recorded by a trigger, migration 03)
+router.get('/:id/history', validId, async (req, res) => {
+  const { data, error } = await supabase.from('order_status_history').select('status, changed_at')
+    .eq('order_id', +req.params.id).order('changed_at', { ascending: true });
+  if (error) return res.json({ success: true, history: [] });
+  res.json({ success: true, history: data || [] });
 });
 
 router.patch('/:id/paid', validId, async (req, res) => {
@@ -195,6 +215,7 @@ router.patch('/:id/return', validId, async (req, res) => {
   if (error) {
     if (error.message?.includes('ORDER_NOT_FOUND'))  return res.status(404).json({ success: false, message: 'Order not found' });
     if (error.message?.includes('ALREADY_RETURNED')) return res.status(409).json({ success: false, message: 'This order was already returned.' });
+    if (error.message?.includes('ORDER_CANCELLED'))  return res.status(409).json({ success: false, message: 'This order was cancelled; its items are already back in stock.' });
     return res.status(400).json({ success: false, message: error.message });
   }
   res.json({ success: true });

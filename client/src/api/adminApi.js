@@ -48,6 +48,7 @@ export const getOrders         = (params)       => api.get('/orders', { params }
 export const updateOrderStatus = (id, status)   => api.patch(`/orders/${id}/status`, { status });
 export const markOrderPaid     = (id)           => api.patch(`/orders/${id}/paid`);
 export const returnOrder       = (id, reason)   => api.patch(`/orders/${id}/return`, { return_reason: reason });
+export const getOrderHistory   = (id)           => api.get(`/orders/${id}/history`);
 export const getCustomers      = ()             => api.get('/customers');
 export const deleteCustomer    = (phone)        => api.delete(`/customers/${encodeURIComponent(phone)}`);
 
