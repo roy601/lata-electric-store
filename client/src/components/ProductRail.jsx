@@ -21,7 +21,7 @@ export function RailCard({ product: p, width }) {
     <div
       onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
       style={{
-        width, flex: `0 0 ${width}px`, scrollSnapAlign: 'start', background: '#fff', borderRadius: 12,
+        ...(width ? { width, flex: `0 0 ${width}px` } : { width: '100%', minWidth: 0 }), scrollSnapAlign: 'start', background: '#fff', borderRadius: 12,
         border: `1px solid ${hover ? '#D6E4F5' : '#EDF0F3'}`, display: 'flex', flexDirection: 'column', overflow: 'hidden',
         boxShadow: hover ? '0 10px 24px -8px rgba(15,23,42,.18)' : '0 1px 2px rgba(15,23,42,.04)',
         transform: hover ? 'translateY(-3px)' : 'none', transition: 'box-shadow .2s, transform .2s, border-color .2s',
@@ -96,7 +96,7 @@ function Arrow({ dir, onClick, show, size = 38 }) {
  * Auto-slide pauses while hovered/touched/focused, when off-screen or the tab is
  * hidden, and is off for visitors who prefer reduced motion.
  */
-export default function ProductRail({ products, cardWidth = 176, autoPlay = true, compact = false }) {
+export default function ProductRail({ products, cardWidth = 176, autoPlay = true, compact = false, renderCard }) {
   const ref = useRef(null);
   const wrapRef = useRef(null);
   const pausedUntil = useRef(0);
@@ -162,7 +162,7 @@ export default function ProductRail({ products, cardWidth = 176, autoPlay = true
 
       <div ref={ref} className="hide-scrollbar"
         style={{ display: 'flex', gap: GAP, overflowX: 'auto', scrollbarWidth: 'none', scrollSnapType: 'x mandatory', scrollPaddingLeft: pad, padding: `14px ${pad}px 18px` }}>
-        {products.map(p => <RailCard key={p.id} product={p} width={cardWidth} />)}
+        {products.map(p => renderCard ? renderCard(p, cardWidth) : <RailCard key={p.id} product={p} width={cardWidth} />)}
       </div>
     </div>
   );

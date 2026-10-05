@@ -12,7 +12,9 @@ import { supabase } from '../../lib/supabase';
 import { addToCart } from '../../store/cartStore';
 import { fetchProductPage } from '../../lib/catalog';
 import ShopLocation from '../../components/ShopLocation';
-import ProductRail from '../../components/ProductRail';
+import ProductRail, { RailCard } from '../../components/ProductRail';
+import { CategoryCircles, TrustStrip, HotDeals, RecommendedTabs, TopBrands, SectionTitle } from '../../components/home/HomeSections';
+import { fetchCategoryCounts } from '../../lib/catalog';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { useSeo, storeJsonLd } from '../../lib/seo';
 
@@ -207,7 +209,7 @@ export default function Home() {
   const navigate = useNavigate();
   const { isMobile, isTablet } = useBreakpoint();
   const isCompact = isMobile || isTablet;
-  const [sections,      setSections]      = useState({ flash: [], featured: [], topSell: [], trending: [], byCat: {} });
+  const [sections,      setSections]      = useState({ flash: [], featured: [], topSell: [], trending: [], newest: [], deals: [], brands: [], counts: {}, byCat: {} });
   const [categories,    setCategories]    = useState([]);
   const [banners,       setBanners]       = useState([]);
   const [flashConfig,   setFlashConfig]   = useState(null);
@@ -237,7 +239,7 @@ export default function Home() {
     const strip = (flag) => supabase.from('products').select('*').eq('is_active', true).eq(flag, true)
       .order('created_at', { ascending: false }).order('id', { ascending: false }).limit(20);
     const load = async () => {
-      const [cRes, bRes, sRes, eRes, flashRes, featRes, topRes, trendRes, catRes] = await Promise.all([
+      const [cRes, bRes, sRes, eRes, flashRes, featRes, topRes, trendRes, catRes, newRes, dealRes, brandRes, counts] = await Promise.all([
         supabase.from('categories').select('*').eq('is_active', true).order('sort_order'),
         supabase.from('banners').select('*').eq('is_active', true).order('sort_order'),
         supabase.from('settings').select('*').eq('id', 1).maybeSingle(),
@@ -246,11 +248,33 @@ export default function Home() {
         strip('featured'),
         strip('top_sell'),
         strip('trending'),
-        supabase.rpc('home_category_products', { p_per_cat: 10 }),
+        supabase.rpc('home_category_products', { p_per_cat: 12 }),
+        supabase.from('products').select('*').eq('is_active', true).order('created_at', { ascending: false }).order('id', { ascending: false }).limit(10),
+        supabase.from('products').select('*').eq('is_active', true).not('original_price', 'is', null).limit(80),
+        supabase.from('products').select('id, brand, image').eq('is_active', true).not('brand', 'is', null).order('top_sell', { ascending: false }).limit(400),
+        fetchCategoryCounts(),
       ]);
+      // Hot deals: biggest real discounts first
+      const pct = (p) => {
+        const price = p.flash_sale && p.flash_price ? +p.flash_price : +p.price;
+        const orig  = p.flash_sale && p.flash_price ? +p.price : +p.original_price;
+        return orig > price ? (orig - price) / orig : 0;
+      };
+      const seen = new Set();
+      const deals = [...(flashRes.data || []), ...(dealRes.data || [])]
+        .filter(p => pct(p) >= 0.01 && !seen.has(p.id) && seen.add(p.id))
+        .sort((a, b) => pct(b) - pct(a)).slice(0, 10);
+      // Top brands: most products first, with three product photos each
+      const byBrand = {};
+      (brandRes.data || []).forEach(p => {
+        const name = String(p.brand || '').trim(); if (!name) return;
+        const b = (byBrand[name.toLowerCase()] ||= { name, count: 0, images: [] });
+        b.count++; if (p.image && b.images.length < 3) b.images.push(p.image);
+      });
+      const brands = Object.values(byBrand).sort((a, b) => b.count - a.count).slice(0, 12);
       const byCat = {};
       (catRes.data || []).forEach(p => { (byCat[p.category_id] ||= []).push(p); });
-      const next = { flash: flashRes.data || [], featured: featRes.data || [], topSell: topRes.data || [], trending: trendRes.data || [], byCat };
+      const next = { flash: flashRes.data || [], featured: featRes.data || [], topSell: topRes.data || [], trending: trendRes.data || [], newest: newRes.data || [], deals, brands, counts, byCat };
       setSections(next);
       setCategories(cRes.data || []);
       setBanners(bRes.data || []);
@@ -332,7 +356,7 @@ export default function Home() {
         @keyframes marquee { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
       `}</style>
 
-      <div style={{ background: '#F8F9FA', paddingBottom: 24 }}>
+      <div style={{ background: '#fff', paddingBottom: 32 }}>
 
         {/* ══════════════ ANNOUNCEMENT TICKER ══════════════ */}
         {shopSettings?.announcement_bar && (
@@ -350,6 +374,14 @@ export default function Home() {
           </div>
         )}
 
+        {/* ══════════════ SHOP BY CATEGORY (round pictures) ══════════════ */}
+        {categories.length > 0 && (
+          <div style={{ ...W, marginTop: isMobile ? 14 : 22 }}>
+            <CategoryCircles categories={categories} counts={sections.counts}
+              previewImages={Object.fromEntries(Object.entries(sections.byCat).map(([id, ps]) => [id, ps.find(p => p.image)?.image]))} />
+          </div>
+        )}
+
         {/* ══════════════ HERO: Sidebar + Banner + Side Banners ══════════════ */}
         {(() => {
           // Side boxes only take square/tall images; wide banners always stay in the slider
@@ -360,7 +392,7 @@ export default function Home() {
           const cols = (!isMobile && sideBanners.length) ? '1fr 200px' : '1fr';
 
           return (
-            <div style={{ ...W, paddingTop: isMobile ? 8 : 14, paddingBottom: 0 }}>
+            <div style={{ ...W, paddingTop: isMobile ? 14 : 22, paddingBottom: 0 }}>
               <div style={{ display: 'grid', gridTemplateColumns: cols, gap: 12, alignItems: 'start' }}>
 
                 {/* Main carousel */}
@@ -391,109 +423,54 @@ export default function Home() {
           );
         })()}
 
-        {/* Mobile: horizontal category scroll */}
-        {isMobile && categories.length > 0 && (
-          <div style={{ ...W, marginTop: 10 }}>
-            <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 4 }} className="hide-scrollbar">
-              {[{ id: 'all', name: 'All', isAll: true }, ...categories].map(c => {
-                const isActive = catFilter === String(c.id);
-                return (
-                  <button key={c.id}
-                    onClick={() => { setCatFilter(String(c.id)); setPage(1); document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
-                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, padding: '8px 12px', background: isActive ? '#1E88E5' : '#fff', color: isActive ? '#fff' : '#444', border: `1px solid ${isActive ? '#1E88E5' : '#e0e0e0'}`, borderRadius: 12, cursor: 'pointer', flexShrink: 0, minWidth: 60, fontSize: 10, fontWeight: isActive ? 700 : 500 }}>
-                    {c.isAll ? <Package size={18} color={isActive ? '#fff' : '#666'} /> : <CatIcon name={c.name} size={18} color={isActive ? '#fff' : '#666'} />}
-                    <span style={{ whiteSpace: 'nowrap', maxWidth: 60, overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
+        {/* ══════════════ TRUST STRIP ══════════════ */}
+        <div style={{ ...W, marginTop: isMobile ? 14 : 20 }}>
+          <TrustStrip settings={shopSettings} />
+        </div>
 
         {/* ══════════════ FLASH DEALS ══════════════ */}
         {flashConfig?.flash_sale_active && flashProducts.length > 0 && (
-          <div style={{ ...W, marginTop: 14 }}>
+          <div style={{ ...W, marginTop: isMobile ? 26 : 40 }}>
             <FlashSaleSection products={flashProducts} flashConfig={flashConfig} />
           </div>
         )}
 
-        {/* ══════════════ FEATURED PRODUCTS ══════════════ */}
-        {featuredProducts.length > 0 && (
-          <div style={{ ...W, marginTop: 14 }}>
-            <Block>
-              <SectionHeader title="Featured Products" Icon={Star} onViewAll={() => { setCatFilter('all'); document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth' }); }} />
-              <ProductStrip products={featuredProducts} cardWidth={184} />
-            </Block>
+        {/* ══════════════ HOT DEALS ══════════════ */}
+        {sections.deals.length > 0 && (
+          <div style={{ ...W, marginTop: isMobile ? 26 : 40 }}>
+            <HotDeals products={sections.deals} />
           </div>
         )}
 
-        {/* ══════════════ TOP SELL PRODUCTS ══════════════ */}
-        {topSellProducts.length > 0 && (
-          <div style={{ ...W, marginTop: 14 }}>
-            <Block>
-              <SectionHeader title="Top Selling Products" Icon={TrendingUp} onViewAll={() => { setCatFilter('all'); document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth' }); }} />
-              <ProductStrip products={topSellProducts} cardWidth={184} />
-            </Block>
-          </div>
-        )}
+        {/* ══════════════ RECOMMENDED FOR YOU (tabs) ══════════════ */}
+        <div style={{ ...W, marginTop: isMobile ? 26 : 40 }}>
+          <RecommendedTabs tabs={[
+            { key: 'featured', label: 'Featured',     products: featuredProducts },
+            { key: 'top',      label: 'Top Selling',  products: topSellProducts },
+            { key: 'trending', label: 'Trending',     products: trending },
+            { key: 'new',      label: 'New Arrivals', products: sections.newest, to: '/products' },
+          ]} />
+        </div>
 
-        {/* ══════════════ TRENDING PRODUCTS ══════════════ */}
-        {trending.length > 0 && (
-          <div style={{ ...W, marginTop: 14 }}>
-            <Block>
-              <SectionHeader title="Trending Products" Icon={Flame} onViewAll={() => { setCatFilter('all'); document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth' }); }} />
-              <ProductStrip products={trending} cardWidth={184} />
-            </Block>
-          </div>
-        )}
-
-        {/* ══════════════ CATEGORY BLOCKS ══════════════ */}
-        {!loading && catSections.length > 0 && (
-          <div style={{ ...W, marginTop: 14 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: isCompact ? '1fr' : '1fr 1fr', gap: isMobile ? 10 : 14 }}>
-              {catSections.slice(0, 2).map(c => (
-                <Block key={c.id}>
-                  <SectionHeader title={c.name} Icon={CAT_ICONS[c.name] || Package}
-                    onViewAll={() => navigate(`/products?cat=${c.id}`)} />
-                  <ProductStrip products={c.products} cardWidth={170} />
-                </Block>
-              ))}
+        {/* ══════════════ ONE ROW PER CATEGORY ══════════════ */}
+        {!loading && catSections.map(c => (
+          <div key={c.id} style={{ ...W, marginTop: isMobile ? 26 : 40 }}>
+            <SectionTitle title={String(c.name).trim()} sub={sections.counts[c.id] ? `${sections.counts[c.id]} products` : null} to={`/products?cat=${c.id}`} />
+            <div style={{ margin: isMobile ? '0 -8px' : '0 -18px' }}>
+              <ProductStrip products={c.products} cardWidth={184} />
             </div>
           </div>
-        )}
+        ))}
 
-        {!loading && catSections.slice(2).map((c, idx) => {
-          if (idx % 2 !== 0) return null;
-          const partner = catSections.slice(2)[idx + 1];
-          return (
-            <div key={c.id} style={{ ...W, marginTop: isMobile ? 10 : 14 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: (!isCompact && partner) ? '1fr 1fr' : '1fr', gap: isMobile ? 10 : 14 }}>
-                <Block>
-                  <SectionHeader title={c.name} Icon={CAT_ICONS[c.name] || Package}
-                    onViewAll={() => navigate(`/products?cat=${c.id}`)} />
-                  <ProductStrip products={c.products} cardWidth={170} />
-                </Block>
-                {partner && !isCompact && (
-                  <Block>
-                    <SectionHeader title={partner.name} Icon={CAT_ICONS[partner.name] || Package}
-                      onViewAll={() => navigate(`/products?cat=${partner.id}`)} />
-                    <ProductStrip products={partner.products} cardWidth={170} />
-                  </Block>
-                )}
-                {partner && isCompact && (
-                  <Block>
-                    <SectionHeader title={partner.name} Icon={CAT_ICONS[partner.name] || Package}
-                      onViewAll={() => navigate(`/products?cat=${partner.id}`)} />
-                    <ProductStrip products={partner.products} cardWidth={170} />
-                  </Block>
-                )}
-              </div>
-            </div>
-          );
-        })}
+        {/* ══════════════ TOP BRANDS ══════════════ */}
+        {sections.brands.length > 1 && (
+          <div style={{ ...W, marginTop: isMobile ? 26 : 40 }}>
+            <TopBrands brands={sections.brands} />
+          </div>
+        )}
 
         {/* ══════════════ ALL PRODUCTS GRID ══════════════ */}
-        <div id="all-products" style={{ ...W, marginTop: isMobile ? 10 : 14 }}>
+        <div id="all-products" style={{ ...W, marginTop: isMobile ? 26 : 40 }}>
           <Block>
             {/* Toolbar */}
             <div style={{ padding: isMobile ? '10px 12px' : '12px 18px', borderBottom: '1px solid #F8F9FA' }}>
@@ -560,7 +537,7 @@ export default function Home() {
               ) : (
                 <>
                   <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(auto-fill, minmax(175px,1fr))', gap: isMobile ? 8 : 14 }}>
-                    {paginated.map(p => <ProductCard key={p.id} product={p} />)}
+                    {paginated.map(p => <RailCard key={p.id} product={p} />)}
                   </div>
 
                   {totalPages > 1 && (
