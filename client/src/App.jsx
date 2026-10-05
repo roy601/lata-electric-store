@@ -3,6 +3,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import { CustomerAuthProvider } from './context/CustomerAuthContext';
 import AdminProtectedRoute from './components/layout/AdminProtectedRoute';
+import { AdminShell } from './components/layout/AdminLayout';
 
 // ── Lazy imports for code-splitting ──
 import { lazy, Suspense } from 'react';
@@ -79,6 +80,7 @@ export default function App() {
 
             {/* ── Admin protected routes ── */}
             <Route element={<AdminProtectedRoute allowedRoles={['admin','super_admin']} />}>
+            <Route element={<AdminShell />}>
               <Route path="/admin"            element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="/admin/dashboard"  element={<AdminDashboard />} />
               <Route path="/admin/products"   element={<AdminProducts />} />
@@ -95,6 +97,7 @@ export default function App() {
               <Route path="/admin/electricians"   element={<AdminElectricians />} />
               <Route path="/admin/coupons"        element={<AdminCoupons />} />
               <Route path="/admin/assistant"      element={<AdminAssistant />} />
+            </Route>
             </Route>
 
             {/* ── 404 ── */}

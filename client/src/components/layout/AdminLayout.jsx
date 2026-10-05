@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useState, useEffect, createContext, useContext, Suspense } from 'react';
+import { NavLink, useNavigate, Outlet, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, ShoppingCart, Package, List,
   Users, Image, Star, Zap, CreditCard, Truck, HardHat, Settings, LogOut, Tag, Sparkles,
@@ -26,14 +26,49 @@ const NAV = [
   { to: '/admin/settings',     Icon: Settings,        label: 'Settings' },
 ];
 
+/* The admin frame (sidebar + header) stays on screen while you move between
+   admin pages; each page only tells it its title. */
+const AdminTitle = createContext(() => {});
+
+/** Used by every admin page: sets the header title, renders the page content. */
 export default function AdminLayout({ children, title }) {
+  const setTitle = useContext(AdminTitle);
   useSeo({ title: title ? `Admin · ${title}` : 'Admin', noindex: true });
+  useEffect(() => { setTitle(title || ''); }, [title, setTitle]);
+  return children;
+}
+
+// Download every admin page in the background once the panel is open,
+// so clicking a menu item afterwards shows the page instantly.
+const preloadAdminPages = () => Promise.allSettled([
+  import('../../pages/admin/Dashboard'), import('../../pages/admin/Assistant'), import('../../pages/admin/Orders'),
+  import('../../pages/admin/Products'), import('../../pages/admin/Customers'), import('../../pages/admin/Banners'),
+  import('../../pages/admin/Featured'), import('../../pages/admin/FlashSale'), import('../../pages/admin/Payments'),
+  import('../../pages/admin/Shipping'), import('../../pages/admin/Coupons'), import('../../pages/admin/Electricians'),
+  import('../../pages/admin/Settings'),
+]);
+
+const ContentSpinner = () => (
+  <div style={{ padding: '80px 0', display: 'flex', justifyContent: 'center' }}>
+    <div style={{ width: 30, height: 30, border: '3px solid #E2E8F0', borderTop: '3px solid #1E88E5', borderRadius: '50%', animation: 'spin .8s linear infinite' }} />
+  </div>
+);
+
+/** Route element that wraps all admin pages (see App.jsx). */
+export function AdminShell() {
+  const [title, setTitle] = useState('');
   const { admin, logout } = useAuth();
+  const location = useLocation();
   const navigate = useNavigate();
   const { isMobile } = useBreakpoint();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => { if (isMobile) setSidebarOpen(false); }, [isMobile]);
+  useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
+  useEffect(() => {
+    const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 1200));
+    idle(() => { preloadAdminPages(); });
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -125,7 +160,12 @@ export default function AdminLayout({ children, title }) {
         </header>
 
         <main style={{ flex: 1, padding: isMobile ? '14px 10px' : 24, overflowY: 'auto' }}>
-          {children}
+          <AdminTitle.Provider value={setTitle}>
+            {/* Only this area waits while a page loads — the sidebar and header stay */}
+            <Suspense fallback={<ContentSpinner />}>
+              <Outlet />
+            </Suspense>
+          </AdminTitle.Provider>
         </main>
       </div>
     </div>
