@@ -41,9 +41,16 @@ const ResetPassword     = lazy(() => import('./pages/customer/ResetPassword'));
 const PolicyPage        = lazy(() => import('./pages/customer/Policy'));
 const ElectriciansPage  = lazy(() => import('./pages/customer/Electricians'));
 
+// While a page's code downloads: grey blocks shaped like a page, not a spinner
 const PageLoader = () => (
-  <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center' }}>
-    <div style={{ width:36,height:36,border:'4px solid var(--bd-f0f0f0, #f0f0f0)',borderTop:'4px solid #1E88E5',borderRadius:'50%',animation:'spin 0.8s linear infinite' }} />
+  <div aria-busy="true" aria-label="Loading" style={{ minHeight: '100vh' }}>
+    <div className="skel" style={{ height: 64, borderRadius: 0 }} />
+    <div style={{ maxWidth: 1260, margin: '0 auto', padding: '20px 14px' }}>
+      <div className="skel" style={{ height: 22, width: 220, marginBottom: 18 }} />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: 14 }}>
+        {Array.from({ length: 10 }, (_, i) => <div key={i} className="skel" style={{ aspectRatio: '3 / 4', borderRadius: 'var(--r-md)' }} />)}
+      </div>
+    </div>
   </div>
 );
 

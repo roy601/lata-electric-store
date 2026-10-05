@@ -43,7 +43,7 @@ function openStatus(hours) {
 function InfoRow({ Icon, label, children, action }) {
   return (
     <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '12px 0', borderTop: '1px solid var(--bd-eef1f4, #EEF1F4)' }}>
-      <div style={{ width: 34, height: 34, borderRadius: 9, background: 'var(--bg-eef6ff, #EEF6FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      <div style={{ width: 34, height: 34, borderRadius: 'var(--r-md)', background: 'var(--bg-eef6ff, #EEF6FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         <Icon size={16} color={BLUE} />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -70,7 +70,7 @@ export default function ShopLocation({ settings: s, isMobile }) {
 
   const btn = (bg, fg, border) => ({
     flex: 1, minWidth: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-    padding: '11px 12px', borderRadius: 10, fontWeight: 700, fontSize: 13, textDecoration: 'none',
+    padding: '11px 12px', borderRadius: 'var(--r-md)', fontWeight: 700, fontSize: 13, textDecoration: 'none',
     background: bg, color: fg, border: `1.5px solid ${border || bg}`, whiteSpace: 'nowrap',
   });
 
@@ -78,11 +78,11 @@ export default function ShopLocation({ settings: s, isMobile }) {
     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'minmax(300px, 360px) 1fr', gap: isMobile ? 14 : 20, alignItems: 'stretch' }}>
 
       {/* ── Shop card ── */}
-      <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 14, border: '1px solid var(--bd-e8ecf1, #E8ECF1)', padding: isMobile ? 16 : 20, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', border: '1px solid var(--bd-e8ecf1, #E8ECF1)', padding: isMobile ? 16 : 20, display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
           {s?.logo_url
-            ? <img src={s.logo_url} alt={name} style={{ width: 48, height: 48, objectFit: 'contain', borderRadius: 10, background: s.logo_bg_color || 'var(--bg-f8fafc, #F8FAFC)', border: '1px solid var(--bd-eef1f4, #EEF1F4)', padding: 4, boxSizing: 'border-box' }} />
-            : <div style={{ width: 48, height: 48, borderRadius: 10, background: BLUE, color: '#fff', fontWeight: 800, fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{name[0]}</div>}
+            ? <img src={s.logo_url} alt={name} style={{ width: 48, height: 48, objectFit: 'contain', borderRadius: 'var(--r-md)', background: s.logo_bg_color || 'var(--bg-f8fafc, #F8FAFC)', border: '1px solid var(--bd-eef1f4, #EEF1F4)', padding: 4, boxSizing: 'border-box' }} />
+            : <div style={{ width: 48, height: 48, borderRadius: 'var(--r-md)', background: BLUE, color: '#fff', fontWeight: 800, fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{name[0]}</div>}
           <div style={{ minWidth: 0 }}>
             <div style={{ fontWeight: 800, fontSize: 17, color: 'var(--tx-0f172a, #0F172A)', lineHeight: 1.2 }}>{name}</div>
             <div style={{ fontSize: 12.5, color: 'var(--tx-64748b, #64748B)', marginTop: 2 }}>Electrical & hardware shop</div>
@@ -90,7 +90,7 @@ export default function ShopLocation({ settings: s, isMobile }) {
         </div>
 
         {status && (
-          <div style={{ display: 'inline-flex', alignSelf: 'flex-start', alignItems: 'center', gap: 7, padding: '5px 11px', borderRadius: 20, marginBottom: 6,
+          <div style={{ display: 'inline-flex', alignSelf: 'flex-start', alignItems: 'center', gap: 7, padding: '5px 11px', borderRadius: 'var(--r-md)', marginBottom: 6,
             background: status.open ? 'var(--bg-ecfdf3, #ECFDF3)' : 'var(--bg-fef2f2, #FEF2F2)', color: status.open ? 'var(--tx-067647, #067647)' : 'var(--tx-b42318, #B42318)', fontSize: 12.5, fontWeight: 700 }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: status.open ? '#12B76A' : '#F04438', boxShadow: status.open ? '0 0 0 3px rgba(18,183,106,.18)' : 'none' }} />
             {status.text}
@@ -136,7 +136,7 @@ export default function ShopLocation({ settings: s, isMobile }) {
 
       {/* ── Map ── */}
       {s?.map_embed_src ? (
-        <div style={{ position: 'relative', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--bd-e8ecf1, #E8ECF1)', minHeight: isMobile ? 260 : 380, background: 'var(--bg-eef2f6, #EEF2F6)' }}>
+        <div style={{ position: 'relative', borderRadius: 'var(--r-md)', overflow: 'hidden', border: '1px solid var(--bd-e8ecf1, #E8ECF1)', minHeight: isMobile ? 260 : 380, background: 'var(--bg-eef2f6, #EEF2F6)' }}>
           <iframe
             title={`${name} on Google Maps`}
             src={s.map_embed_src}
@@ -146,7 +146,7 @@ export default function ShopLocation({ settings: s, isMobile }) {
         </div>
       ) : directions ? (
         <a href={directions} target="_blank" rel="noopener noreferrer"
-          style={{ minHeight: isMobile ? 200 : 380, borderRadius: 14, border: '1px solid var(--bd-e8ecf1, #E8ECF1)', background: 'linear-gradient(135deg,var(--bg-eef6ff, #EEF6FF),var(--bg-dcebfb, #DCEBFB))', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, textDecoration: 'none' }}>
+          style={{ minHeight: isMobile ? 200 : 380, borderRadius: 'var(--r-md)', border: '1px solid var(--bd-e8ecf1, #E8ECF1)', background: 'linear-gradient(135deg,var(--bg-eef6ff, #EEF6FF),var(--bg-dcebfb, #DCEBFB))', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, textDecoration: 'none' }}>
           <MapPin size={44} color={BLUE} />
           <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--tx-0f172a, #0F172A)' }}>See us on Google Maps</span>
           <span style={{ fontSize: 12.5, color: 'var(--tx-475569, #475569)', display: 'inline-flex', alignItems: 'center', gap: 5 }}>Opens in a new tab <ExternalLink size={12} /></span>

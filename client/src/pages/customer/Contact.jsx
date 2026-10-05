@@ -25,7 +25,7 @@ export default function Contact() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'start' }}>
           {/* Info */}
           <div>
-            <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: 16 }}>
+            <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', padding: 24, boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1, marginBottom: 16 }}>
               <h3 style={{ margin: '0 0 20px', fontWeight: 700 }}>Get in Touch</h3>
               {[
                 { Icon: MapPin,   label: 'Address', value: 'Ka/6 Nadda, Gulshan, Dhaka-1212' },
@@ -43,7 +43,7 @@ export default function Contact() {
               ))}
             </div>
 
-            <div style={{ background: '#212529', borderRadius: 12, padding: 24, color: '#fff' }}>
+            <div style={{ background: '#212529', borderRadius: 'var(--r-md)', padding: 24, color: '#fff' }}>
               <div style={{ fontWeight: 700, marginBottom: 12 }}>Quick Contact via WhatsApp</div>
               <a
                 href="https://wa.me/8801700000000"
@@ -56,7 +56,7 @@ export default function Contact() {
           </div>
 
           {/* Form */}
-          <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+          <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', padding: 24, boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1 }}>
             <h3 style={{ margin: '0 0 20px', fontWeight: 700 }}>Send a Message</h3>
 
             {sent ? (

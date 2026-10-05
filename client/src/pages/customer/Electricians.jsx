@@ -24,7 +24,7 @@ export default function Electricians() {
 
         {/* Header */}
         <div style={{ marginBottom: 32, textAlign: 'center' }}>
-          <div style={{ width: 56, height: 56, background: 'var(--bg-e3f2fd, #E3F2FD)', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+          <div style={{ width: 56, height: 56, background: 'var(--bg-e3f2fd, #E3F2FD)', borderRadius: 'var(--r-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
             <HardHat size={28} color="#1E88E5" />
           </div>
           <h1 style={{ fontSize: 26, fontWeight: 800, color: 'var(--tx-212529, #212529)', margin: '0 0 8px' }}>Our Electricians</h1>
@@ -53,7 +53,7 @@ export default function Electricians() {
         {list.length > 0 && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))', gap: 20 }}>
             {list.map(e => (
-              <div key={e.id} style={{ background: 'var(--bg-fff, #fff)', borderRadius: 16, boxShadow: '0 2px 10px rgba(0,0,0,.07)', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'box-shadow .2s, transform .2s' }}
+              <div key={e.id} style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1, overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'box-shadow .2s, transform .2s' }}
                 onMouseEnter={ev => { ev.currentTarget.style.boxShadow='0 6px 24px rgba(0,0,0,.13)'; ev.currentTarget.style.transform='translateY(-3px)'; }}
                 onMouseLeave={ev => { ev.currentTarget.style.boxShadow='0 2px 10px rgba(0,0,0,.07)'; ev.currentTarget.style.transform='none'; }}>
 
@@ -70,7 +70,7 @@ export default function Electricians() {
                 {/* Info */}
                 <div style={{ padding: '16px 18px 18px', flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
                   <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--tx-111827, #111827)' }}>{e.name}</div>
-                  <div style={{ display: 'inline-flex', alignSelf: 'flex-start', background: 'var(--bg-e3f2fd, #E3F2FD)', color: 'var(--tx-1565c0, #1565C0)', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20 }}>
+                  <div style={{ display: 'inline-flex', alignSelf: 'flex-start', background: 'var(--bg-e3f2fd, #E3F2FD)', color: 'var(--tx-1565c0, #1565C0)', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 'var(--r-md)' }}>
                     {e.role}
                   </div>
                   {e.bio && (
@@ -78,7 +78,7 @@ export default function Electricians() {
                   )}
                   {e.phone && (
                     <a href={`tel:${e.phone.replace(/[^+\d]/g, '')}`}
-                      style={{ marginTop: 'auto', paddingTop: 12, display: 'flex', alignItems: 'center', gap: 8, background: '#1E88E5', color: '#fff', borderRadius: 10, padding: '10px 14px', textDecoration: 'none', fontWeight: 700, fontSize: 13, transition: 'background .15s' }}
+                      style={{ marginTop: 'auto', paddingTop: 12, display: 'flex', alignItems: 'center', gap: 8, background: '#1E88E5', color: '#fff', borderRadius: 'var(--r-md)', padding: '10px 14px', textDecoration: 'none', fontWeight: 700, fontSize: 13, transition: 'background .15s' }}
                       onMouseEnter={ev => ev.currentTarget.style.background='#1565C0'}
                       onMouseLeave={ev => ev.currentTarget.style.background='#1E88E5'}>
                       <Phone size={14} /> {e.phone}

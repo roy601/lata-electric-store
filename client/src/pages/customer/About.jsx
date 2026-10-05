@@ -10,7 +10,7 @@ export default function About() {
         <h1 style={{ fontSize: 28, fontWeight: 800, color: 'var(--tx-212529, #212529)', marginBottom: 8 }}>About লতা ইলেকট্রিক</h1>
         <p style={{ color: 'var(--tx-9aa5b1, #9aa5b1)', marginBottom: 36, fontSize: 15 }}>Your trusted electrical & hardware store in Gulshan, Dhaka</p>
 
-        <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: 24 }}>
+        <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', overflow: 'hidden', boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1, marginBottom: 24 }}>
           <div style={{ background: 'linear-gradient(135deg, #212529, #1565C0)', padding: '40px 32px', color: '#fff' }}>
             <div style={{ marginBottom: 16 }}><Zap size={60} fill="currentColor" /></div>
             <h2 style={{ margin: '0 0 12px', fontSize: 24, fontWeight: 700 }}>লতা ইলেকট্রিক</h2>
@@ -38,7 +38,7 @@ export default function About() {
           </div>
         </div>
 
-        <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, padding: '24px 28px', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+        <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', padding: '24px 28px', boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1 }}>
           <h3 style={{ margin: '0 0 16px', fontWeight: 700 }}>Visit Us</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, fontSize: 14 }}>
             <div>

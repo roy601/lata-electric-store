@@ -1,6 +1,7 @@
 ﻿import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Package } from 'lucide-react';
+import { Package } from 'lucide-react';
 import CustomerLayout from '../../components/layout/CustomerLayout';
+import EmptyState from '../../components/common/EmptyState';
 import { useCartStore } from '../../store/cartStore';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { useSeo } from '../../lib/seo';
@@ -15,11 +16,9 @@ export default function Cart() {
 
   if (items.length === 0) return (
     <CustomerLayout>
-      <div style={{ maxWidth: 600, margin: '80px auto', textAlign: 'center', padding: '0 16px' }}>
-        <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center' }}><ShoppingCart size={80} color="#1E88E5" /></div>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color: 'var(--tx-212529, #212529)', marginBottom: 8 }}>Your cart is empty</h2>
-        <p style={{ color: 'var(--tx-9aa5b1, #9aa5b1)', marginBottom: 24 }}>Add some products to continue.</p>
-        <Link to="/products" style={{ padding: '12px 28px', background: '#1E88E5', color: '#fff', textDecoration: 'none', borderRadius: 8, fontWeight: 700 }}>Shop Now</Link>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px' }}>
+        <EmptyState title="Your cart is empty" text="Products you add will wait here until you check out." action="Browse products" to="/products"
+          secondary={<Link to="/wishlist" className="more-link" style={{ fontSize: 14.5, fontWeight: 600 }}>Open your wishlist</Link>} />
       </div>
     </CustomerLayout>
   );
@@ -31,10 +30,10 @@ export default function Cart() {
 
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 340px', gap: 24, alignItems: 'start' }}>
           {/* Items */}
-          <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+          <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', overflow: 'hidden', boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1 }}>
             {items.map((item, i) => (
               <div key={item.key || item.id} style={{ display: 'flex', gap: 16, padding: '16px 20px', borderBottom: i < items.length - 1 ? '1px solid var(--bd-f8f9fa, #F8F9FA)' : 'none' }}>
-                <div style={{ width: 70, height: 70, borderRadius: 10, background: 'var(--bg-f8f9fa, #F8F9FA)', backgroundImage: item.image ? `url(${item.image})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 70, height: 70, borderRadius: 'var(--r-md)', background: 'var(--bg-f8f9fa, #F8F9FA)', backgroundImage: item.image ? `url(${item.image})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {!item.image && <Package size={30} color="#ccc" />}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -55,7 +54,7 @@ export default function Cart() {
           </div>
 
           {/* Summary */}
-          <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+          <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', padding: 24, boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1 }}>
             <h3 style={{ margin: '0 0 20px', fontSize: 16, fontWeight: 700 }}>Order Summary</h3>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10, fontSize: 14 }}>
               <span>Subtotal</span><span style={{ fontWeight: 600 }}>৳{subtotal}</span>
@@ -67,7 +66,7 @@ export default function Cart() {
               <span>Subtotal</span><span>৳{subtotal.toLocaleString('en-BD')}</span>
             </div>
             <button onClick={() => navigate('/checkout')}
-              style={{ width: '100%', padding: '13px', background: '#1E88E5', color: '#fff', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 16, cursor: 'pointer', marginBottom: 10 }}>
+              style={{ width: '100%', padding: '13px', background: '#1E88E5', color: '#fff', border: 'none', borderRadius: 'var(--r-md)', fontWeight: 700, fontSize: 16, cursor: 'pointer', marginBottom: 10 }}>
               Proceed to Checkout →
             </button>
             <Link to="/products" style={{ display: 'block', textAlign: 'center', fontSize: 13, color: 'var(--tx-9aa5b1, #9aa5b1)', textDecoration: 'none', marginTop: 8 }}>

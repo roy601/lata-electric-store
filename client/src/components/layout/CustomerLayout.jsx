@@ -84,7 +84,7 @@ function MobileDrawer({ open, onClose, categories, subcategories, counts, naviga
               <LayoutGrid size={16} /> All Categories
             </span>
           )}
-          <button onClick={onClose} style={{ background: 'rgba(255,255,255,.2)', border: 'none', color: '#fff', width: 30, height: 30, borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <button onClick={onClose} style={{ background: 'rgba(255,255,255,.2)', border: 'none', color: '#fff', width: 30, height: 30, borderRadius: 'var(--r-sm)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <X size={18} />
           </button>
         </div>
@@ -226,11 +226,11 @@ function MegaMenu({ categories, counts, flashCount, subcategories, onClose, navi
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <CatIcon name={activeCat.name} size={18} color="#1E88E5" />
                 <span style={{ fontWeight: 800, fontSize: 15, color: 'var(--tx-212529, #212529)' }}>{activeCat.name}</span>
-                <span style={{ fontSize: 11, color: 'var(--tx-9aa5b1, #9aa5b1)', background: 'var(--bg-f8f9fa, #F8F9FA)', padding: '2px 8px', borderRadius: 12 }}>
+                <span style={{ fontSize: 11, color: 'var(--tx-9aa5b1, #9aa5b1)', background: 'var(--bg-f8f9fa, #F8F9FA)', padding: '2px 8px', borderRadius: 'var(--r-md)' }}>
                   {counts[activeCat.id] || 0} products
                 </span>
               </div>
-              <button onClick={() => goToCat(activeCat.id)} style={{ fontSize: 12, color: '#1E88E5', background: 'var(--bg-e3f2fd, #E3F2FD)', border: 'none', borderRadius: 14, padding: '4px 14px', cursor: 'pointer', fontWeight: 700 }}>View All →</button>
+              <button onClick={() => goToCat(activeCat.id)} style={{ fontSize: 12, color: '#1E88E5', background: 'var(--bg-e3f2fd, #E3F2FD)', border: 'none', borderRadius: 'var(--r-md)', padding: '4px 14px', cursor: 'pointer', fontWeight: 700 }}>View All →</button>
             </div>
 
             {subcats.length > 0 ? (
@@ -268,7 +268,7 @@ function MegaMenu({ categories, counts, flashCount, subcategories, onClose, navi
                         {p.image ? <img src={p.image} alt={p.name} style={{ maxWidth:'100%',maxHeight:'100%',objectFit:'contain' }} /> : <Package size={28} color="#ccc" />}
                       </div>
                       <div style={{ padding: '6px 8px' }}>
-                        <div style={{ fontSize: 10, color: 'var(--tx-444, #444)', lineHeight: 1.3, marginBottom: 3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.name}</div>
+                        <div style={{ fontSize: 11.5, color: 'var(--tx-444, #444)', lineHeight: 1.3, marginBottom: 3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.name}</div>
                         <div style={{ fontSize: 12, fontWeight: 800, color: p.flash_sale ? '#1E88E5' : 'var(--tx-212529, #212529)' }}>৳{price.toLocaleString('en-BD')}</div>
                       </div>
                     </div>
@@ -283,19 +283,19 @@ function MegaMenu({ categories, counts, flashCount, subcategories, onClose, navi
       {/* Right: promo panel */}
       <div style={{ width: 190, borderLeft: '1px solid var(--bd-efefef, #efefef)', padding: '14px 12px', background: 'var(--bg-fafafa, #fafafa)', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div onClick={() => { navigate('/flash-sale'); onClose(); }}
-          style={{ background: 'linear-gradient(135deg,#7b0000,#DC3545)', borderRadius: 10, padding: '14px 12px', cursor: 'pointer', color: '#fff', position: 'relative', overflow: 'hidden', minHeight: 120 }}>
+          style={{ background: 'linear-gradient(135deg,#7b0000,#DC3545)', borderRadius: 'var(--r-md)', padding: '14px 12px', cursor: 'pointer', color: '#fff', position: 'relative', overflow: 'hidden', minHeight: 120 }}>
           <div style={{ position: 'absolute', right: -6, top: -6, opacity: .1 }}><Zap size={70} fill="currentColor" /></div>
           <div style={{ fontSize: 10, fontWeight: 700, opacity: .85, letterSpacing: .8, textTransform: 'uppercase', marginBottom: 6 }}>Limited Time</div>
           <div style={{ fontWeight: 900, fontSize: 20, lineHeight: 1.1, marginBottom: 4 }}>Flash Sale</div>
           <div style={{ fontSize: 11, opacity: .85, marginBottom: 12 }}>{flashCount} deals live!</div>
-          <div style={{ background: 'var(--bg-fff, #fff)', color: '#DC3545', borderRadius: 6, padding: '5px 12px', fontSize: 11, fontWeight: 800, display: 'inline-block' }}>Shop Now →</div>
+          <div style={{ background: 'var(--bg-fff, #fff)', color: '#DC3545', borderRadius: 'var(--r-sm)', padding: '5px 12px', fontSize: 11, fontWeight: 800, display: 'inline-block' }}>Shop Now →</div>
         </div>
         <div onClick={() => { navigate('/products'); onClose(); }}
-          style={{ background: 'linear-gradient(135deg,#212529,#1565C0)', borderRadius: 10, padding: '14px 12px', cursor: 'pointer', color: '#fff', position: 'relative', overflow: 'hidden', minHeight: 120 }}>
+          style={{ background: 'linear-gradient(135deg,#212529,#1565C0)', borderRadius: 'var(--r-md)', padding: '14px 12px', cursor: 'pointer', color: '#fff', position: 'relative', overflow: 'hidden', minHeight: 120 }}>
           <div style={{ position: 'absolute', right: -6, top: -6, opacity: .1 }}><Package size={70} /></div>
           <div style={{ fontSize: 10, fontWeight: 700, opacity: .7, letterSpacing: .8, textTransform: 'uppercase', marginBottom: 6 }}>Fast & Free Shipping</div>
           <div style={{ fontWeight: 900, fontSize: 18, lineHeight: 1.2, marginBottom: 4 }}>Fresh Deals<br />Arrive</div>
-          <div style={{ background: '#1E88E5', color: '#fff', borderRadius: 6, padding: '5px 12px', fontSize: 11, fontWeight: 800, display: 'inline-block', marginTop: 8 }}>Get It Today →</div>
+          <div style={{ background: '#1E88E5', color: '#fff', borderRadius: 'var(--r-sm)', padding: '5px 12px', fontSize: 11, fontWeight: 800, display: 'inline-block', marginTop: 8 }}>Get It Today →</div>
         </div>
       </div>
     </div>
@@ -447,11 +447,11 @@ export default function CustomerLayout({ children }) {
               onMouseEnter={() => setActiveSugg(i)}
               style={{ display: 'flex', alignItems: 'center', gap: 10, padding: mobile ? '10px 12px' : '9px 14px', cursor: 'pointer', background: activeSugg === i ? 'var(--bg-e3f2fd, #E3F2FD)' : 'var(--bg-fff, #fff)', borderBottom: '1px solid var(--bd-f8f9fa, #f8f9fa)', transition: 'background .1s' }}>
               {item.type === 'product' ? (
-                <div style={{ width: mobile ? 32 : 36, height: mobile ? 32 : 36, background: 'var(--bg-f8f9fa, #f8f9fa)', borderRadius: 7, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                <div style={{ width: mobile ? 32 : 36, height: mobile ? 32 : 36, background: 'var(--bg-f8f9fa, #f8f9fa)', borderRadius: 'var(--r-sm)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                   {item.image ? <img src={item.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 3 }} /> : <Package size={mobile ? 16 : 18} color="#ccc" />}
                 </div>
               ) : (
-                <div style={{ width: mobile ? 32 : 36, height: mobile ? 32 : 36, background: 'var(--bg-e3f2fd, #E3F2FD)', borderRadius: 7, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: mobile ? 32 : 36, height: mobile ? 32 : 36, background: 'var(--bg-e3f2fd, #E3F2FD)', borderRadius: 'var(--r-sm)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <FolderOpen size={mobile ? 16 : 18} color="#1E88E5" />
                 </div>
               )}
@@ -476,23 +476,25 @@ export default function CustomerLayout({ children }) {
   );
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: "'Hind Siliguri', 'Segoe UI', sans-serif", background: 'var(--bg-f8f9fa, #F8F9FA)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font)', background: 'var(--bg-f8f9fa, #F8F9FA)' }}>
 
       {/* Top info bar */}
       {!isMobile && (
-        <div style={{ background: '#212529', color: 'var(--tx-9aa5b1, #9aa5b1)', fontSize: 12, padding: '5px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20 }}>
-          {/* Only real details from Settings — never placeholders */}
-          {[
-            branding.address && <span key="a" style={{ display: 'flex', alignItems: 'center', gap: 5 }}><MapPin size={12} /> {branding.address}</span>,
-            branding.phone && !/0{6}/.test(String(branding.phone).replace(/\D/g, '')) &&
-              <a key="p" href={`tel:${String(branding.phone).replace(/[^+\d]/g, '')}`} style={{ display: 'flex', alignItems: 'center', gap: 5, color: 'inherit', textDecoration: 'none' }}><Phone size={12} /> {branding.phone}</a>,
-            branding.hours && <span key="h" style={{ display: 'flex', alignItems: 'center', gap: 5 }}><Clock size={12} /> {branding.hours}</span>,
-          ].filter(Boolean).flatMap((el, i) => i ? [<span key={'s' + i} style={{ opacity: .4 }}>|</span>, el] : [el])}
+        <div style={{ background: '#0F172A', color: '#E2E8F0', fontSize: 13 }}>
+          {/* One useful line; only real details from Settings — never placeholders */}
+          <div style={{ maxWidth: 1260, margin: '0 auto', padding: '7px 14px', display: 'flex', alignItems: 'center', gap: 16 }}>
+            <span style={{ fontWeight: 600 }}>ক্যাশ অন ডেলিভারি — সারা বাংলাদেশে</span>
+            {branding.phone && !/0{6}/.test(String(branding.phone).replace(/\D/g, '')) && (
+              <a href={`tel:${String(branding.phone).replace(/[^+\d]/g, '')}`} style={{ marginLeft: 'auto', color: '#fff', fontWeight: 600, textDecoration: 'none' }}>
+                <span style={{ color: '#94A3B8', fontWeight: 400 }}>Call to order </span><span className="num">{branding.phone}</span>
+              </a>
+            )}
+          </div>
         </div>
       )}
 
       {/* Header */}
-      <header style={{ background: 'var(--bg-fff, #fff)', boxShadow: '0 2px 8px rgba(0,0,0,.08)', position: 'sticky', top: 0, zIndex: 300 }}>
+      <header style={{ background: 'var(--bg-fff, #fff)', borderBottom: '1px solid var(--hairline)', position: 'sticky', top: 0, zIndex: 300 }}>
 
         {/* Main row */}
         <div style={{ maxWidth: 1260, margin: '0 auto', padding: isMobile ? '0 10px' : '0 16px', height: isMobile ? 54 : 64, display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 14 }}>
@@ -555,7 +557,7 @@ export default function CustomerLayout({ children }) {
                   { to: '/flash-sale', Icon: Zap,   label: 'Flash Sale', highlight: true },
                   { to: '/wishlist',   Icon: Heart,  label: 'Wishlist' },
                 ].map(({ to, Icon, label, highlight }) => (
-                  <Link key={to} to={to} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none', color: highlight ? '#1E88E5' : 'var(--tx-666, #666)', fontSize: 10, padding: '4px 10px', fontWeight: highlight ? 700 : 400, gap: 2 }}
+                  <Link key={to} to={to} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none', color: highlight ? '#1E88E5' : 'var(--tx-666, #666)', fontSize: 12, padding: '4px 10px', fontWeight: highlight ? 700 : 400, gap: 2 }}
                     onMouseEnter={e => e.currentTarget.style.color=highlight?'var(--tx-1565c0, #1565C0)':'var(--tx-212529, #212529)'}
                     onMouseLeave={e => e.currentTarget.style.color=highlight?'#1E88E5':'var(--tx-666, #666)'}>
                     <Icon size={20} />
@@ -569,7 +571,7 @@ export default function CustomerLayout({ children }) {
                 <div ref={userMenuRef} style={{ position: 'relative' }}>
                   <button
                     onClick={() => setUserMenuOpen(v => !v)}
-                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', color: userMenuOpen ? '#1E88E5' : 'var(--tx-666, #666)', fontSize: 10, padding: '4px 10px', gap: 2, fontFamily: 'inherit' }}
+                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', color: userMenuOpen ? '#1E88E5' : 'var(--tx-666, #666)', fontSize: 12, padding: '4px 10px', gap: 2, fontFamily: 'inherit' }}
                     onMouseEnter={e => e.currentTarget.style.color='var(--tx-212529, #212529)'}
                     onMouseLeave={e => e.currentTarget.style.color=userMenuOpen?'#1E88E5':'var(--tx-666, #666)'}>
                     <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 3 }}>
@@ -584,7 +586,7 @@ export default function CustomerLayout({ children }) {
                   </button>
 
                   {userMenuOpen && (
-                    <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, background: 'var(--bg-fff, #fff)', borderRadius: 14, boxShadow: '0 8px 32px rgba(0,0,0,.14)', border: '1px solid var(--bd-e5e7eb, #E5E7EB)', minWidth: 228, zIndex: 450, overflow: 'hidden' }}>
+                    <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', boxShadow: '0 8px 32px rgba(0,0,0,.14)', border: '1px solid var(--bd-e5e7eb, #E5E7EB)', minWidth: 228, zIndex: 450, overflow: 'hidden' }}>
                       {!user ? (
                         <>
                           <div style={{ padding: '18px 20px 14px' }}>
@@ -593,13 +595,13 @@ export default function CustomerLayout({ children }) {
                           </div>
                           <div style={{ padding: '0 16px 18px', display: 'flex', flexDirection: 'column', gap: 9 }}>
                             <Link to="/login" onClick={() => setUserMenuOpen(false)}
-                              style={{ display: 'block', textAlign: 'center', padding: '11px', background: '#1E88E5', color: '#fff', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 14, transition: 'background .15s' }}
+                              style={{ display: 'block', textAlign: 'center', padding: '11px', background: '#1E88E5', color: '#fff', borderRadius: 'var(--r-md)', textDecoration: 'none', fontWeight: 700, fontSize: 14, transition: 'background .15s' }}
                               onMouseEnter={e => e.currentTarget.style.background='#1565C0'}
                               onMouseLeave={e => e.currentTarget.style.background='#1E88E5'}>
                               Sign In
                             </Link>
                             <Link to="/login?tab=signup" onClick={() => setUserMenuOpen(false)}
-                              style={{ display: 'block', textAlign: 'center', padding: '11px', background: 'var(--bg-fff, #fff)', color: '#1E88E5', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 14, border: '1.5px solid #1E88E5', transition: 'all .15s' }}
+                              style={{ display: 'block', textAlign: 'center', padding: '11px', background: 'var(--bg-fff, #fff)', color: '#1E88E5', borderRadius: 'var(--r-md)', textDecoration: 'none', fontWeight: 700, fontSize: 14, border: '1.5px solid #1E88E5', transition: 'all .15s' }}
                               onMouseEnter={e => { e.currentTarget.style.background='var(--bg-eff6ff, #EFF6FF)'; }}
                               onMouseLeave={e => { e.currentTarget.style.background='var(--bg-fff, #fff)'; }}>
                               Create Account
@@ -655,7 +657,7 @@ export default function CustomerLayout({ children }) {
                 )}
               </button>
             )}
-            <button onClick={() => setCartOpen(true)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: 'var(--tx-666, #666)', fontSize: 10, padding: isMobile ? '4px 6px' : '4px 10px', position: 'relative', background: 'none', border: 'none', cursor: 'pointer', gap: 2 }}>
+            <button onClick={() => setCartOpen(true)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: 'var(--tx-666, #666)', fontSize: 12, padding: isMobile ? '4px 6px' : '4px 10px', position: 'relative', background: 'none', border: 'none', cursor: 'pointer', gap: 2 }}>
               <ShoppingCart size={isMobile ? 22 : 20} />
               {!isMobile && 'Cart'}
               {cartCount > 0 && (
@@ -744,7 +746,7 @@ export default function CustomerLayout({ children }) {
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))', gap: isMobile ? 20 : 24, marginBottom: 20 }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                <div style={{ width: 30, height: 30, background: branding.logo_bg_color || '#1E88E5', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                <div style={{ width: 30, height: 30, background: branding.logo_bg_color || '#1E88E5', borderRadius: 'var(--r-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                   {branding.logo_url ? <img src={branding.logo_url} alt="logo" style={{ width:'100%',height:'100%',objectFit:'contain',padding:2 }} /> : <Zap size={16} color="#fff" fill="#fff" />}
                 </div>
                 <span style={{ color: '#fff', fontWeight: 700 }}>{branding.store_name_bn || 'লতা ইলেকট্রিক'}</span>
@@ -787,7 +789,7 @@ export default function CustomerLayout({ children }) {
             <span>© {new Date().getFullYear()} {branding.site_name || 'Lata Electric'} — All rights reserved</span>
             <span style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               {['Cash on Delivery', 'bKash', 'Nagad'].map(m => (
-                <span key={m} style={{ border: '1px solid #3d444b', borderRadius: 6, padding: '3px 8px', color: 'var(--tx-c3cbd3, #c3cbd3)', fontWeight: 600 }}>{m}</span>
+                <span key={m} style={{ border: '1px solid #3d444b', borderRadius: 'var(--r-sm)', padding: '3px 8px', color: 'var(--tx-c3cbd3, #c3cbd3)', fontWeight: 600 }}>{m}</span>
               ))}
             </span>
           </div>
@@ -806,7 +808,7 @@ export default function CustomerLayout({ children }) {
           ].map(({ to, Icon, label, onClick, badge }) => (
             <button key={label}
               onClick={onClick || (() => navigate(to))}
-              style={{ flex: 1, padding: '8px 0', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, fontSize: 10, color: 'var(--tx-666, #666)', position: 'relative' }}>
+              style={{ flex: 1, padding: '8px 0', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, fontSize: 11.5, color: 'var(--tx-666, #666)', position: 'relative' }}>
               <Icon size={20} />
               {label}
               {badge > 0 && (
@@ -828,7 +830,7 @@ export default function CustomerLayout({ children }) {
         {contactOpen && (
           <>
             <div onClick={() => setContactOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 498 }} />
-            <div style={{ position: 'absolute', bottom: 110, right: 0, background: 'var(--bg-fff, #fff)', borderRadius: 16, boxShadow: '0 8px 40px rgba(0,0,0,.18)', width: 280, zIndex: 499, overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', bottom: 110, right: 0, background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', boxShadow: '0 8px 40px rgba(0,0,0,.18)', width: 280, zIndex: 499, overflow: 'hidden' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px 12px' }}>
                 <span style={{ fontWeight: 800, fontSize: 15, color: 'var(--tx-111827, #111827)' }}>Contact us</span>
                 <button onClick={() => setContactOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--tx-9aa5b1, #9aa5b1)', fontSize: 18, lineHeight: 1, padding: 2 }}>×</button>
@@ -864,7 +866,7 @@ export default function CustomerLayout({ children }) {
                   },
                 ].filter(Boolean).map(({ label, sub, bg, href, icon }) => (
                   <a key={label} href={href} target={label !== 'Call Us' ? '_blank' : undefined} rel="noopener noreferrer"
-                    style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 10px', borderRadius: 10, border: '1px solid var(--bd-f3f4f6, #F3F4F6)', textDecoration: 'none', background: 'var(--bg-fff, #fff)', transition: 'background .15s' }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 10px', borderRadius: 'var(--r-md)', border: '1px solid var(--bd-f3f4f6, #F3F4F6)', textDecoration: 'none', background: 'var(--bg-fff, #fff)', transition: 'background .15s' }}
                     onMouseEnter={e => e.currentTarget.style.background='var(--bg-f9fafb, #F9FAFB)'}
                     onMouseLeave={e => e.currentTarget.style.background='var(--bg-fff, #fff)'}>
                     <div style={{ width: 44, height: 44, borderRadius: '50%', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

@@ -8,7 +8,7 @@ export default function ThemeToggle({ size = 20, color = 'var(--tx-666, #666)', 
   const text = dark ? 'Light mode' : 'Dark mode';
   return (
     <button type="button" onClick={toggle} title={text} aria-label={text}
-      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', color, fontSize: 10, fontFamily: 'inherit', padding: '4px 8px', ...style }}>
+      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', color, fontSize: 12, fontFamily: 'inherit', padding: '4px 8px', ...style }}>
       {dark ? <Sun size={size} /> : <Moon size={size} />}
       {label && (dark ? 'Light' : 'Dark')}
     </button>

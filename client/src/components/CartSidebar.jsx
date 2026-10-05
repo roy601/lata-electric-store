@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, X, Package, Trash2 } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
 import { useBreakpoint } from '../hooks/useBreakpoint';
+import EmptyState from './common/EmptyState';
 
 export default function CartSidebar({ open, onClose }) {
   const { items, remove, update, clear } = useCartStore();
@@ -43,14 +44,14 @@ export default function CartSidebar({ open, onClose }) {
 
         {/* Header */}
         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--bd-f0f0f0, #f0f0f0)', display: 'flex', alignItems: 'center', gap: 12, background: 'var(--bg-fff, #fff)' }}>
-          <div style={{ width: 38, height: 38, background: 'var(--bg-e3f2fd, #E3F2FD)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 38, height: 38, background: 'var(--bg-e3f2fd, #E3F2FD)', borderRadius: 'var(--r-md)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <ShoppingCart size={20} color="#1E88E5" />
           </div>
           <div>
             <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--tx-212529, #212529)' }}>Shopping Cart</div>
             <div style={{ fontSize: 12, color: 'var(--tx-9aa5b1, #9aa5b1)' }}>{count} {count === 1 ? 'item' : 'items'}</div>
           </div>
-          <button onClick={onClose} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--tx-bbb, #bbb)', padding: 4, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'color .15s' }}
+          <button onClick={onClose} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--tx-bbb, #bbb)', padding: 4, borderRadius: 'var(--r-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'color .15s' }}
             onMouseEnter={e => e.currentTarget.style.color='var(--tx-333, #333)'}
             onMouseLeave={e => e.currentTarget.style.color='var(--tx-bbb, #bbb)'}>
             <X size={22} />
@@ -60,21 +61,14 @@ export default function CartSidebar({ open, onClose }) {
         {/* Items */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
           {items.length === 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', padding: 40, textAlign: 'center' }}>
-              <div style={{ width: 90, height: 90, background: 'var(--bg-e3f2fd, #E3F2FD)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
-                <ShoppingCart size={40} color="#1E88E5" />
-              </div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--tx-212529, #212529)', marginBottom: 8 }}>Your cart is empty</div>
-              <div style={{ fontSize: 13, color: 'var(--tx-9aa5b1, #9aa5b1)', marginBottom: 24 }}>Discover amazing products and add them to your cart!</div>
-              <button onClick={() => { onClose(); navigate('/'); }}
-                style={{ padding: '11px 28px', background: '#1E88E5', color: '#fff', border: 'none', borderRadius: 9, fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
-                Start Shopping
-              </button>
+            <div style={{ padding: '8px 20px' }}>
+              <EmptyState title="Your cart is empty" text="Products you add will wait here until you check out." action="Browse products"
+                onAction={() => { onClose(); navigate('/products'); }} style={{ padding: '24px 0' }} />
             </div>
           ) : (
             items.map(item => (
               <div key={item.key || item.id} style={{ display: 'flex', gap: 12, padding: '14px 20px', borderBottom: '1px solid var(--bd-f8f9fa, #f8f9fa)', alignItems: 'flex-start' }}>
-                <div style={{ width: 64, height: 64, borderRadius: 10, background: 'var(--bg-f8f9fa, #F8F9FA)', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 64, height: 64, borderRadius: 'var(--r-md)', background: 'var(--bg-f8f9fa, #F8F9FA)', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {item.image
                     ? <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     : <Package size={26} color="#ccc" />}
@@ -113,7 +107,7 @@ export default function CartSidebar({ open, onClose }) {
             </div>
             <div style={{ fontSize: 11, color: 'var(--tx-9aa5b1, #9aa5b1)', marginBottom: 14 }}>Delivery charges calculated at checkout</div>
             <button onClick={() => { onClose(); navigate('/checkout'); }}
-              style={{ width: '100%', padding: '13px', background: '#1E88E5', color: '#fff', border: 'none', borderRadius: 10, fontWeight: 800, fontSize: 15, cursor: 'pointer', marginBottom: 8, transition: 'background .15s' }}
+              style={{ width: '100%', padding: '13px', background: '#1E88E5', color: '#fff', border: 'none', borderRadius: 'var(--r-md)', fontWeight: 800, fontSize: 15, cursor: 'pointer', marginBottom: 8, transition: 'background .15s' }}
               onMouseEnter={e => e.currentTarget.style.background='#1565C0'}
               onMouseLeave={e => e.currentTarget.style.background='#1E88E5'}>
               Checkout — ৳{total.toLocaleString('en-BD')} →

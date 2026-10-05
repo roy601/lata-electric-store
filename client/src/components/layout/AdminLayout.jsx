@@ -78,7 +78,7 @@ export function AdminShell() {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-f8f9fa, #F8F9FA)', fontFamily: "'Hind Siliguri', 'Segoe UI', sans-serif" }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-f8f9fa, #F8F9FA)', fontFamily: 'var(--font)' }}>
 
       {isMobile && sidebarOpen && (
         <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', zIndex: 99 }} />

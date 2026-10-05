@@ -1,8 +1,7 @@
 ﻿import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Heart } from 'lucide-react';
 import CustomerLayout from '../../components/layout/CustomerLayout';
 import ProductCard from '../../components/ProductCard';
+import EmptyState from '../../components/common/EmptyState';
 import { useWishlistStore } from '../../store/cartStore';
 import { supabase } from '../../lib/supabase';
 import { useSeo } from '../../lib/seo';
@@ -32,12 +31,7 @@ export default function Wishlist() {
         <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--tx-212529, #212529)', marginBottom: 24 }}>My Wishlist ({products.length})</h1>
 
         {products.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '80px 0', color: 'var(--tx-9aa5b1, #9aa5b1)' }}>
-            <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center' }}><Heart size={80} color="#bbb" /></div>
-            <div style={{ fontSize: 20, fontWeight: 600, marginBottom: 8 }}>Your wishlist is empty</div>
-            <div style={{ fontSize: 14, marginBottom: 24 }}>Save products you like to find them later.</div>
-            <Link to="/products" style={{ padding: '12px 28px', background: '#1E88E5', color: '#fff', textDecoration: 'none', borderRadius: 8, fontWeight: 700 }}>Browse Products</Link>
-          </div>
+          <EmptyState title="Nothing saved yet" text="Tap the heart on any product to keep it here for later." action="Browse products" to="/products" style={{ padding: '24px 0 56px' }} />
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 16 }}>
             {products.map(p => <ProductCard key={p.id} product={p} />)}

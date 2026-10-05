@@ -27,7 +27,7 @@ const AH  = '#1565C0';   // hover (matches site nav hover)
 /* ─── Shared micro-styles ─── */
 const inputBase = {
   width: '100%', padding: '12px 14px', border: '1.5px solid var(--bd-e2e8f0, #E2E8F0)',
-  borderRadius: 10, fontSize: 14, color: 'var(--tx-1a202c, #1A202C)', outline: 'none',
+  borderRadius: 'var(--r-md)', fontSize: 14, color: 'var(--tx-1a202c, #1A202C)', outline: 'none',
   background: 'var(--bg-fafbfc, #FAFBFC)', boxSizing: 'border-box', transition: 'border-color .2s, box-shadow .2s',
   fontFamily: 'inherit',
 };
@@ -38,7 +38,7 @@ const labelSt = { display: 'block', fontSize: 13, fontWeight: 600, color: 'var(-
 const fieldSt = { marginBottom: 16 };
 const primaryBtn = {
   width: '100%', padding: '13px', background: A, color: '#fff', border: 'none',
-  borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: 'pointer',
+  borderRadius: 'var(--r-md)', fontSize: 15, fontWeight: 700, cursor: 'pointer',
   letterSpacing: .3, fontFamily: 'inherit', transition: 'background .15s, opacity .15s',
 };
 
@@ -153,7 +153,7 @@ export default function AuthPage() {
       background: 'linear-gradient(160deg,var(--bg-ebf5ff, #EBF5FF) 0%,var(--bg-f8faff, #F8FAFF) 55%,var(--bg-ebf5ff, #EBF5FF) 100%)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: '40px 16px',
-      fontFamily: "'Hind Siliguri', sans-serif",
+      fontFamily: 'var(--font)',
     }}>
       <div style={{ width: '100%', maxWidth: 460 }}>
 
@@ -161,7 +161,7 @@ export default function AuthPage() {
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 11 }}>
             <div style={{
-              width: 46, height: 46, borderRadius: 13,
+              width: 46, height: 46, borderRadius: 'var(--r-md)',
               background: `linear-gradient(135deg, ${A} 0%, #1565C0 100%)`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               boxShadow: '0 6px 16px rgba(30,136,229,.28)',
@@ -178,7 +178,7 @@ export default function AuthPage() {
         {/* ── Card ── */}
         <div style={{
           background: 'var(--bg-fff, #fff)',
-          borderRadius: 20,
+          borderRadius: 'var(--r-md)',
           borderTop: `3px solid ${A}`,
           boxShadow: '0 24px 56px rgba(30,136,229,.11), 0 4px 16px rgba(30,136,229,.07)',
           overflow: 'hidden',
@@ -209,7 +209,7 @@ export default function AuthPage() {
               <div style={{
                 display: 'flex', alignItems: 'center', gap: 8,
                 background: 'var(--bg-fff5f5, #FFF5F5)', border: '1px solid #FECACA',
-                borderRadius: 10, padding: '10px 14px',
+                borderRadius: 'var(--r-md)', padding: '10px 14px',
                 marginBottom: 22, fontSize: 13, color: 'var(--tx-b91c1c, #B91C1C)',
               }}>
                 <AlertCircle size={15} style={{ flexShrink: 0 }} />
@@ -341,7 +341,7 @@ export default function AuthPage() {
                     </p>
                     <button
                       onClick={() => { setView('main'); setFpSent(false); setFpEmail(''); clear(); }}
-                      style={{ marginTop: 22, padding: '10px 28px', background: A, color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: 14, fontFamily: 'inherit' }}
+                      style={{ marginTop: 22, padding: '10px 28px', background: A, color: '#fff', border: 'none', borderRadius: 'var(--r-md)', cursor: 'pointer', fontWeight: 700, fontSize: 14, fontFamily: 'inherit' }}
                     >
                       Back to Sign In
                     </button>
@@ -520,7 +520,7 @@ function SocialBlock({ onGoogle, onFacebook }) {
       <button type="button" onClick={onGoogle}
         onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
         style={{
-          width: '100%', padding: '12px 14px', borderRadius: 10, cursor: 'pointer',
+          width: '100%', padding: '12px 14px', borderRadius: 'var(--r-md)', cursor: 'pointer',
           border: `1.5px solid ${hov ? '#4285F4' : 'var(--bd-dadce0, #DADCE0)'}`, background: hov ? 'var(--bg-f8faff, #F8FAFF)' : 'var(--bg-fff, #fff)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
           fontSize: 15, fontWeight: 700, color: 'var(--tx-1f2937, #1F2937)', fontFamily: 'inherit',
@@ -556,7 +556,7 @@ function SocialBtn({ onClick, brandColor, icon, label }) {
       style={{
         width: '100%', padding: '11px 8px',
         border: `1.5px solid ${hov ? brandColor : 'var(--bd-e2e8f0, #E2E8F0)'}`,
-        borderRadius: 10,
+        borderRadius: 'var(--r-md)',
         background: hov ? 'var(--bg-f7faff, #F7FAFF)' : 'var(--bg-fafbfc, #FAFBFC)',
         cursor: 'pointer',
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,

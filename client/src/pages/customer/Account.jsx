@@ -31,7 +31,7 @@ const TABS = [
 
 const inp = { width: '100%', padding: '10px 12px', border: '1.5px solid var(--bd-e2e8f0, #E2E8F0)', borderRadius: 8, fontSize: 14, boxSizing: 'border-box', fontFamily: 'inherit', background: 'var(--bg-fafbfc, #FAFBFC)', outline: 'none' };
 const lb  = { display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--tx-374151, #374151)', marginBottom: 5 };
-const card = { background: 'var(--bg-fff, #fff)', borderRadius: 14, boxShadow: '0 1px 6px rgba(0,0,0,.07)', padding: 22 };
+const card = { background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1, padding: 22 };
 const digits = (s) => String(s || '').replace(/\D/g, '');
 
 /* ── WhatsApp / phone for return requests, from Admin → Settings ── */
@@ -140,10 +140,10 @@ function OrdersTab() {
 
   return <>
     <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
-      <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 10, padding: '10px 18px', boxShadow: '0 1px 4px rgba(0,0,0,.06)', fontSize: 13 }}>
+      <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', padding: '10px 18px', boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1, fontSize: 13 }}>
         <span style={{ color: 'var(--tx-9aa5b1, #9aa5b1)' }}>Total orders: </span><span style={{ fontWeight: 700, color: 'var(--tx-212529, #212529)' }}>{orders.length}</span>
       </div>
-      <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 10, padding: '10px 18px', boxShadow: '0 1px 4px rgba(0,0,0,.06)', fontSize: 13 }}>
+      <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', padding: '10px 18px', boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1, fontSize: 13 }}>
         <span style={{ color: 'var(--tx-9aa5b1, #9aa5b1)' }}>Total spent: </span>
         <span style={{ fontWeight: 700, color: BLUE }}>{fmt(orders.filter(o => !['cancelled', 'returned'].includes(o.status)).reduce((s, o) => s + Number(o.total || 0), 0))}</span>
       </div>
@@ -156,16 +156,16 @@ function OrdersTab() {
       const items = o.items || [];
       const ret = o.status === 'delivered' ? returnLink(contact, o) : null;
       return (
-        <div key={o.id} style={{ background: 'var(--bg-fff, #fff)', borderRadius: 14, marginBottom: 14, boxShadow: '0 1px 6px rgba(0,0,0,.07)', overflow: 'hidden' }}>
+        <div key={o.id} style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', marginBottom: 14, boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1, overflow: 'hidden' }}>
           <button onClick={() => setExpanded(p => ({ ...p, [o.id]: !p[o.id] }))} aria-expanded={!!open}
             style={{ width: '100%', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10, cursor: 'pointer', background: 'none', border: 'none', textAlign: 'left', fontFamily: 'inherit' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                 <span style={{ fontWeight: 800, fontSize: 16, color: 'var(--tx-212529, #212529)' }}>#{o.order_id}</span>
-                <span style={{ background: meta.bg, color: meta.color, padding: '3px 12px', borderRadius: 20, fontSize: 12, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                <span style={{ background: meta.bg, color: meta.color, padding: '3px 12px', borderRadius: 'var(--r-md)', fontSize: 12, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
                   <meta.Icon size={12} /> {meta.label}
                 </span>
-                {o.payment_paid && <span style={{ background: 'var(--bg-d1e7dd, #d1e7dd)', color: 'var(--tx-0f5132, #0f5132)', padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700 }}>Paid</span>}
+                {o.payment_paid && <span style={{ background: 'var(--bg-d1e7dd, #d1e7dd)', color: 'var(--tx-0f5132, #0f5132)', padding: '3px 10px', borderRadius: 'var(--r-md)', fontSize: 11, fontWeight: 700 }}>Paid</span>}
               </div>
               <div style={{ fontSize: 12, color: 'var(--tx-9aa5b1, #9aa5b1)', marginTop: 4 }}>
                 {new Date(o.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
@@ -183,7 +183,7 @@ function OrdersTab() {
           <div style={{ padding: '0 20px 14px', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {items.slice(0, 4).map((item, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--bg-f8f9fa, #f8f9fa)', borderRadius: 8, padding: '5px 10px', fontSize: 13 }}>
-                {item.image && <img src={item.image} alt="" style={{ width: 28, height: 28, borderRadius: 5, objectFit: 'cover' }} />}
+                {item.image && <img src={item.image} alt="" style={{ width: 28, height: 28, borderRadius: 'var(--r-sm)', objectFit: 'cover' }} />}
                 <span style={{ color: 'var(--tx-333, #333)', fontWeight: 500 }}>{item.name}</span>
                 <span style={{ color: 'var(--tx-9aa5b1, #9aa5b1)' }}>×{item.qty}</span>
               </div>
@@ -193,7 +193,7 @@ function OrdersTab() {
 
           {open && (
             <div style={{ borderTop: '1px solid var(--bd-f0f0f0, #f0f0f0)', padding: '16px 20px' }}>
-              <div style={{ background: 'var(--bg-f8f9fa, #f8f9fa)', borderRadius: 10, padding: '12px 14px', marginBottom: 14 }}>
+              <div style={{ background: 'var(--bg-f8f9fa, #f8f9fa)', borderRadius: 'var(--r-md)', padding: '12px 14px', marginBottom: 14 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--tx-9aa5b1, #9aa5b1)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Delivery Address</div>
                 <div style={{ fontSize: 13, color: 'var(--tx-333, #333)', lineHeight: 1.7 }}>
                   <div><strong>{o.customer_name}</strong> · {o.customer_phone}</div>
@@ -226,7 +226,7 @@ function OrdersTab() {
               </div>
 
               {o.return_reason && (
-                <div style={{ background: 'var(--bg-ede7f6, #ede7f6)', borderRadius: 10, padding: '10px 14px', marginBottom: 14 }}>
+                <div style={{ background: 'var(--bg-ede7f6, #ede7f6)', borderRadius: 'var(--r-md)', padding: '10px 14px', marginBottom: 14 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--tx-4527a0, #4527a0)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Return Reason</div>
                   <div style={{ fontSize: 13, color: 'var(--tx-333, #333)' }}>{o.return_reason}</div>
                 </div>
@@ -319,7 +319,7 @@ function ProfileTab({ user, updateProfile, isMobile }) {
       </div>
 
       <button type="submit" disabled={busy || !dirty}
-        style={{ padding: '11px 26px', background: dirty ? BLUE : 'var(--bg-cbd5e1, #CBD5E1)', color: '#fff', border: 'none', borderRadius: 9, fontWeight: 700, cursor: busy ? 'wait' : dirty ? 'pointer' : 'default', fontFamily: 'inherit' }}>
+        style={{ padding: '11px 26px', background: dirty ? BLUE : 'var(--bg-cbd5e1, #CBD5E1)', color: '#fff', border: 'none', borderRadius: 'var(--r-md)', fontWeight: 700, cursor: busy ? 'wait' : dirty ? 'pointer' : 'default', fontFamily: 'inherit' }}>
         {busy ? 'Saving…' : 'Save changes'}
       </button>
     </form>
@@ -371,7 +371,7 @@ function PasswordTab({ user, updatePassword }) {
       <input type={show ? 'text' : 'password'} value={pw2} onChange={e => setPw2(e.target.value)} autoComplete="new-password" style={{ ...inp, maxWidth: 380, marginBottom: 18 }} />
       <div>
         <button type="submit" disabled={busy}
-          style={{ padding: '11px 26px', background: BLUE, color: '#fff', border: 'none', borderRadius: 9, fontWeight: 700, cursor: busy ? 'wait' : 'pointer', fontFamily: 'inherit' }}>
+          style={{ padding: '11px 26px', background: BLUE, color: '#fff', border: 'none', borderRadius: 'var(--r-md)', fontWeight: 700, cursor: busy ? 'wait' : 'pointer', fontFamily: 'inherit' }}>
           {busy ? 'Saving…' : hasPassword ? 'Change password' : 'Set password'}
         </button>
       </div>
@@ -410,7 +410,7 @@ export default function Account() {
             Sign in to see your orders, track deliveries and save your delivery address.
           </p>
           <Link to={`/login?next=${encodeURIComponent('/account' + (tab !== 'orders' ? `?tab=${tab}` : ''))}`}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 32px', background: NAVY, color: '#fff', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 15 }}>
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '13px 32px', background: NAVY, color: '#fff', borderRadius: 'var(--r-md)', textDecoration: 'none', fontWeight: 700, fontSize: 15 }}>
             <LogIn size={16} /> Sign in
           </Link>
           <div style={{ marginTop: 24, fontSize: 13, color: 'var(--tx-9aa5b1, #9aa5b1)' }}>

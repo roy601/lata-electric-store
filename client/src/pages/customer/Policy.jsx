@@ -39,7 +39,7 @@ export default function Policy() {
             const I = ICONS[key]; const active = key === slug;
             return (
               <Link key={key} to={`/policies/${key}`}
-                style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '10px 12px', borderRadius: 10, textDecoration: 'none', whiteSpace: 'nowrap', fontSize: 14, fontWeight: active ? 700 : 500,
+                style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '10px 12px', borderRadius: 'var(--r-md)', textDecoration: 'none', whiteSpace: 'nowrap', fontSize: 14, fontWeight: active ? 700 : 500,
                   color: active ? 'var(--tx-1565c0, #1565C0)' : 'var(--tx-475569, #475569)', background: active ? 'var(--bg-eef6ff, #EEF6FF)' : 'transparent' }}>
                 <I size={16} /> {label}
               </Link>
@@ -48,9 +48,9 @@ export default function Policy() {
         </nav>
 
         {/* Policy */}
-        <article style={{ background: 'var(--bg-fff, #fff)', borderRadius: 16, border: '1px solid var(--bd-edf0f3, #EDF0F3)', padding: isMobile ? '22px 18px' : '34px 40px' }}>
+        <article style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', border: '1px solid var(--bd-edf0f3, #EDF0F3)', padding: isMobile ? '22px 18px' : '34px 40px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-            <span style={{ width: 42, height: 42, borderRadius: 12, background: 'var(--bg-eef6ff, #EEF6FF)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Icon size={20} color="#1E88E5" /></span>
+            <span style={{ width: 42, height: 42, borderRadius: 'var(--r-md)', background: 'var(--bg-eef6ff, #EEF6FF)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Icon size={20} color="#1E88E5" /></span>
             <h1 style={{ margin: 0, fontSize: isMobile ? 22 : 27, fontWeight: 800, color: 'var(--tx-0f172a, #0F172A)', letterSpacing: -.3 }}>{policy.title}</h1>
           </div>
           <p style={{ fontSize: 15.5, color: 'var(--tx-334155, #334155)', lineHeight: 1.7, margin: '0 0 6px' }}>{policy.summary}</p>
@@ -65,7 +65,7 @@ export default function Policy() {
             </section>
           ))}
 
-          <div style={{ marginTop: 10, padding: '14px 16px', background: 'var(--bg-f8fafc, #F8FAFC)', borderRadius: 12, fontSize: 14, color: 'var(--tx-334155, #334155)' }}>
+          <div style={{ marginTop: 10, padding: '14px 16px', background: 'var(--bg-f8fafc, #F8FAFC)', borderRadius: 'var(--r-md)', fontSize: 14, color: 'var(--tx-334155, #334155)' }}>
             Questions? <Link to="/contact" style={{ color: '#1E88E5', fontWeight: 700, textDecoration: 'none' }}>Contact us</Link> — we're happy to help.
           </div>
         </article>

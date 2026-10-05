@@ -62,7 +62,7 @@ export default function OrderTracking() {
     <CustomerLayout>
       <div style={{ maxWidth: 700, margin: '0 auto', padding: '32px 16px' }}>
         {justPlaced && (
-          <div style={{ background: 'var(--bg-e8f5e9, #E8F5E9)', border: '1px solid #A5D6A7', borderRadius: 12, padding: '16px 18px', marginBottom: 24, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+          <div style={{ background: 'var(--bg-e8f5e9, #E8F5E9)', border: '1px solid #A5D6A7', borderRadius: 'var(--r-md)', padding: '16px 18px', marginBottom: 24, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
             <CheckCircle2 size={26} color="#2E7D32" style={{ flexShrink: 0 }} />
             <div>
               <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--tx-1b5e20, #1B5E20)', marginBottom: 4 }}>Thank you! Your order has been placed.</div>
@@ -104,7 +104,7 @@ export default function OrderTracking() {
         </form>
 
         {/* Login nudge */}
-        <div style={{ background: 'var(--bg-eef2ff, #EEF2FF)', border: '1px solid #C7D2FE', borderRadius: 10, padding: '12px 16px', marginBottom: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+        <div style={{ background: 'var(--bg-eef2ff, #EEF2FF)', border: '1px solid #C7D2FE', borderRadius: 'var(--r-md)', padding: '12px 16px', marginBottom: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
           <span style={{ fontSize: 13, color: 'var(--tx-374151, #374151)' }}>Have an account? View all your orders in one place.</span>
           <Link to="/account" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 13, fontWeight: 700, color: 'var(--tx-1e3a5f, #1E3A5F)', textDecoration: 'none' }}>
             <LogIn size={13} /> My Account →
@@ -118,7 +118,7 @@ export default function OrderTracking() {
         {order && !loading && (
           <>
             {/* Order info */}
-            <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, padding: 20, marginBottom: 24, boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+            <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', padding: 20, marginBottom: 24, boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1 }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, fontSize: 14 }}>
                 <div>
                   <div style={{ color: 'var(--tx-9aa5b1, #9aa5b1)', fontSize: 12 }}>ORDER ID</div>
@@ -142,7 +142,7 @@ export default function OrderTracking() {
 
             {/* Timeline */}
             {order.status !== 'cancelled' ? (
-              <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, padding: 24, marginBottom: 24, boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+              <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', padding: 24, marginBottom: 24, boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1 }}>
                 <h3 style={{ margin: '0 0 24px', fontSize: 15, fontWeight: 700 }}>Order Status</h3>
                 {STEPS.map((step, i) => {
                   const done   = i <= current;
@@ -164,13 +164,13 @@ export default function OrderTracking() {
                 })}
               </div>
             ) : (
-              <div style={{ background: 'var(--bg-f8d7da, #f8d7da)', color: 'var(--tx-842029, #842029)', borderRadius: 12, padding: 20, marginBottom: 24, textAlign: 'center', fontSize: 16, fontWeight: 600 }}>
+              <div style={{ background: 'var(--bg-f8d7da, #f8d7da)', color: 'var(--tx-842029, #842029)', borderRadius: 'var(--r-md)', padding: 20, marginBottom: 24, textAlign: 'center', fontSize: 16, fontWeight: 600 }}>
                 <X size={16} style={{ verticalAlign: 'middle', marginRight: 6 }} /> This order has been cancelled.
               </div>
             )}
 
             {/* Items */}
-            <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+            <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', padding: 20, boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1 }}>
               <h3 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 700 }}>Items Ordered</h3>
               {(order.items || []).map((item, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, padding: '8px 0', borderBottom: i < order.items.length - 1 ? '1px solid var(--bd-f8f9fa, #F8F9FA)' : 'none' }}>

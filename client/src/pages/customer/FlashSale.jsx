@@ -60,7 +60,7 @@ export default function FlashSalePage() {
 
           {/* Countdown */}
           {config?.flash_sale_ends && (
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(0,0,0,.3)', borderRadius: 12, padding: '12px 24px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(0,0,0,.3)', borderRadius: 'var(--r-md)', padding: '12px 24px' }}>
               <span style={{ fontSize: 12, opacity: .8, marginRight: 6, display: 'flex', alignItems: 'center', gap: 4 }}>{time.ended ? 'Sale ended' : <><Clock size={12} /> Time remaining</>}</span>
               {[{ val: time.h, label: 'HRS' }, { val: time.m, label: 'MIN' }, { val: time.s, label: 'SEC' }].map(({ val, label }, i) => (
                 <span key={label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -101,7 +101,7 @@ export default function FlashSalePage() {
             {/* Toolbar */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ background: '#DC3545', color: '#fff', padding: '4px 14px', borderRadius: 20, fontWeight: 700, fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 5 }}><Zap size={12} fill="currentColor" /> {products.length} Deals</span>
+                <span style={{ background: '#DC3545', color: '#fff', padding: '4px 14px', borderRadius: 'var(--r-md)', fontWeight: 700, fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 5 }}><Zap size={12} fill="currentColor" /> {products.length} Deals</span>
                 <span style={{ fontSize: 13, color: 'var(--tx-9aa5b1, #9aa5b1)' }}>Hurry — limited stock!</span>
               </div>
             </div>
@@ -116,13 +116,13 @@ export default function FlashSalePage() {
 
                 return (
                   <div key={p.id}
-                    style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, border: '1px solid #f0d0d0', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'box-shadow .2s, transform .15s', position: 'relative' }}
+                    style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', border: '1px solid #f0d0d0', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'box-shadow .2s, transform .15s', position: 'relative' }}
                     onMouseEnter={e => { e.currentTarget.style.boxShadow='0 6px 20px rgba(192,57,43,.15)'; e.currentTarget.style.transform='translateY(-3px)'; }}
                     onMouseLeave={e => { e.currentTarget.style.boxShadow='none'; e.currentTarget.style.transform='none'; }}>
 
                     {/* Discount badge */}
                     {disc && (
-                      <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 1, background: '#DC3545', color: '#fff', fontSize: 12, fontWeight: 800, padding: '3px 9px', borderRadius: 5 }}>-{disc}%</div>
+                      <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 1, background: '#DC3545', color: '#fff', fontSize: 12, fontWeight: 800, padding: '3px 9px', borderRadius: 'var(--r-sm)' }}>-{disc}%</div>
                     )}
 
                     {/* Image */}
@@ -133,7 +133,7 @@ export default function FlashSalePage() {
                           : <Package size={52} color="#ccc" />}
                         {!inStock && (
                           <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <span style={{ background: '#555', color: '#fff', fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 20 }}>Out of Stock</span>
+                            <span style={{ background: '#555', color: '#fff', fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 'var(--r-md)' }}>Out of Stock</span>
                           </div>
                         )}
                       </div>
@@ -174,11 +174,11 @@ export default function FlashSalePage() {
                           <button
                             onClick={() => { addToCart(p, { price }); }}
                             disabled={!inStock}
-                            style={{ flex: 1, padding: '8px 0', background: inStock ? 'var(--bg-fff, #fff)' : 'var(--bg-eee, #eee)', color: inStock ? '#1E88E5' : 'var(--tx-bbb, #bbb)', border: `1.5px solid ${inStock ? '#1E88E5' : 'var(--bd-eee, #eee)'}`, borderRadius: 7, fontWeight: 700, fontSize: 12, cursor: inStock ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                            style={{ flex: 1, padding: '8px 0', background: inStock ? 'var(--bg-fff, #fff)' : 'var(--bg-eee, #eee)', color: inStock ? '#1E88E5' : 'var(--tx-bbb, #bbb)', border: `1.5px solid ${inStock ? '#1E88E5' : 'var(--bd-eee, #eee)'}`, borderRadius: 'var(--r-sm)', fontWeight: 700, fontSize: 12, cursor: inStock ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
                             <ShoppingCart size={13} /> Cart
                           </button>
                           <Link to={`/products/${p.id}`}
-                            style={{ flex: 1, padding: '8px 0', background: inStock ? '#1E88E5' : 'var(--bg-ddd, #ddd)', color: '#fff', borderRadius: 7, fontWeight: 700, fontSize: 12, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: inStock ? 'auto' : 'none' }}>
+                            style={{ flex: 1, padding: '8px 0', background: inStock ? '#1E88E5' : 'var(--bg-ddd, #ddd)', color: '#fff', borderRadius: 'var(--r-sm)', fontWeight: 700, fontSize: 12, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: inStock ? 'auto' : 'none' }}>
                             Buy Now
                           </Link>
                         </div>

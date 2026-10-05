@@ -160,7 +160,7 @@ export default function AllProducts() {
       {brands.length > 0 && (
         <SidebarSection title="Brand">
           <input value={brandSearch} onChange={e => setBrandSearch(e.target.value)} placeholder="Search brands..."
-            style={{ width: '100%', padding: '6px 10px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 7, fontSize: 12, marginBottom: 8, boxSizing: 'border-box', outline: 'none' }}
+            style={{ width: '100%', padding: '6px 10px', border: '1px solid var(--bd-e0e0e0, #e0e0e0)', borderRadius: 'var(--r-sm)', fontSize: 12, marginBottom: 8, boxSizing: 'border-box', outline: 'none' }}
             onFocus={e => e.target.style.borderColor='#1E88E5'}
             onBlur={e => e.target.style.borderColor='var(--bd-e0e0e0, #e0e0e0)'} />
           <div style={{ maxHeight: 180, overflowY: 'auto', scrollbarWidth: 'thin' }}>
@@ -196,7 +196,7 @@ export default function AllProducts() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 16 }}>≡</span>
                 <span style={{ fontWeight: 800, fontSize: 15, color: 'var(--tx-212529, #212529)' }}>Filter & Sort</span>
-                {hasFilters && <span style={{ background: '#1E88E5', color: '#fff', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 12 }}>{[catFilter!=='all',!!subFilter,brandFilter!=='all',priceRange!==0,!!search].filter(Boolean).length} active</span>}
+                {hasFilters && <span style={{ background: '#1E88E5', color: '#fff', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 'var(--r-md)' }}>{[catFilter!=='all',!!subFilter,brandFilter!=='all',priceRange!==0,!!search].filter(Boolean).length} active</span>}
               </div>
               <button onClick={() => setFilterDrawerOpen(false)} style={{ background: 'var(--bg-f8f9fa, #F8F9FA)', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 13, cursor: 'pointer', color: 'var(--tx-333, #333)' }}>Done</button>
             </div>
@@ -212,7 +212,7 @@ export default function AllProducts() {
 
           {/* ══ SIDEBAR (desktop only) ══ */}
           {!isCompact && (
-            <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, border: '1px solid var(--bd-ebebeb, #ebebeb)', position: 'sticky', top: 78, overflow: 'hidden' }}>
+            <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', border: '1px solid var(--bd-ebebeb, #ebebeb)', position: 'sticky', top: 78, overflow: 'hidden' }}>
               <div style={{ padding: '14px 16px 12px', borderBottom: '1px solid var(--bd-f0f0f0, #f0f0f0)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                   <span style={{ fontSize: 16 }}>≡</span>
@@ -232,7 +232,7 @@ export default function AllProducts() {
           <div>
 
             {/* Toolbar */}
-            <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, border: '1px solid var(--bd-ebebeb, #ebebeb)', padding: isCompact ? '8px 12px' : '10px 16px', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', border: '1px solid var(--bd-ebebeb, #ebebeb)', padding: isCompact ? '8px 12px' : '10px 16px', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
 
               {/* Mobile: filter button */}
               {isCompact && (
@@ -254,31 +254,31 @@ export default function AllProducts() {
               {/* Filter chips */}
               <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', flex: 1, overflow: 'hidden' }}>
                 {catFilter !== 'all' && (
-                  <span style={{ background: 'var(--bg-e3f2fd, #E3F2FD)', color: '#1E88E5', fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 16, display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                  <span style={{ background: 'var(--bg-e3f2fd, #E3F2FD)', color: '#1E88E5', fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 'var(--r-md)', display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
                     {categories.find(c=>String(c.id)===catFilter)?.name}
                     <button onClick={() => setCatFilter('all')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1E88E5', fontSize: 14, lineHeight: 1, padding: 0 }}>×</button>
                   </span>
                 )}
                 {brandFilter !== 'all' && (
-                  <span style={{ background: 'var(--bg-e3f2fd, #E3F2FD)', color: '#1E88E5', fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 16, display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                  <span style={{ background: 'var(--bg-e3f2fd, #E3F2FD)', color: '#1E88E5', fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 'var(--r-md)', display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
                     {brandFilter}
                     <button onClick={() => setBrandFilter('all')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1E88E5', fontSize: 14, lineHeight: 1, padding: 0 }}>×</button>
                   </span>
                 )}
                 {priceRange !== 0 && (
-                  <span style={{ background: 'var(--bg-e3f2fd, #E3F2FD)', color: '#1E88E5', fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 16, display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                  <span style={{ background: 'var(--bg-e3f2fd, #E3F2FD)', color: '#1E88E5', fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 'var(--r-md)', display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
                     {PRICE_RANGES[priceRange].label}
                     <button onClick={() => setPriceRange(0)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1E88E5', fontSize: 14, lineHeight: 1, padding: 0 }}>×</button>
                   </span>
                 )}
                 {subFilter && (
-                  <span style={{ background: 'var(--bg-e3f2fd, #E3F2FD)', color: '#1E88E5', fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 16, display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                  <span style={{ background: 'var(--bg-e3f2fd, #E3F2FD)', color: '#1E88E5', fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 'var(--r-md)', display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
                     {subcats.find(s => String(s.id) === subFilter)?.header || 'Subcategory'}
                     <button onClick={() => setSubFilter('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1E88E5', fontSize: 14, lineHeight: 1, padding: 0 }}>×</button>
                   </span>
                 )}
                 {search && (
-                  <span style={{ background: 'var(--bg-e3f2fd, #E3F2FD)', color: '#1E88E5', fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 16, display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                  <span style={{ background: 'var(--bg-e3f2fd, #E3F2FD)', color: '#1E88E5', fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 'var(--r-md)', display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
                     "{search}"
                     <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1E88E5', fontSize: 14, lineHeight: 1, padding: 0 }}>×</button>
                   </span>
@@ -303,19 +303,19 @@ export default function AllProducts() {
             </div>
 
             {searchFellBack && !loading && (
-              <div style={{ background: 'var(--bg-fff8e1, #FFF8E1)', border: '1px solid #FFE082', color: 'var(--tx-7a5d00, #7a5d00)', borderRadius: 10, padding: '9px 14px', fontSize: 13, marginBottom: 10 }}>
+              <div style={{ background: 'var(--bg-fff8e1, #FFF8E1)', border: '1px solid #FFE082', color: 'var(--tx-7a5d00, #7a5d00)', borderRadius: 'var(--r-md)', padding: '9px 14px', fontSize: 13, marginBottom: 10 }}>
                 No exact matches for "<strong>{search}</strong>" — showing all products in {categories.find(c => String(c.id) === catFilter)?.name || 'this category'}.
               </div>
             )}
 
             {/* Products */}
             {loading ? (
-              <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, padding: 80, textAlign: 'center' }}>
+              <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', padding: 80, textAlign: 'center' }}>
                 <div style={{ width: 40, height: 40, border: '4px solid var(--bd-f0f0f0, #f0f0f0)', borderTop: '4px solid #1E88E5', borderRadius: '50%', animation: 'spin .8s linear infinite', margin: '0 auto' }} />
               </div>
 
             ) : paginated.length === 0 ? (
-              <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, padding: '60px 0', textAlign: 'center', color: 'var(--tx-9aa5b1, #9aa5b1)' }}>
+              <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', padding: '60px 0', textAlign: 'center', color: 'var(--tx-9aa5b1, #9aa5b1)' }}>
                 <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'center' }}><Search size={56} color="#ccc" /></div>
                 <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8, color: 'var(--tx-333, #333)' }}>{loadError ? 'Could not load products' : 'No products found'}</div>
                 <div style={{ fontSize: 13, marginBottom: 20 }}>{loadError ? 'Please check your connection and try again.' : 'Try adjusting your filters or search.'}</div>
@@ -354,12 +354,12 @@ function ListCard({ product: p }) {
   const inStock  = p.stock > 0;
 
   return (
-    <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 12, border: '1px solid var(--bd-ebebeb, #ebebeb)', display: 'flex', gap: 16, padding: 14, transition: 'box-shadow .2s' }}
+    <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', border: '1px solid var(--bd-ebebeb, #ebebeb)', display: 'flex', gap: 16, padding: 14, transition: 'box-shadow .2s' }}
       onMouseEnter={e => e.currentTarget.style.boxShadow='0 4px 16px rgba(0,0,0,.08)'}
       onMouseLeave={e => e.currentTarget.style.boxShadow='none'}>
 
       <div onClick={() => navigate(`/products/${p.id}`)}
-        style={{ width: 120, height: 120, background: 'var(--bg-f8f9fa, #f8f9fa)', borderRadius: 10, overflow: 'hidden', flexShrink: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        style={{ width: 120, height: 120, background: 'var(--bg-f8f9fa, #f8f9fa)', borderRadius: 'var(--r-md)', overflow: 'hidden', flexShrink: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {p.image ? <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 6 }} /> : <Package size={40} color="#ccc" />}
       </div>
 
@@ -374,9 +374,9 @@ function ListCard({ product: p }) {
         )}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           {inStock
-            ? <span style={{ fontSize: 11, fontWeight: 600, color: '#28A745', background: 'var(--bg-e8f5e9, #e8f5e9)', padding: '2px 8px', borderRadius: 12 }}>In Stock ({p.stock})</span>
-            : <span style={{ fontSize: 11, fontWeight: 600, color: '#1E88E5', background: 'var(--bg-fce4e4, #fce4e4)', padding: '2px 8px', borderRadius: 12 }}>Out of Stock</span>}
-          {p.flash_sale && <span style={{ fontSize: 11, fontWeight: 700, color: '#1E88E5', background: 'var(--bg-e3f2fd, #E3F2FD)', padding: '2px 8px', borderRadius: 12, display: 'inline-flex', alignItems: 'center', gap: 3 }}><Zap size={10} fill="currentColor" /> Flash Sale</span>}
+            ? <span style={{ fontSize: 11, fontWeight: 600, color: '#28A745', background: 'var(--bg-e8f5e9, #e8f5e9)', padding: '2px 8px', borderRadius: 'var(--r-md)' }}>In Stock ({p.stock})</span>
+            : <span style={{ fontSize: 11, fontWeight: 600, color: '#1E88E5', background: 'var(--bg-fce4e4, #fce4e4)', padding: '2px 8px', borderRadius: 'var(--r-md)' }}>Out of Stock</span>}
+          {p.flash_sale && <span style={{ fontSize: 11, fontWeight: 700, color: '#1E88E5', background: 'var(--bg-e3f2fd, #E3F2FD)', padding: '2px 8px', borderRadius: 'var(--r-md)', display: 'inline-flex', alignItems: 'center', gap: 3 }}><Zap size={10} fill="currentColor" /> Flash Sale</span>}
         </div>
       </div>
 
@@ -389,7 +389,7 @@ function ListCard({ product: p }) {
         <button
           onClick={() => { addToCart(p, { price }); }}
           disabled={!inStock}
-          style={{ padding: '9px 20px', background: inStock ? '#1E88E5' : 'var(--bg-e0e0e0, #e0e0e0)', color: '#fff', border: 'none', borderRadius: 9, fontWeight: 700, fontSize: 13, cursor: inStock ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6 }}>
+          style={{ padding: '9px 20px', background: inStock ? '#1E88E5' : 'var(--bg-e0e0e0, #e0e0e0)', color: '#fff', border: 'none', borderRadius: 'var(--r-md)', fontWeight: 700, fontSize: 13, cursor: inStock ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6 }}>
           {inStock ? <><ShoppingCart size={14} /> Add to Cart</> : 'Out of Stock'}
         </button>
       </div>

@@ -46,13 +46,8 @@ const CatIcon = ({ name, size = 15, color = 'currentColor' }) => {
 function SectionHeader({ title, Icon, onViewAll, viewAllLabel = 'View all', extra }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px 12px 18px', borderBottom: '1px solid var(--bd-f1f4f7, #F1F4F7)' }}>
-      {Icon && (
-        <span style={{ width: 34, height: 34, borderRadius: 10, background: 'var(--bg-eef6ff, #EEF6FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <Icon size={18} color="#1E88E5" />
-        </span>
-      )}
       <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', columnGap: 8 }}>
-        <span style={{ fontWeight: 800, fontSize: 16.5, color: 'var(--tx-0f172a, #0F172A)', letterSpacing: -.1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>{title}</span>
+        <span style={{ fontWeight: 700, fontSize: 18, color: 'var(--ink)', letterSpacing: '-0.02em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>{title}</span>
         {extra}
       </div>
       {onViewAll && (
@@ -88,7 +83,7 @@ function SideTile({ b, navigate, style }) {
   const clickable = !!bannerTarget(b);
   return (
     <div onClick={() => openBanner(b, navigate)} role={clickable ? 'link' : undefined}
-      style={{ borderRadius: 12, overflow: 'hidden', background: 'var(--bg-eef2f6, #EEF2F6)', cursor: clickable ? 'pointer' : 'default', position: 'relative', minHeight: 0, ...style }}
+      style={{ borderRadius: 'var(--r-md)', overflow: 'hidden', background: 'var(--bg-eef2f6, #EEF2F6)', cursor: clickable ? 'pointer' : 'default', position: 'relative', minHeight: 0, ...style }}
       onMouseEnter={e => { const i = e.currentTarget.querySelector('img'); if (i && clickable) i.style.transform = 'scale(1.03)'; }}
       onMouseLeave={e => { const i = e.currentTarget.querySelector('img'); if (i) i.style.transform = 'none'; }}>
       <img src={b.image} alt={b.title || ''} loading="lazy" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform .35s ease' }} />
@@ -122,17 +117,13 @@ function BannerCarousel({ banners }) {
 
   if (!banners.length) {
     return (
-      <div style={{ flex: 1, background: 'linear-gradient(135deg,#212529,#1565C0)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: '#fff', minHeight: 260 }}>
-        <div style={{ marginBottom: 4 }}><Zap size={48} fill="currentColor" /></div>
-        <div style={{ fontSize: 20, fontWeight: 800, marginTop: 10 }}>লতা ইলেকট্রিক</div>
-        <div style={{ color: 'var(--tx-9aa5b1, #9aa5b1)', fontSize: 12, marginTop: 6 }}>Add banners from Admin → Banners</div>
-      </div>
+      <div className="skel" aria-hidden="true" style={{ flex: 1, borderRadius: 'var(--r-md)', aspectRatio: '16 / 7', minHeight: 160 }} />
     );
   }
 
   const b = banners[cur];
   return (
-    <div style={{ flex: 1, position: 'relative', overflow: 'hidden', borderRadius: 10, cursor: b.product_id ? 'pointer' : 'default', userSelect: 'none' }}
+    <div style={{ flex: 1, position: 'relative', overflow: 'hidden', borderRadius: 'var(--r-md)', cursor: b.product_id ? 'pointer' : 'default', userSelect: 'none' }}
       onClick={() => { if (!dragging) openBanner(b, navigate); }}
       onMouseDown={onMouseDown} onMouseMove={onMouseMove}
       onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
@@ -145,7 +136,7 @@ function BannerCarousel({ banners }) {
               <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent,rgba(0,0,0,.65))', padding: '40px 24px 18px' }}>
                 {bn.title && <div style={{ color: '#fff', fontWeight: 800, fontSize: 'clamp(14px,1.8vw,22px)', textShadow: '0 2px 4px rgba(0,0,0,.5)' }}>{bn.title}</div>}
                 {bn.subtitle && <div style={{ color: 'rgba(255,255,255,.85)', fontSize: 12, marginTop: 3 }}>{bn.subtitle}</div>}
-                {bn.product_id && <div style={{ marginTop: 8, display: 'inline-block', background: '#1E88E5', color: '#fff', padding: '5px 14px', borderRadius: 6, fontSize: 12, fontWeight: 700 }}>Shop Now →</div>}
+                {bn.product_id && <div style={{ marginTop: 8, display: 'inline-block', background: '#1E88E5', color: '#fff', padding: '5px 14px', borderRadius: 'var(--r-sm)', fontSize: 12, fontWeight: 700 }}>Shop Now →</div>}
               </div>
             )}
           </div>
@@ -184,27 +175,26 @@ function FlashSaleSection({ products, flashConfig }) {
   if (!flashConfig?.flash_sale_active || products.length === 0) return null;
 
   return (
-    <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--bd-edf0f3, #EDF0F3)', boxShadow: '0 1px 3px rgba(15,23,42,.05)', minWidth: 0 }}>
-      {/* Red header */}
-      <div style={{ background: 'linear-gradient(90deg, #1565C0, #1E88E5)', padding: '10px 18px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-          <span style={{ background: '#DC3545', borderRadius: 6, padding: '2px 8px', fontSize: 12, fontWeight: 900, color: '#fff', display: 'inline-flex', alignItems: 'center', gap: 4 }}><Zap size={11} fill="currentColor" /> FLASH</span>
-          <span style={{ color: '#fff', fontWeight: 900, fontSize: 17, letterSpacing: .5 }}>Deals</span>
-          <span style={{ background: 'rgba(255,255,255,.2)', color: '#fff', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 12 }}>{products.length} deals</span>
+    <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', overflow: 'hidden', border: '1px solid var(--hairline)', minWidth: 0 }}>
+      {/* Header */}
+      <div style={{ background: '#0F172A', padding: '12px 18px', display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ background: '#FFB020', color: '#3B2300', padding: '3px 8px', fontSize: 13, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}><Zap size={13} fill="currentColor" /> Flash sale</span>
+          <span className="num" style={{ color: '#CBD5E1', fontSize: 13 }}>{products.length} items</span>
         </div>
         {/* Countdown */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
           <span style={{ color: 'rgba(255,255,255,.8)', fontSize: 12 }}>{time.ended ? 'Ended' : 'Ends in'}</span>
           {[time.h, time.m, time.s].map((val, i) => (
             <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-              <span style={{ background: '#212529', color: '#fff', fontWeight: 800, fontSize: 14, fontFamily: 'monospace', padding: '3px 7px', borderRadius: 5, minWidth: 28, textAlign: 'center' }}>{val}</span>
+              <span className="num" style={{ background: 'rgba(255,255,255,.1)', color: '#fff', fontWeight: 700, fontSize: 15, padding: '3px 7px', borderRadius: 'var(--r-sm)', minWidth: 30, textAlign: 'center' }}>{val}</span>
               {i < 2 && <span style={{ color: 'rgba(255,255,255,.7)', fontWeight: 700 }}>:</span>}
             </span>
           ))}
         </div>
         <button onClick={() => navigate('/flash-sale')}
-          style={{ marginLeft: 'auto', background: 'rgba(255,255,255,.15)', border: '1px solid rgba(255,255,255,.4)', color: '#fff', padding: '4px 14px', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-          View All Deals →
+          style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#fff', padding: '4px 0', fontSize: 14, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'inherit', textDecoration: 'underline', textUnderlineOffset: 4 }}>
+          See all
         </button>
       </div>
 
@@ -221,7 +211,7 @@ function FlashRail({ products }) {
 
 /* ─── Shared: Block wrapper ──────────────────────────────────── */
 const Block = ({ children, style = {} }) => (
-  <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--bd-edf0f3, #EDF0F3)', boxShadow: '0 1px 3px rgba(15,23,42,.05)', minWidth: 0, ...style }}>
+  <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', overflow: 'hidden', border: '1px solid var(--hairline)', minWidth: 0, ...style }}>
     {children}
   </div>
 );
@@ -383,9 +373,9 @@ export default function Home() {
         {/* ══════════════ ANNOUNCEMENT TICKER ══════════════ */}
         {shopSettings?.announcement_bar && (
           <div style={{ ...W, paddingTop: isMobile ? 8 : 12, paddingBottom: 0 }}>
-            <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 50, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,.06)', border: '1px solid var(--bd-ebebeb, #EBEBEB)', height: 38, display: 'flex', alignItems: 'center' }}>
-              <div style={{ flexShrink: 0, background: '#1E88E5', borderRadius: 50, padding: '4px 14px', margin: '0 12px', fontSize: 11, fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', letterSpacing: .3 }}>
-                NOTICE
+            <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-sm)', overflow: 'hidden', border: '1px solid var(--hairline)', height: 38, display: 'flex', alignItems: 'center' }}>
+              <div style={{ flexShrink: 0, alignSelf: 'stretch', display: 'flex', alignItems: 'center', background: 'var(--ink)', padding: '0 12px', marginRight: 12, fontSize: 12.5, fontWeight: 600, color: 'var(--bg-fff, #fff)', whiteSpace: 'nowrap' }}>
+                Notice
               </div>
               <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
                 <div style={{ whiteSpace: 'nowrap', fontSize: 13, color: 'var(--tx-374151, #374151)', fontWeight: 500, animation: 'marquee 28s linear infinite' }}>
@@ -498,17 +488,16 @@ export default function Home() {
             {/* Toolbar */}
             <div style={{ padding: isMobile ? '10px 12px' : '12px 18px', borderBottom: '1px solid var(--bd-f8f9fa, #F8F9FA)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: isMobile ? 8 : 0 }}>
-                <div style={{ width: 3, height: 20, background: '#1E88E5', borderRadius: 2, flexShrink: 0 }} />
-                <span style={{ fontWeight: 800, fontSize: isMobile ? 14 : 16, color: 'var(--tx-212529, #212529)' }}>All Products</span>
+                <span style={{ fontWeight: 700, fontSize: isMobile ? 17 : 20, color: 'var(--ink)', letterSpacing: '-0.02em' }}>All products</span>
                 {catFilter !== 'all' && (
-                  <span style={{ background: '#212529', color: '#fff', fontSize: 11, fontWeight: 600, padding: '2px 10px', borderRadius: 16 }}>
+                  <span style={{ background: '#212529', color: '#fff', fontSize: 11, fontWeight: 600, padding: '2px 10px', borderRadius: 'var(--r-md)' }}>
                     {categories.find(c => String(c.id) === catFilter)?.name}
                   </span>
                 )}
                 <span style={{ fontSize: 12, color: 'var(--tx-9aa5b1, #9aa5b1)' }}>{gridTotal} items</span>
                 {(search || catFilter !== 'all') && (
                   <button onClick={() => { setSearch(''); setCatFilter('all'); setPage(1); }}
-                    style={{ padding: '4px 10px', fontSize: 11, color: '#1E88E5', background: 'none', border: '1px solid #1E88E5', borderRadius: 16, cursor: 'pointer' }}>
+                    style={{ padding: '4px 10px', fontSize: 11, color: '#1E88E5', background: 'none', border: '1px solid #1E88E5', borderRadius: 'var(--r-md)', cursor: 'pointer' }}>
                     × Clear
                   </button>
                 )}
@@ -593,7 +582,7 @@ export default function Home() {
               <div style={{ padding: isMobile ? '14px 12px' : '16px 18px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(auto-fill,minmax(170px,1fr))', gap: isMobile ? 10 : 14 }}>
                   {electricians.map(el => (
-                    <div key={el.id} style={{ background: 'var(--bg-f8f9fa, #F8F9FA)', borderRadius: 14, padding: '18px 14px 14px', textAlign: 'center', border: '1px solid var(--bd-ebebeb, #ebebeb)', transition: 'box-shadow .2s, transform .15s' }}
+                    <div key={el.id} style={{ background: 'var(--bg-f8f9fa, #F8F9FA)', borderRadius: 'var(--r-md)', padding: '18px 14px 14px', textAlign: 'center', border: '1px solid var(--bd-ebebeb, #ebebeb)', transition: 'box-shadow .2s, transform .15s' }}
                       onMouseEnter={e => { e.currentTarget.style.boxShadow='0 6px 20px rgba(30,136,229,.12)'; e.currentTarget.style.transform='translateY(-3px)'; }}
                       onMouseLeave={e => { e.currentTarget.style.boxShadow='none'; e.currentTarget.style.transform='none'; }}>
                       {/* Avatar */}
@@ -605,7 +594,7 @@ export default function Home() {
                       {/* Name */}
                       <div style={{ fontWeight: 800, fontSize: isMobile ? 13 : 14, color: 'var(--tx-212529, #212529)', marginBottom: 5, lineHeight: 1.3 }}>{el.name}</div>
                       {/* Role badge */}
-                      <div style={{ display: 'inline-block', background: 'var(--bg-e3f2fd, #E3F2FD)', color: '#1E88E5', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 16, marginBottom: el.phone ? 8 : 0 }}>{el.role}</div>
+                      <div style={{ display: 'inline-block', background: 'var(--bg-e3f2fd, #E3F2FD)', color: '#1E88E5', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 'var(--r-md)', marginBottom: el.phone ? 8 : 0 }}>{el.role}</div>
                       {/* Phone */}
                       {el.phone && (
                         <a href={`tel:${el.phone.replace(/[^+\d]/g,'')}`}

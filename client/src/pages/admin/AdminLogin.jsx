@@ -158,7 +158,7 @@ const styles = {
     alignItems:     'center',
     justifyContent: 'center',
     background:     'linear-gradient(135deg, #212529 0%, #16213e 50%, #1565C0 100%)',
-    fontFamily:     "'Hind Siliguri', 'Segoe UI', system-ui, sans-serif",
+    fontFamily:     'var(--font)',
     padding:        '1rem',
   },
   card: {

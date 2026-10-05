@@ -318,10 +318,10 @@ export default function Checkout() {
 
         {/* ── Guest banner ── */}
         {!user && !dismissed && (
-          <div style={{ background: 'var(--bg-fff, #fff)', border: '1.5px solid var(--bd-e5e7eb, #E5E7EB)', borderRadius: 14, marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,.05)' }}>
+          <div style={{ background: 'var(--bg-fff, #fff)', border: '1.5px solid var(--bd-e5e7eb, #E5E7EB)', borderRadius: 'var(--r-md)', marginBottom: 20, boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1 }}>
             <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
               {/* icon */}
-              <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg,#1E3A5F,#1E88E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 'var(--r-md)', background: 'linear-gradient(135deg,#1E3A5F,#1E88E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <User size={18} color="#fff" />
               </div>
               {/* text */}
@@ -357,7 +357,7 @@ export default function Checkout() {
 
             {/* ── STEP 1: SHIPPING ── */}
             {step === 1 && (
-              <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 14, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+              <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', padding: 24, boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1 }}>
                 <h3 style={{ margin: '0 0 20px', fontSize: 15, fontWeight: 800, color: 'var(--tx-0f172a, #0F172A)' }}>Shipping Information</h3>
 
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 12 }}>
@@ -437,7 +437,7 @@ export default function Checkout() {
                 )}
 
                 <button onClick={goNext}
-                  style={{ width: '100%', padding: '14px', background: CRM, color: '#fff', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: 'inherit' }}
+                  style={{ width: '100%', padding: '14px', background: CRM, color: '#fff', border: 'none', borderRadius: 'var(--r-md)', fontWeight: 700, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: 'inherit' }}
                   onMouseEnter={e => e.currentTarget.style.background = '#A3112F'}
                   onMouseLeave={e => e.currentTarget.style.background = CRM}>
                   Continue to Payment <ChevronRight size={16} />
@@ -447,7 +447,7 @@ export default function Checkout() {
 
             {/* ── STEP 2: PAYMENT ── */}
             {step === 2 && (
-              <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 14, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+              <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', padding: 24, boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1 }}>
                 <h3 style={{ margin: '0 0 20px', fontSize: 15, fontWeight: 800, color: 'var(--tx-0f172a, #0F172A)' }}>Payment Method</h3>
 
                 {/* Method selector cards */}
@@ -458,7 +458,7 @@ export default function Checkout() {
                     const ac = isBkash ? BKASH : isNagad ? '#F47920' : BLUE;
                     return (
                       <label key={m} onClick={() => { upd('payment', m); upd('txId', ''); }}
-                        style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 10, border: `2px solid ${form.payment === m ? ac : 'var(--bd-e2e8f0, #E2E8F0)'}`, background: form.payment === m ? (isBkash ? 'var(--bg-fff0f6, #FFF0F6)' : isNagad ? 'var(--bg-fff8f0, #FFF8F0)' : 'var(--bg-eff6ff, #EFF6FF)') : 'var(--bg-fff, #fff)', cursor: 'pointer', transition: 'all .15s' }}>
+                        style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 'var(--r-md)', border: `2px solid ${form.payment === m ? ac : 'var(--bd-e2e8f0, #E2E8F0)'}`, background: form.payment === m ? (isBkash ? 'var(--bg-fff0f6, #FFF0F6)' : isNagad ? 'var(--bg-fff8f0, #FFF8F0)' : 'var(--bg-eff6ff, #EFF6FF)') : 'var(--bg-fff, #fff)', cursor: 'pointer', transition: 'all .15s' }}>
                         <input type="radio" name="payment" checked={form.payment === m} onChange={() => { upd('payment', m); upd('txId',''); }} style={{ accentColor: ac }} />
                         <div style={{ flex: 1 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -480,7 +480,7 @@ export default function Checkout() {
 
                 {/* ── bKash merchant panel ── */}
                 {form.payment === 'bKash' && bkashNum && (
-                  <div style={{ background: 'var(--bg-fff0f6, #FFF0F6)', border: '1.5px solid #FBCFE8', borderRadius: 14, padding: 20, marginBottom: 20 }}>
+                  <div style={{ background: 'var(--bg-fff0f6, #FFF0F6)', border: '1.5px solid #FBCFE8', borderRadius: 'var(--r-md)', padding: 20, marginBottom: 20 }}>
                     {/* Header */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, paddingBottom: 14, borderBottom: '1px solid #FBCFE8' }}>
                       <div style={{ background: BKASH, padding: '5px 14px', borderRadius: 8 }}>
@@ -508,7 +508,7 @@ export default function Checkout() {
                     </div>
 
                     {/* Merchant number */}
-                    <div style={{ background: 'var(--bg-fff, #fff)', border: '1.5px solid #FBCFE8', borderRadius: 10, padding: '12px 16px', marginBottom: 12 }}>
+                    <div style={{ background: 'var(--bg-fff, #fff)', border: '1.5px solid #FBCFE8', borderRadius: 'var(--r-md)', padding: '12px 16px', marginBottom: 12 }}>
                       <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--tx-9ca3af, #9CA3AF)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: .5 }}>Merchant Number</div>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                         <span style={{ fontSize: 24, fontWeight: 800, color: 'var(--tx-831843, #831843)', letterSpacing: 1.5 }}>{bkashNum}</span>
@@ -519,7 +519,7 @@ export default function Checkout() {
                     </div>
 
                     {/* Amount badge */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-fce7f3, #FCE7F3)', borderRadius: 10, padding: '10px 16px', marginBottom: 16 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-fce7f3, #FCE7F3)', borderRadius: 'var(--r-md)', padding: '10px 16px', marginBottom: 16 }}>
                       <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--tx-831843, #831843)' }}>Amount to Send</span>
                       <span style={{ fontSize: 22, fontWeight: 800, color: BKASH }}>৳{total.toLocaleString('en-BD')}</span>
                     </div>
@@ -545,14 +545,14 @@ export default function Checkout() {
 
                 {/* ── Nagad panel ── */}
                 {form.payment === 'Nagad' && nagadNum && (
-                  <div style={{ background: 'var(--bg-fff8f0, #FFF8F0)', border: '1.5px solid #FED7AA', borderRadius: 14, padding: 20, marginBottom: 20 }}>
+                  <div style={{ background: 'var(--bg-fff8f0, #FFF8F0)', border: '1.5px solid #FED7AA', borderRadius: 'var(--r-md)', padding: 20, marginBottom: 20 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, paddingBottom: 12, borderBottom: '1px solid #FED7AA' }}>
                       <div style={{ background: '#F47920', padding: '5px 14px', borderRadius: 8 }}>
                         <span style={{ color: '#fff', fontWeight: 900, fontSize: 16 }}>Nagad</span>
                       </div>
                       <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--tx-92400e, #92400E)' }}>Pay to Merchant</div>
                     </div>
-                    <div style={{ background: 'var(--bg-fff, #fff)', border: '1.5px solid #FED7AA', borderRadius: 10, padding: '12px 16px', marginBottom: 12 }}>
+                    <div style={{ background: 'var(--bg-fff, #fff)', border: '1.5px solid #FED7AA', borderRadius: 'var(--r-md)', padding: '12px 16px', marginBottom: 12 }}>
                       <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--tx-9ca3af, #9CA3AF)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: .5 }}>Merchant Number</div>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                         <span style={{ fontSize: 24, fontWeight: 800, color: 'var(--tx-92400e, #92400E)', letterSpacing: 1.5 }}>{nagadNum}</span>
@@ -561,7 +561,7 @@ export default function Checkout() {
                         </button>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-fef3c7, #FEF3C7)', borderRadius: 10, padding: '10px 16px', marginBottom: 14 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-fef3c7, #FEF3C7)', borderRadius: 'var(--r-md)', padding: '10px 16px', marginBottom: 14 }}>
                       <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--tx-92400e, #92400E)' }}>Amount to Send</span>
                       <span style={{ fontSize: 22, fontWeight: 800, color: '#F47920' }}>৳{total.toLocaleString('en-BD')}</span>
                     </div>
@@ -577,11 +577,11 @@ export default function Checkout() {
                 )}
 
                 <div style={{ display: 'flex', gap: 10 }}>
-                  <button onClick={() => setStep(1)} style={{ flex: 1, padding: '12px', background: 'var(--bg-f3f4f6, #F3F4F6)', color: 'var(--tx-374151, #374151)', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  <button onClick={() => setStep(1)} style={{ flex: 1, padding: '12px', background: 'var(--bg-f3f4f6, #F3F4F6)', color: 'var(--tx-374151, #374151)', border: 'none', borderRadius: 'var(--r-md)', fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>
                     ← Back
                   </button>
                   <button onClick={goNext}
-                    style={{ flex: 2, padding: '12px', background: CRM, color: '#fff', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: 'inherit' }}
+                    style={{ flex: 2, padding: '12px', background: CRM, color: '#fff', border: 'none', borderRadius: 'var(--r-md)', fontWeight: 700, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: 'inherit' }}
                     onMouseEnter={e => e.currentTarget.style.background = '#A3112F'}
                     onMouseLeave={e => e.currentTarget.style.background = CRM}>
                     Review Order <ChevronRight size={15} />
@@ -594,7 +594,7 @@ export default function Checkout() {
             {step === 3 && (
               <div>
                 {/* Shipping summary */}
-                <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 14, padding: '20px 24px', boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: 14 }}>
+                <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', padding: '20px 24px', boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1, marginBottom: 14 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                     <h3 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: 'var(--tx-0f172a, #0F172A)' }}>Shipping Details</h3>
                     <button onClick={() => setStep(1)} style={{ fontSize: 12, color: BLUE, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit' }}>Edit</button>
@@ -608,7 +608,7 @@ export default function Checkout() {
                 </div>
 
                 {/* Payment summary */}
-                <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 14, padding: '20px 24px', boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: 14 }}>
+                <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', padding: '20px 24px', boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1, marginBottom: 14 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                     <h3 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: 'var(--tx-0f172a, #0F172A)' }}>Payment Method</h3>
                     <button onClick={() => setStep(2)} style={{ fontSize: 12, color: BLUE, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit' }}>Edit</button>
@@ -623,7 +623,7 @@ export default function Checkout() {
                 </div>
 
                 {/* Items review */}
-                <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 14, padding: '20px 24px', boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: 20 }}>
+                <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', padding: '20px 24px', boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1, marginBottom: 20 }}>
                   <h3 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 800, color: 'var(--tx-0f172a, #0F172A)' }}>Order Items ({items.reduce((s, i) => s + i.qty, 0)})</h3>
                   {items.map(i => (
                     <div key={i.key || i.id} style={{ display: 'flex', gap: 12, alignItems: 'center', paddingBottom: 10, marginBottom: 10, borderBottom: '1px solid var(--bd-f3f4f6, #F3F4F6)' }}>
@@ -641,11 +641,11 @@ export default function Checkout() {
                 </div>
 
                 <div style={{ display: 'flex', gap: 10 }}>
-                  <button onClick={() => setStep(2)} style={{ flex: 1, padding: '12px', background: 'var(--bg-f3f4f6, #F3F4F6)', color: 'var(--tx-374151, #374151)', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  <button onClick={() => setStep(2)} style={{ flex: 1, padding: '12px', background: 'var(--bg-f3f4f6, #F3F4F6)', color: 'var(--tx-374151, #374151)', border: 'none', borderRadius: 'var(--r-md)', fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>
                     ← Back
                   </button>
                   <button onClick={place} disabled={placing}
-                    style={{ flex: 2, padding: '14px', background: placing ? 'var(--bg-ccc, #ccc)' : CRM, color: '#fff', border: 'none', borderRadius: 10, fontWeight: 800, fontSize: 15, cursor: placing ? 'not-allowed' : 'pointer', fontFamily: 'inherit', transition: 'background .15s' }}
+                    style={{ flex: 2, padding: '14px', background: placing ? 'var(--bg-ccc, #ccc)' : CRM, color: '#fff', border: 'none', borderRadius: 'var(--r-md)', fontWeight: 800, fontSize: 15, cursor: placing ? 'not-allowed' : 'pointer', fontFamily: 'inherit', transition: 'background .15s' }}
                     onMouseEnter={e => !placing && (e.currentTarget.style.background = '#A3112F')}
                     onMouseLeave={e => !placing && (e.currentTarget.style.background = CRM)}>
                     {placing ? 'Placing Order…' : 'Place Order →'}
@@ -657,10 +657,10 @@ export default function Checkout() {
 
           {/* ════ RIGHT: ORDER SUMMARY (sticky) ════ */}
           <div style={{ position: isMobile ? 'static' : 'sticky', top: 80 }}>
-            <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 14, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+            <div style={{ background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', padding: 20, boxShadow: 'none', outline: '1px solid var(--hairline)', outlineOffset: -1 }}>
               <h3 style={{ margin: '0 0 16px', fontSize: 14, fontWeight: 800, color: 'var(--tx-0f172a, #0F172A)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 Order Summary
-                <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--tx-6b7280, #6B7280)', background: 'var(--bg-f3f4f6, #F3F4F6)', borderRadius: 20, padding: '2px 8px' }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--tx-6b7280, #6B7280)', background: 'var(--bg-f3f4f6, #F3F4F6)', borderRadius: 'var(--r-md)', padding: '2px 8px' }}>
                   {items.reduce((s, i) => s + i.qty, 0)} item{items.reduce((s, i) => s + i.qty, 0) !== 1 ? 's' : ''}
                 </span>
               </h3>
