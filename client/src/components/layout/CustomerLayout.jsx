@@ -476,7 +476,7 @@ export default function CustomerLayout({ children }) {
   );
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font)', background: 'var(--bg-f8f9fa, #F8F9FA)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font)', background: 'var(--page)' }}>
 
       {/* Top info bar */}
       {!isMobile && (
@@ -741,7 +741,7 @@ export default function CustomerLayout({ children }) {
       <main style={{ flex: 1 }}>{children}</main>
 
       {/* Footer */}
-      <footer style={{ background: '#212529', color: 'var(--tx-9aa5b1, #9aa5b1)', padding: isMobile ? '24px 16px 80px' : '32px 16px 16px', marginTop: 8 }}>
+      <footer style={{ background: '#0F172A', color: '#94A3B8', padding: isMobile ? '28px 16px 84px' : '44px 16px 18px', marginTop: isMobile ? 24 : 40 }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))', gap: isMobile ? 20 : 24, marginBottom: 20 }}>
             <div>

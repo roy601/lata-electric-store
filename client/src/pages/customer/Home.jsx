@@ -206,7 +206,7 @@ function FlashSaleSection({ products, flashConfig }) {
 
 function FlashRail({ products }) {
   const { isMobile } = useBreakpoint();
-  return <ProductRail products={products} cardWidth={isMobile ? 152 : 176} compact={isMobile} />;
+  return <ProductRail products={products} cardWidth={isMobile ? 152 : 176} compact={isMobile} fade="var(--bg-fff, #fff)" />;
 }
 
 /* ─── Shared: Block wrapper ──────────────────────────────────── */
@@ -368,7 +368,7 @@ export default function Home() {
         @keyframes marquee { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
       `}</style>
 
-      <div style={{ background: 'var(--bg-fff, #fff)', paddingBottom: 32 }}>
+      <div style={{ background: 'linear-gradient(180deg, var(--tint-top) 0px, var(--page) 640px)', paddingBottom: 8 }}>
 
         {/* ══════════════ ANNOUNCEMENT TICKER ══════════════ */}
         {shopSettings?.announcement_bar && (

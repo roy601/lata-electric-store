@@ -119,7 +119,7 @@ export function TrustStrip({ settings }) {
       href: wa ? `https://wa.me/${wa.startsWith('0') ? '88' + wa : wa}` : null, to: '/contact' },
   ];
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)', borderTop: '1px solid var(--hairline)', borderBottom: '1px solid var(--hairline)' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)', background: 'var(--bg-fff, #fff)', border: '1px solid var(--panel-edge)', borderRadius: 'var(--r-md)', overflow: 'hidden' }}>
       {items.map(({ title, sub, to, href }, i) => {
         const inner = (
           <div style={{ padding: isMobile ? '12px 10px' : '16px 20px', height: '100%', boxSizing: 'border-box',

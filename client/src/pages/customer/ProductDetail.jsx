@@ -475,11 +475,16 @@ export default function ProductDetail() {
     { Icon: MessageCircle, label: 'WhatsApp',  action: () => window.open(`https://wa.me/?text=${encodeURIComponent(product.name + ' ' + window.location.href)}`, '_blank') },
   ];
 
+  // White panels on the grey page (edge to edge on phones)
+  const panel = isMobile
+    ? { background: 'var(--bg-fff, #fff)', margin: '10px -10px 0', padding: '22px 14px', borderTop: '1px solid var(--panel-edge)', borderBottom: '1px solid var(--panel-edge)' }
+    : { background: 'var(--bg-fff, #fff)', marginTop: 16, padding: '32px 36px', border: '1px solid var(--panel-edge)', borderRadius: 'var(--r-md)' };
+
   const row = { display: 'flex', gap: 10, padding: '11px 0', borderTop: '1px solid var(--hairline)', fontSize: 13.5, lineHeight: 1.45 };
 
   return (
     <CustomerLayout>
-      <div style={{ background: 'var(--bg-fff, #fff)' }}>
+      <div style={{ background: 'var(--page)' }}>
         <div style={{ maxWidth: 1260, margin: '0 auto', padding: isMobile ? '12px 10px 32px' : '18px 14px 56px' }}>
 
           {/* Breadcrumb */}
@@ -491,7 +496,7 @@ export default function ProductDetail() {
           </nav>
 
           {/* ═══ Top: photos · details · buy box ═══ */}
-          <div style={{ display: 'grid', gridTemplateColumns: wide ? 'minmax(0, 5fr) minmax(0, 4.2fr) minmax(0, 3fr)' : isMobile ? '1fr' : 'minmax(0, 1fr) minmax(0, 1fr)', gap: isMobile ? 18 : 32, alignItems: 'start' }}>
+          <div style={{ ...panel, marginTop: 0, padding: isMobile ? '0 10px 18px' : 28, display: 'grid', gridTemplateColumns: wide ? 'minmax(0, 5fr) minmax(0, 4.2fr) minmax(0, 3fr)' : isMobile ? '1fr' : 'minmax(0, 1fr) minmax(0, 1fr)', gap: isMobile ? 18 : 32, alignItems: 'start' }}>
 
             <Gallery images={images} name={product.name} isMobile={isMobile} galleryRef={galleryRef} />
 
@@ -643,7 +648,7 @@ export default function ProductDetail() {
 
           {/* ═══ Details: description + specifications side by side ═══ */}
           {(features.length > 0 || specs.length > 0) && (
-            <Reveal as="section" id="details" style={{ marginTop: isMobile ? 32 : 52, paddingTop: isMobile ? 24 : 36, borderTop: '1px solid var(--hairline)', scrollMarginTop: 90 }}>
+            <Reveal as="section" id="details" style={{ ...panel, scrollMarginTop: 90 }}>
               <div style={{ display: 'grid', gridTemplateColumns: wide && features.length && specs.length ? 'minmax(0, 1.1fr) minmax(0, 1fr)' : '1fr', gap: isMobile ? 28 : 56, alignItems: 'start' }}>
                 {features.length > 0 && (
                   <div>
@@ -671,13 +676,13 @@ export default function ProductDetail() {
           )}
 
           {/* ═══ Reviews ═══ */}
-          <Reveal style={{ marginTop: isMobile ? 32 : 52, paddingTop: isMobile ? 24 : 36, borderTop: '1px solid var(--hairline)' }}>
+          <Reveal style={panel}>
             <ReviewSection productId={product.id} onStats={setRevStats} />
           </Reveal>
 
           {/* ═══ Related ═══ */}
           {related.length > 0 && (
-            <Reveal as="section" style={{ marginTop: isMobile ? 32 : 52, paddingTop: isMobile ? 24 : 36, borderTop: '1px solid var(--hairline)' }}>
+            <Reveal as="section" style={{ marginTop: isMobile ? 24 : 36 }}>
               <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12 }}>
                 <h2 style={sectionTitle(isMobile)}>More in {product.categories?.name || 'this category'}</h2>
                 {product.categories && <Link to={`/products?cat=${product.categories.id}`} className="more-link" style={{ fontSize: 14, fontWeight: 600, marginBottom: 14, whiteSpace: 'nowrap' }}>See all</Link>}

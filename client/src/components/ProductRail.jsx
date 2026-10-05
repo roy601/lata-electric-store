@@ -76,7 +76,7 @@ function Arrow({ dir, onClick, show, size = 38 }) {
  * Auto-slide pauses while hovered/touched/focused, when off-screen or the tab is
  * hidden, and is off for visitors who prefer reduced motion.
  */
-export default function ProductRail({ products, cardWidth = 176, autoPlay = true, compact = false, renderCard }) {
+export default function ProductRail({ products, cardWidth = 176, autoPlay = true, compact = false, renderCard, fade = 'var(--page)' }) {
   const ref = useRef(null);
   const wrapRef = useRef(null);
   const pausedUntil = useRef(0);
@@ -135,8 +135,8 @@ export default function ProductRail({ products, cardWidth = 176, autoPlay = true
       onMouseEnter={() => { hovering.current = true; }} onMouseLeave={() => { hovering.current = false; }}
       onTouchStart={() => { pausedUntil.current = Date.now() + RESUME_AFTER_MS; }}>
       {/* soft edges where more products are hidden */}
-      <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: 28, zIndex: 1, pointerEvents: 'none', background: 'linear-gradient(90deg,var(--bg-fff, #fff),rgba(255,255,255,0))', opacity: edges.left ? 1 : 0, transition: 'opacity .2s' }} />
-      <div style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: 28, zIndex: 1, pointerEvents: 'none', background: 'linear-gradient(270deg,var(--bg-fff, #fff),rgba(255,255,255,0))', opacity: edges.right ? 1 : 0, transition: 'opacity .2s' }} />
+      <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: 28, zIndex: 1, pointerEvents: 'none', background: `linear-gradient(90deg, ${fade}, transparent)`, opacity: edges.left ? 1 : 0, transition: 'opacity .2s' }} />
+      <div style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: 28, zIndex: 1, pointerEvents: 'none', background: `linear-gradient(270deg, ${fade}, transparent)`, opacity: edges.right ? 1 : 0, transition: 'opacity .2s' }} />
       <Arrow dir="left"  show={edges.left}  onClick={() => scrollByCards(-1)} size={compact ? 32 : 38} />
       <Arrow dir="right" show={edges.right} onClick={() => scrollByCards(1)}  size={compact ? 32 : 38} />
 
