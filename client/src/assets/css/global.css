@@ -150,3 +150,13 @@ body { background: var(--page); }
 /* Chart colour (validated: light #1E88E5, dark #3D95E8) */
 :root { --chart: #1E88E5; }
 :root[data-theme="dark"] { --chart: #3D95E8; }
+
+/* Small entrance animations (checkout and forms) */
+.slide-in { animation: slideIn .28s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes slideIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.slide-up { animation: slideUp .35s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
+.pop-in { animation: popIn .32s cubic-bezier(.3,1.6,.5,1) both; }
+@keyframes popIn { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: scale(1); } }
+.spin { animation: spin .8s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .slide-in, .slide-up, .pop-in { animation: none; } }

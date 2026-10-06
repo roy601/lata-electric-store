@@ -11,7 +11,7 @@ const remember = (id) => {
   document.cookie = `lata_popup=${id}; max-age=${60 * 60 * 24 * 180}; path=/; SameSite=Lax${location.protocol === 'https:' ? '; Secure' : ''}`;
 };
 // Don't interrupt someone paying or signing in
-const QUIET = /^\/(checkout|cart|login|register|reset-password|track)/;
+const QUIET = /^\/(checkout|cart|login|register|reset-password|track|order-placed)/;
 
 export default function PromoPopup() {
   const [banner, setBanner] = useState(null);

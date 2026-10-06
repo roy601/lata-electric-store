@@ -35,6 +35,7 @@ const FlashSalePage  = lazy(() => import('./pages/customer/FlashSale'));
 const WishlistPage   = lazy(() => import('./pages/customer/Wishlist'));
 const AccountPage    = lazy(() => import('./pages/customer/Account'));
 const TrackingPage   = lazy(() => import('./pages/customer/OrderTracking'));
+const OrderPlaced    = lazy(() => import('./pages/customer/OrderPlaced'));
 const AboutPage      = lazy(() => import('./pages/customer/About'));
 const ContactPage    = lazy(() => import('./pages/customer/Contact'));
 const AuthPage          = lazy(() => import('./pages/customer/AuthPage'));
@@ -75,6 +76,7 @@ export default function App() {
             <Route path="/wishlist"           element={<WishlistPage />} />
             <Route path="/account"            element={<AccountPage />} />
             <Route path="/track/:orderId?"    element={<TrackingPage />} />
+            <Route path="/order-placed/:orderId" element={<OrderPlaced />} />
             <Route path="/about"              element={<AboutPage />} />
             <Route path="/contact"            element={<ContactPage />} />
             <Route path="/electricians"       element={<ElectriciansPage />} />
