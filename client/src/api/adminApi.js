@@ -76,6 +76,9 @@ export const aiDeleteConversation = (id)     => api.delete(`/ai/conversations/${
 export const aiChat = (conversationId, message) =>
   api.post('/ai/chat', { conversation_id: conversationId, message }, { timeout: 120_000 });
 // Product writer: drafts only — saving uses updateProduct
+// Reports (same maths as the AI assistant)
+export const getReport        = (from, to)       => api.get('/reports', { params: { from, to } });
+export const getReportSummary = (from, to, lang) => api.post('/reports/summary', { from, to, language: lang }, { timeout: 90_000 });
 export const aiWriterQueue = ()          => api.get('/ai/writer/queue');
 export const aiWriterDraft = (productId) => api.post('/ai/writer/draft', { product_id: productId }, { timeout: 90_000 });
 

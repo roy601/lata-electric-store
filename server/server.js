@@ -29,6 +29,7 @@ const electricianRoutes = require('./routes/electricians');
 const dashboardRoutes   = require('./routes/dashboard');
 const aiRoutes          = require('./routes/ai');
 const shopAiRoutes      = require('./routes/shopAi');
+const reportRoutes      = require('./routes/reports');
 
 const app  = express();
 const PORT = process.env.PORT || 5000;
@@ -85,6 +86,7 @@ app.use('/api/electricians',  electricianRoutes);
 app.use('/api/dashboard',     dashboardRoutes);
 app.use('/api/ai',            aiRoutes);
 app.use('/api/shop-ai',       shopAiRoutes);   // public storefront assistant
+app.use('/api/reports',       reportRoutes);
 
 /* ─── Static uploads ── */
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
