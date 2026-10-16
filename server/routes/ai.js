@@ -41,4 +41,12 @@ router.post('/chat', askLimiter, handle(async (req) => {
   return assistant.chat(req.admin, { conversationId: conversation_id || null, text: message });
 }));
 
+/* Product writer — drafts only; saving goes through PATCH /api/products/:id */
+router.get('/writer/queue', handle(async () => ({ products: await assistant.productsNeedingCopy() })));
+router.post('/writer/draft', askLimiter, handle(async (req) => {
+  const id = parseInt(req.body?.product_id, 10);
+  if (!Number.isInteger(id) || id < 1) throw new assistant.AssistantError('Choose a product.');
+  return { draft: await assistant.writeProductDraft(req.admin, id) };
+}));
+
 module.exports = router;

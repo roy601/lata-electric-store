@@ -54,7 +54,7 @@ class OpenAICompatibleProvider {
     Object.assign(this, { name, baseURL: baseURL.replace(/\/+$/, ''), apiKey, model, extraBody });
   }
 
-  async chat({ system, messages, tools, maxTokens = 4096 }) {
+  async chat({ system, messages, tools = [], maxTokens = 4096, json: jsonMode = false }) {
     let res;
     try {
       res = await fetch(`${this.baseURL}/chat/completions`, {
@@ -64,8 +64,12 @@ class OpenAICompatibleProvider {
           model: this.model,
           max_tokens: maxTokens,
           messages: toOpenAIMessages(system, messages),
-          tools: tools.map(t => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.input_schema } })),
-          tool_choice: 'auto',
+          // no tools → plain answer (some providers reject an empty tool list)
+          ...(tools.length && {
+            tools: tools.map(t => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.input_schema } })),
+            tool_choice: 'auto',
+          }),
+          ...(jsonMode && { response_format: { type: 'json_object' } }),
           ...this.extraBody,
         }),
         signal: AbortSignal.timeout(90_000),

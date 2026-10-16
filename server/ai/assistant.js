@@ -11,6 +11,7 @@ const { AnthropicProvider } = require('./provider');
 const { OpenAICompatibleProvider, FallbackProvider } = require('./openaiProvider');
 const { toolDefinitions, runTool } = require('./tools');
 const { todayDhaka }        = require('./analytics');
+const writer                = require('./writer');
 
 /* ── Providers (server/.env) ─────────────────────────────────────────
  * AI_PROVIDERS = comma-separated order to try, e.g. "cerebras,groq,ollama".
@@ -245,6 +246,25 @@ const chat = async (admin, { conversationId, text }) => {
   return { conversation_id: convo.id, title: convo.title, message: saved, answered_by: answeredBy };
 };
 
+/* ── Product writer (Phase 3): drafts only, the admin saves ─────── */
+const writeProductDraft = async (admin, productId) => {
+  if (!isConfigured()) throw new AssistantError('The AI assistant is not set up. Add a free CEREBRAS_API_KEY or GROQ_API_KEY to the server environment.', 503);
+  const usage = await getUsage(admin.id);
+  if (usage.paid && usage.month_cost_usd >= CONFIG.monthlyBudget) throw new AssistantError(`This month's AI budget ($${CONFIG.monthlyBudget}) has been used.`, 429);
+  try {
+    const draft = await writer.draftProduct(getProvider(), productId);
+    await recordUsage(admin.id, draft.usage);
+    logger.info(`AI product draft for #${productId} by admin ${admin.id} via ${draft.provider}`);
+    const { usage: _u, ...rest } = draft;
+    return rest;
+  } catch (err) {
+    if (err.status && !err.provider) throw new AssistantError(err.message, err.status);
+    const described = getProvider().describeError(err);
+    logger.error(`AI product draft failed: ${err.message}`);
+    throw new AssistantError(described?.message || 'The AI writer failed. Please try again.', described?.status || 500);
+  }
+};
+
 const getStatus = async (adminId) => ({
   configured: isConfigured(),
   providers: provider?.names || [],
@@ -253,6 +273,7 @@ const getStatus = async (adminId) => ({
 
 module.exports = {
   chat, getStatus, listConversations, getConversation, deleteConversation,
+  writeProductDraft, productsNeedingCopy: writer.productsNeedingCopy, getProvider, isConfigured, replyLanguage: (t) => replyLanguage(t),
   AssistantError, CONFIG, SYSTEM_PROMPT,
   _internal: { setProvider: (p) => { provider = p; } },   // for tests
 };

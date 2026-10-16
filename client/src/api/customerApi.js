@@ -20,6 +20,11 @@ export const placeOrder = async (body) => customerApi.post('/orders', body, { he
 
 export const validateCoupon = (code, subtotal) => customerApi.post('/coupons/validate', { code, subtotal });
 
+// Shop assistant (public): messages = [{ role: 'user'|'assistant', content }]
+export const shopAiStatus = () => customerApi.get('/shop-ai/status');
+export const shopAiChat = (messages, productId) =>
+  customerApi.post('/shop-ai/chat', { messages, product_id: productId || undefined }, { timeout: 90_000 });
+
 /** Orders for the signed-in customer (verified server-side from their Supabase session). */
 export const getMyOrders = async () => {
   const { data: { session } } = await supabase.auth.getSession();

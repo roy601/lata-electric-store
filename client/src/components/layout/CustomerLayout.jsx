@@ -1,5 +1,6 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, lazy, Suspense } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import {
   Menu, X, Zap, Heart, Package, ShoppingCart, Search, User,
   Home as HomeIcon, FolderOpen, MapPin, Phone, Clock,
@@ -16,6 +17,8 @@ import { fetchCategoryCounts, fetchSuggestions } from '../../lib/catalog';
 import { POLICY_LINKS } from '../../content/policies';
 import CartSidebar from '../CartSidebar';
 import PromoPopup from '../PromoPopup';
+// loaded only when a shopper opens the chat
+const ShopAssistant = lazy(() => import('../ShopAssistant'));
 import ThemeToggle from '../common/ThemeToggle';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 
@@ -826,61 +829,16 @@ export default function CustomerLayout({ children }) {
       {/* ── Floating buttons ── */}
       <div className="float-stack" style={{ position: 'fixed', bottom: isMobile ? 76 : 24, right: 16, zIndex: 500, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
 
-        {/* Contact popup */}
+        {/* Chat: shop assistant + WhatsApp / Messenger / call */}
         {contactOpen && (
           <>
-            <div onClick={() => setContactOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 498 }} />
-            <div style={{ position: 'absolute', bottom: 110, right: 0, background: 'var(--bg-fff, #fff)', borderRadius: 'var(--r-md)', boxShadow: '0 8px 40px rgba(0,0,0,.18)', width: 280, zIndex: 499, overflow: 'hidden' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px 12px' }}>
-                <span style={{ fontWeight: 800, fontSize: 15, color: 'var(--tx-111827, #111827)' }}>Contact us</span>
-                <button onClick={() => setContactOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--tx-9aa5b1, #9aa5b1)', fontSize: 18, lineHeight: 1, padding: 2 }}>×</button>
-              </div>
-              <div style={{ padding: '0 10px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {[
-                  branding.whatsapp && {
-                    label: 'WhatsApp',
-                    sub: 'Chat with us instantly',
-                    bg: '#25D366',
-                    href: `https://wa.me/${(branding.whatsapp || '').replace(/[^+\d]/g, '')}`,
-                    icon: (
-                      <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.555 4.118 1.528 5.847L0 24l6.335-1.652A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.6a9.6 9.6 0 01-4.904-1.345l-.352-.208-3.624.945.974-3.521-.228-.361A9.6 9.6 0 012.4 12c0-5.293 4.307-9.6 9.6-9.6s9.6 4.307 9.6 9.6-4.307 9.6-9.6 9.6z"/></svg>
-                    ),
-                  },
-                  branding.facebook && {
-                    label: 'Messenger',
-                    sub: 'Chat on Facebook',
-                    bg: '#0099FF',
-                    href: `https://m.me/${branding.facebook.replace(/.*facebook\.com\//,'').replace(/\//,'')}`,
-                    icon: (
-                      <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M12 0C5.373 0 0 5.18 0 11.573c0 3.636 1.822 6.874 4.667 9.007V24l4.253-2.34c1.136.315 2.34.484 3.58.484 6.627 0 12-5.18 12-11.571S18.627 0 12 0zm1.193 15.567l-3.056-3.26-5.963 3.26L10.986 8.4l3.13 3.26 5.89-3.26-6.813 7.167z"/></svg>
-                    ),
-                  },
-                  branding.phone && {
-                    label: 'Call Us',
-                    sub: branding.phone,
-                    bg: '#C0143C',
-                    href: `tel:${(branding.phone || '').replace(/[^+\d]/g, '')}`,
-                    icon: (
-                      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.82 19.79 19.79 0 01.01 1.18 2 2 0 012 .01h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
-                    ),
-                  },
-                ].filter(Boolean).map(({ label, sub, bg, href, icon }) => (
-                  <a key={label} href={href} target={label !== 'Call Us' ? '_blank' : undefined} rel="noopener noreferrer"
-                    style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 10px', borderRadius: 'var(--r-md)', border: '1px solid var(--bd-f3f4f6, #F3F4F6)', textDecoration: 'none', background: 'var(--bg-fff, #fff)', transition: 'background .15s' }}
-                    onMouseEnter={e => e.currentTarget.style.background='var(--bg-f9fafb, #F9FAFB)'}
-                    onMouseLeave={e => e.currentTarget.style.background='var(--bg-fff, #fff)'}>
-                    <div style={{ width: 44, height: 44, borderRadius: '50%', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      {icon}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--tx-111827, #111827)' }}>{label}</div>
-                      <div style={{ fontSize: 12, color: 'var(--tx-6b7280, #6B7280)', marginTop: 1 }}>{sub}</div>
-                    </div>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                  </a>
-                ))}
-              </div>
-            </div>
+            {!isMobile && <div onClick={() => setContactOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 498 }} />}
+            <Suspense fallback={null}>
+              {/* desktop: anchored above the chat button; phones: full screen on the page itself */}
+              {isMobile
+                ? createPortal(<ShopAssistant branding={branding} isMobile onClose={() => setContactOpen(false)} />, document.body)
+                : <ShopAssistant branding={branding} isMobile={false} onClose={() => setContactOpen(false)} />}
+            </Suspense>
           </>
         )}
 

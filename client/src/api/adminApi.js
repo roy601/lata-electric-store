@@ -75,6 +75,9 @@ export const aiDeleteConversation = (id)     => api.delete(`/ai/conversations/${
 // Answers can take a while (several tool calls), so allow up to 2 minutes
 export const aiChat = (conversationId, message) =>
   api.post('/ai/chat', { conversation_id: conversationId, message }, { timeout: 120_000 });
+// Product writer: drafts only — saving uses updateProduct
+export const aiWriterQueue = ()          => api.get('/ai/writer/queue');
+export const aiWriterDraft = (productId) => api.post('/ai/writer/draft', { product_id: productId }, { timeout: 90_000 });
 
 /** Pull a readable message out of an axios error. */
 export const errMsg = (err, fallback = 'Something went wrong') =>
