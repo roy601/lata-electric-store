@@ -84,11 +84,15 @@ Business definitions:
 - There is no cost-price or expense data, so you cannot calculate profit or margin. Say so if asked.
 - Products deleted from the catalogue still appear in sales history (in_catalogue=false).
 
-Style: reply in the admin's language (Bangla or English). Be concise and practical. Use short paragraphs or bullet points, and bold for key figures.`;
+Style: reply in the language the system note names for this question. Be concise and practical. Use short paragraphs or bullet points, and bold for key figures.
+When writing Bangla use plain, natural shop Bangla and these terms: order = অর্ডার, pending = অপেক্ষমাণ (নতুন), confirmed = কনফার্মড, shipped = পাঠানো হয়েছে, delivered = ডেলিভারি হয়েছে, cancelled = বাতিল, returned = ফেরত, paid = পরিশোধিত, unpaid / not yet paid = এখনো পরিশোধ হয়নি, cash on delivery = ক্যাশ অন ডেলিভারি, stock = স্টক, revenue / sales = বিক্রি. Keep product names, numbers and ৳ amounts as they are.`;
 
-const systemBlocks = () => [
+// Answer in the language of the question: any Bangla letters → Bangla, otherwise English
+const replyLanguage = (text) => (/[ঀ-৿]/.test(String(text || '')) ? 'Bangla (বাংলা)' : 'English');
+
+const systemBlocks = (question) => [
   { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
-  { type: 'text', text: `Today is ${todayDhaka()} (Bangladesh time).` },
+  { type: 'text', text: `Today is ${todayDhaka()} (Bangladesh time). Write this answer in ${replyLanguage(question)}.` },
 ];
 
 /* ── Limits ──────────────────────────────────────────────────────── */
@@ -184,7 +188,7 @@ const chat = async (admin, { conversationId, text }) => {
 
   try {
     for (let step = 0; step < CONFIG.maxSteps; step++) {
-      const res = await llm.chat({ system: systemBlocks(), messages, tools, maxTokens: CONFIG.maxTokens });
+      const res = await llm.chat({ system: systemBlocks(question), messages, tools, maxTokens: CONFIG.maxTokens });
       answeredBy = res.provider || answeredBy;
       await recordUsage(admin.id, res.usage);
 
